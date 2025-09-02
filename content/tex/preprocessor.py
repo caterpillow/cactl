@@ -141,7 +141,7 @@ def processwithcomments(caption, instream, outstream, listingslang):
             commands[command] = value.lstrip()
     for rcommand in sorted(set(requiredcommands) - set(commands)):
         error = error + "Missing command: " + rcommand + ". "
-    if end>=0:
+    if end >= 0:
         nsource = nsource.rstrip() + source[end:]
     nsource = nsource.strip()
 
@@ -175,7 +175,8 @@ def processwithcomments(caption, instream, outstream, listingslang):
             out.append(r"\rightcaption{%s%d lines}" % (hsh, len(nsource.split("\n"))))
         langstr = ", language="+listingslang
         out.append(r"\begin{lstlisting}[caption={%s}%s]" % (pathescape(caption), langstr))
-        out.append(nsource)
+        out.append(nsource.replace("    ", "\t"))
+        # out.append(nsource)
         out.append(r"\end{lstlisting}")
 
     for line in out:

@@ -16,26 +16,26 @@
 struct BCC { 
     int n, m, t; 
     vt<vt<pair<int, int>>> adj;
-	vector<pair<int, int>> edges;
+    vector<pair<int, int>> edges;
     vt<vt<int>> comps; // lists of edges of bcc
     vt<int> tin, stk, is_art, is_bridge;
  
     void init(int _n, vt<pair<int, int>> &_edges) {
         n = _n;
-		edges = _edges;
-		m = size(edges);
+        edges = _edges;
+        m = size(edges);
         adj.resize(n);
-		F0R (i, m) {
-			auto [u, v] = edges[i];
-			adj[u].pb({v, i});
-			adj[v].pb({u, i});
-		}
-		t = 0;
+        F0R (i, m) {
+            auto [u, v] = edges[i];
+            adj[u].pb({v, i});
+            adj[v].pb({u, i});
+        }
+        t = 0;
         tin = is_art = vt<int>(n);
-		is_bridge.resize(m);
+        is_bridge.resize(m);
         F0R (u, n) if (!tin[u]) dfs(u, -1); 
-		// if we include bridges as 2-node bcc
-		F0R (i, m) if (is_bridge[i]) comps.pb({i});
+        // if we include bridges as 2-node bcc
+        F0R (i, m) if (is_bridge[i]) comps.pb({i});
     }
  
     int dfs(int u, int par) {
@@ -49,7 +49,7 @@ struct BCC {
                 int si = size(stk), up = dfs(v, ei);
                 dp = min(dp, up);
                 if (up == me) {
-					is_art[u] = 1;
+                    is_art[u] = 1;
                     stk.pb(ei);
                     comps.pb({si + all(stk)});
                     stk.resize(si);

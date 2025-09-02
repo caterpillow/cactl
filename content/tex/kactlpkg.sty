@@ -12,7 +12,10 @@
 \usepackage{tocloft}                    % Custom Table of Contents
 \usepackage{titletoc}                   % Design control over Table of Contents
 \usepackage{ifthen}                     % To enable some conditional programming in LaTeX
-\usepackage{courier}                    % To get bold typewriter typeface
+\usepackage[T1]{fontenc}
+\usepackage[scaled=0.9]{DejaVuSansMono} % optional scale
+\renewcommand{\ttdefault}{DejaVuSansMono-TLF}
+
 \usepackage{graphicx}                   % To rotate page numbers
 \usepackage{fix-cm}                     % Large font sizes
 \usepackage{paralist}                   % For compact enumerations
@@ -42,7 +45,7 @@
 
 \newcommand{\enablecolors}{
 	\lstset{basicstyle=\footnotesize\ttfamily\color{mygreen}}
-	\lstset{commentstyle=\color{darkgray}\normalfont\itshape}
+	\lstset{commentstyle=\color{darkgray}\ttfamily\itshape}
 	\lstset{keywordstyle=\color{myblue}}
 	\lstset{identifierstyle=\color{black}}
 }
@@ -162,7 +165,7 @@
 \newcommand*{\caret}{%
   \begingroup
     \fontencoding{T1}%
-    \fontfamily{pcr}% Courier
+	\fontfamily{pcr}
     \selectfont
     \string^%
   \endgroup
@@ -176,7 +179,7 @@
     \fontencoding{T1}%
     \fontfamily{pcr}% Courier
     \selectfont
-	\scalebox{1.5}[1]{\color{black!80}{\{}}%
+	\scalebox{1.0}[1]{\color{black!80}{\{}}%
   \endgroup
 }
 \newcommand*{\nicerbrace}{%
@@ -184,9 +187,24 @@
     \fontencoding{T1}%
     \fontfamily{pcr}% Courier
     \selectfont
-	\scalebox{1.5}[1]{\color{black!80}{\}}}%
+	\scalebox{1.0}[1]{\color{black!80}{\}}}%
   \endgroup
 }
+
+\usepackage{graphicx}
+
+\newcommand*{\nicezero}{%
+  \begingroup
+    \ttfamily
+    \sbox0{0}%
+    \makebox[\wd0][c]{%
+      \copy0%
+      \kern-0.875\wd0
+      \raisebox{0.25ex}{\scalebox{0.75}[0.7]{\textbf{/}}}% 0.7 = shrink vertically
+    }%
+  \endgroup
+}
+
 
 \definecolor{mygreen}{HTML}{007000}
 \definecolor{myblue}{HTML}{0000dd}
@@ -201,7 +219,9 @@
 \lstset{breaklines=true}
 \lstset{basicstyle=\footnotesize\ttfamily}
 \lstset{commentstyle=\normalfont\itshape}
-\lstset{literate={^}{\caret}{1} {~}{\tilde}{1} {\{}{\nicelbrace}{1} {\}}{\nicerbrace}{1}}
+% \lstset{columns=fullflexible}
+% \lstset{literate={^}{\caret}{1} {~}{\tilde}{1} {\{}{\nicelbrace}{1} {\}}{\nicerbrace}{1}}
+% \lstset{literate={0}{\nicezero}{1}}
 \lstset{emptylines=*1}
 \lstset{inputencoding=utf8}
 \lstset{aboveskip=3pt}
@@ -221,7 +241,7 @@
 	\begin{center}
 		\strut % Magic
 		\vspace{3cm}\\
-		\includegraphics[width=3cm]{\@unilogo}\\
+		\includegraphics[width=8cm]{\@unilogo}\\
 		{\fontsize{25}{30}\selectfont \@unilong\\}
 		{\fontsize{60}{60}\selectfont \@teamname\\}
 		\vspace{0.5cm}
