@@ -10,38 +10,34 @@
 #pragma once
 
 template<class T> T edmondsKarp(vector<unordered_map<int, T>>&
-		graph, int source, int sink) {
-	assert(source != sink);
+		adj, int s, int t) {
+	assert(s != t);
 	T flow = 0;
-	vi par(sz(graph)), q = par;
-
-	for (;;) {
+	vt<int> par(size(adj)), q = par;
+    while (1) {
 		fill(all(par), -1);
-		par[source] = 0;
 		int ptr = 1;
-		q[0] = source;
-
-		rep(i,0,ptr) {
-			int x = q[i];
-			for (auto e : graph[x]) {
-				if (par[e.first] == -1 && e.second > 0) {
-					par[e.first] = x;
-					q[ptr++] = e.first;
-					if (e.first == sink) goto out;
+		q[0] = s, par[s] = 0;
+        F0R (i, ptr) {
+			int u = q[i];
+            for (auto &[v, c] : adj[u]) {
+				if (par[v] == -1 && c) {
+					par[v] = u, q[ptr++] = v;
+					if (v == t) goto out;
 				}
 			}
 		}
-		return flow;
-out:
+        return flow;
+    out:
 		T inc = numeric_limits<T>::max();
-		for (int y = sink; y != source; y = par[y])
-			inc = min(inc, graph[par[y]][y]);
+		for (int y = t; y != s; y = par[y])
+			inc = min(inc, adj[par[y]][y]);
 
 		flow += inc;
-		for (int y = sink; y != source; y = par[y]) {
+		for (int y = t; y != s; y = par[y]) {
 			int p = par[y];
-			if ((graph[p][y] -= inc) <= 0) graph[p].erase(y);
-			graph[y][p] += inc;
+			if ((adj[p][y] -= inc) <= 0) adj[p].erase(y);
+			adj[y][p] += inc;
 		}
 	}
 }

@@ -1,41 +1,42 @@
 /**
- * Author: Lukas Polacek
- * Date: 2009-10-28
+ * Author: caterpillow
+ * Date: 2025-09-01
  * License: CC0
- * Source: Czech graph algorithms book, by Demel. (Tarjan's algorithm)
+ * Source: idk
  * Description: Finds strongly connected components in a
- * directed graph. If vertices $u, v$ belong to the same component,
- * we can reach $u$ from $v$ and vice versa.
- * Usage: scc(graph, [\&](vi\& v) { ... }) visits all components
- * in reverse topological order. comp[i] holds the component
- * index of a node (a component only has edges to components with
- * lower index). ncomps will contain the number of components.
+ * directed graph. \texttt{comps} is top-sorted.
  * Time: O(E + V)
- * Status: Bruteforce-tested for N <= 5
+ * Status: good i think
  */
 #pragma once
 
-vi val, comp, z, cont;
-int Time, ncomps;
-template<class G, class F> int dfs(int j, G& g, F& f) {
-	int low = val[j] = ++Time, x; z.push_back(j);
-	for (auto e : g[j]) if (comp[e] < 0)
-		low = min(low, val[e] ?: dfs(e,g,f));
-
-	if (low == val[j]) {
-		do {
-			x = z.back(); z.pop_back();
-			comp[x] = ncomps;
-			cont.push_back(x);
-		} while (x != j);
-		f(cont); cont.clear();
-		ncomps++;
-	}
-	return val[j] = low;
-}
-template<class G, class F> void scc(G& g, F f) {
-	int n = sz(g);
-	val.assign(n, 0); comp.assign(n, -1);
-	Time = ncomps = 0;
-	rep(i,0,n) if (comp[i] < 0) dfs(i, g, f);
-}
+struct SCC {
+    int n; 
+    vt<vt<int>> adj, radj;
+    vt<int> todo, seen, comp, comps; // comps is top sorted
+    void init(int _n) { 
+        n = _n; 
+        adj = radj = vt<vt<int>>(n);
+        comp.resize(n, -1);
+        seen.resize(n); 
+    }
+    void ae(int u, int v) { 
+        adj[u].pb(v); 
+        radj[v].pb(u); 
+    }
+    void dfs(int u) {
+        if (seen[u]++) return;
+        for (int v : adj[u]) dfs(v); 
+        todo.pb(u);
+    }
+    void rdfs(int u, int w) {
+        comp[u] = w;
+        for (int v : radj[u]) if (comp[v] == -1) rdfs(v, w); 
+    }
+    void gen() {
+        F0R (i, n) dfs(i);
+        reverse(all(todo));
+        for (int u : todo) if (comp[u] == -1) 
+            rdfs(u, u), comps.pb(u);
+    }
+};

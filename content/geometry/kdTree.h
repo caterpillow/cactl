@@ -1,74 +1,64 @@
 /**
- * Author: Stanford
- * Date: Unknown
- * Source: Stanford Notebook
- * Description: KD-tree (2d, can be extended to 3d)
- * Status: Tested on excellentengineers
+ * Author: caterpillow
+ * Date: 2025-08-26
+ * Source: me
+ * Description: KD-tree (2d)
+ * Status: uhhh idk
  */
 #pragma once
 
 #include "Point.h"
 
-typedef long long T;
-typedef Point<T> P;
-const T INF = numeric_limits<T>::max();
-
-bool on_x(const P& a, const P& b) { return a.x < b.x; }
-bool on_y(const P& a, const P& b) { return a.y < b.y; }
-
+using P = array<int, 2>;
 struct Node {
-	P pt; // if this is a leaf, the single point in it
-	T x0 = INF, x1 = -INF, y0 = INF, y1 = -INF; // bounds
-	Node *first = 0, *second = 0;
+    #define _sq(x) (x) * (x)
+    P lo, hi;
+    struct Node *lc, *rc;
 
-	T distance(const P& p) { // min squared distance to a point
-		T x = (p.x < x0 ? x0 : p.x > x1 ? x1 : p.x);
-		T y = (p.y < y0 ? y0 : p.y > y1 ? y1 : p.y);
-		return (P(x,y) - p).dist2();
-	}
+    ll dist2(const P &a, const P &b) const { 
+        return 1ll * _sq(a[0] - b[0]) + 1ll * _sq(a[1] - b[1]); 
+    }
 
-	Node(vector<P>&& vp) : pt(vp[0]) {
-		for (P p : vp) {
-			x0 = min(x0, p.x); x1 = max(x1, p.x);
-			y0 = min(y0, p.y); y1 = max(y1, p.y);
-		}
-		if (vp.size() > 1) {
-			// split on x if width >= height (not ideal...)
-			sort(all(vp), x1 - x0 >= y1 - y0 ? on_x : on_y);
-			// divide by taking half the array for each child (not
-			// best performance with many duplicates in the middle)
-			int half = sz(vp)/2;
-			first = new Node({vp.begin(), vp.begin() + half});
-			second = new Node({vp.begin() + half, vp.end()});
-		}
-	}
-};
+    ll dist2(P &p) {
+		#define _loc(i) (p[i] < lo[i] ? lo[i] : (p[i] > hi[i] ? hi[i] : p[i]))
+		return dist2(p, {_loc(0), _loc(1)});
+        // ll res = 0;
+        // F0R (i, 2) {
+        //     ll tmp = (p[i] < lo[i] ? lo[i] - p[i] : 0) + (hi[i] < p[i] ? p[i] - hi[i] : 0);
+        //     res += tmp * tmp;
+        // }
+        // return res;
+    }
 
-struct KDTree {
-	Node* root;
-	KDTree(const vector<P>& vp) : root(new Node({all(vp)})) {}
+    template<class ptr>
+    Node (ptr l, ptr r, int d) : lc(0), rc(0) {
+        lo = {inf, inf}, hi = {-inf, -inf};
+        for (ptr p = l; p < r; p++) {
+            F0R (i, 2) lo[i] = min(lo[i], (*p)[i]), hi[i] = max(hi[i], (*p)[i]);
+        }
+        if (r - l == 1) return;
+        ptr m = l + (r - l) / 2;
+        nth_element(l, m, r, [&] (auto a, auto b) { return a[d] < b[d]; });
+        lc = new Node(l, m, d ^ 1);
+        rc = new Node(m, r, d ^ 1);
+    }
 
-	pair<T, P> search(Node *node, const P& p) {
-		if (!node->first) {
-			// uncomment if we should not find the point itself:
-			// if (p == node->pt) return {INF, P()};
-			return make_pair((p - node->pt).dist2(), node->pt);
-		}
+    void search(P p, ll &best) {
+        if (lc) { // rc will also exist
+            ll dl = lc->dist2(p), dr = rc->dist2(p);
+            if (dl > dr) swap(lc, rc), dr = dl;
+            lc->search(p, best);
+            if (dr < best) rc->search(p, best);
+        } else best = min(best, dist2(p, lo));
+    } 
 
-		Node *f = node->first, *s = node->second;
-		T bfirst = f->distance(p), bsec = s->distance(p);
-		if (bfirst > bsec) swap(bsec, bfirst), swap(f, s);
-
-		// search closest side first, other side if needed
-		auto best = search(f, p);
-		if (bsec < best.first)
-			best = min(best, search(s, p));
-		return best;
-	}
-
-	// find nearest point to a point, and its squared distance
-	// (requires an arbitrary operator< for Point)
-	pair<T, P> nearest(const P& p) {
-		return search(root, p);
-	}
+    // fill pq with k infinities for nearest k points
+    void search(P p, priority_queue<ll> &pq) {
+        if (lc) {
+            ll dl = lc->dist2(p), dr = rc->dist2(p);
+            if (dl > dr) swap(lc, rc), dr = dl;
+            lc->search(p, pq);
+            if (dr < pq.top()) rc->search(p, pq);
+        } else pq.push(dist2(p, lo)), pq.pop();
+    }
 };

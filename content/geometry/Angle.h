@@ -17,8 +17,8 @@
 struct Angle {
 	int x, y;
 	int t;
-	Angle(int x, int y, int t=0) : x(x), y(y), t(t) {}
-	Angle operator-(Angle b) const { return {x-b.x, y-b.y, t}; }
+	Angle(int x, int y, int t = 0) : x(x), y(y), t(t) {}
+	Angle operator-(Angle b) const { return {x - b.x, y - b.y, t}; }
 	int half() const {
 		assert(x || y);
 		return y < 0 || (y == 0 && x < 0);
@@ -29,8 +29,8 @@ struct Angle {
 };
 bool operator<(Angle a, Angle b) {
 	// add a.dist2() and b.dist2() to also compare distances
-	return make_tuple(a.t, a.half(), a.y * (ll)b.x) <
-	       make_tuple(b.t, b.half(), a.x * (ll)b.y);
+	return make_tuple(a.t, a.half(), a.y * (ll) b.x) <
+	       make_tuple(b.t, b.half(), a.x * (ll) b.y);
 }
 
 // Given two points, this calculates the smallest angle between
@@ -47,5 +47,5 @@ Angle operator+(Angle a, Angle b) { // point a + vector b
 }
 Angle angleDiff(Angle a, Angle b) { // angle b - angle a
 	int tu = b.t - a.t; a.t = b.t;
-	return {a.x*b.x + a.y*b.y, a.x*b.y - a.y*b.x, tu - (b < a)};
+	return {a.x * b.x + a.y * b.y, a.x * b.y - a.y * b.x, tu - (b < a)};
 }

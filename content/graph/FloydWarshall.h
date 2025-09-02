@@ -12,15 +12,13 @@
  */
 #pragma once
 
-const ll inf = 1LL << 62;
-void floydWarshall(vector<vector<ll>>& m) {
-	int n = sz(m);
-	rep(i,0,n) m[i][i] = min(m[i][i], 0LL);
-	rep(k,0,n) rep(i,0,n) rep(j,0,n)
-		if (m[i][k] != inf && m[k][j] != inf) {
-			auto newDist = max(m[i][k] + m[k][j], -inf);
-			m[i][j] = min(m[i][j], newDist);
-		}
-	rep(k,0,n) if (m[k][k] < 0) rep(i,0,n) rep(j,0,n)
+const ll inf = 1ll << 62;
+void floydWarshall(vt<vt<ll>>& m) {
+	int n = size(m);
+	F0R (i, n) m[i][i] = min(m[i][i], 0LL);
+	F0R (k, n) F0R (i, n) F0R (j, n) 
+		if (m[i][k] != inf && m[k][j] != inf)
+			m[i][j] = min(m[i][j], max(m[i][k] + m[k][j], -inf));
+	F0R (k, n) if (m[k][k] < 0) F0R (i, n) F0R (j, n)
 		if (m[i][k] != inf && m[k][j] != inf) m[i][j] = -inf;
 }

@@ -19,59 +19,54 @@
  */
 #pragma once
 
-struct TwoSat {
-	int N;
-	vector<vi> gr;
-	vi values; // 0 = false, 1 = true
-
-	TwoSat(int n = 0) : N(n), gr(2*n) {}
-
-	int addVar() { // (optional)
-		gr.emplace_back();
-		gr.emplace_back();
-		return N++;
-	}
-
-	void either(int f, int j) {
-		f = max(2*f, -1-2*f);
-		j = max(2*j, -1-2*j);
-		gr[f].push_back(j^1);
-		gr[j].push_back(f^1);
-	}
-	void setValue(int x) { either(x, x); }
-
-	void atMostOne(const vi& li) { // (optional)
-		if (sz(li) <= 1) return;
-		int cur = ~li[0];
-		rep(i,2,sz(li)) {
-			int next = addVar();
-			either(cur, ~li[i]);
-			either(cur, next);
-			either(~li[i], next);
-			cur = ~next;
-		}
-		either(cur, ~li[1]);
-	}
-
-	vi val, comp, z; int time = 0;
-	int dfs(int i) {
-		int low = val[i] = ++time, x; z.push_back(i);
-		for(int e : gr[i]) if (!comp[e])
-			low = min(low, val[e] ?: dfs(e));
-		if (low == val[i]) do {
-			x = z.back(); z.pop_back();
-			comp[x] = low;
-			if (values[x>>1] == -1)
-				values[x>>1] = x&1;
-		} while (x != i);
-		return val[i] = low;
-	}
-
-	bool solve() {
-		values.assign(N, -1);
-		val.assign(2*N, 0); comp = val;
-		rep(i,0,2*N) if (!comp[i]) dfs(i);
-		rep(i,0,N) if (comp[2*i] == comp[2*i+1]) return 0;
-		return 1;
-	}
+struct TwoSAT {
+    int n = 0; 
+    vt<pi> edges;
+    void init(int _n) { n = _n; }
+    int add() { return n++; }
+    void either(int x, int y) { // x | y
+        x = max(2 * x, -1 - 2 * x); // ~(2 * x)
+        y = max(2 * y, -1 - 2 * y); // ~(2 * y)
+        edges.pb({x, y}); 
+    }
+    void implies(int x, int y) { either(~x, y); } 
+    void force(int x) { either(x, x); } 
+    void exactly_one(int x, int y) { 
+        either(x, y), either(~x, ~y); 
+    }
+    void tie(int x, int y) { 
+        implies(x, y), implies(~x, ~y); 
+    } 
+    void nand(int x, int y ) { either(~x, ~y); } 
+    void at_most_one(const vt<int>& li) { 
+        if (size(li) <= 1) return;
+        int cur = ~li[0];
+        FOR (i, 2, size(li)) {
+            int next = add();
+            either(cur, ~li[i]); 
+            either(cur,next);
+            either(~li[i], next); 
+            cur = ~next;
+        }
+        either(cur, ~li[1]);
+    }
+    vt<bool> solve() {
+        SCC scc; 
+        scc.init(2 * n);
+        for(auto& e : edges) {
+            scc.ae(e.f ^ 1, e.s);
+            scc.ae(e.s ^ 1, e.f);
+        }
+        scc.gen(); 
+        reverse(all(scc.comps)); // reverse topo order
+        for (int i = 0; i < 2 * n; i += 2) 
+            if (scc.comp[i] == scc.comp[i ^ 1]) return {};
+        vt<int> tmp(2 * n); 
+        for (auto i : scc.comps) {
+            if (!tmp[i]) tmp[i] = 1, tmp[scc.comp[i ^ 1]] = -1;
+        }
+        vt<bool> ans(n); 
+        F0R (i, n) ans[i] = tmp[scc.comp[2 * i]] == 1;
+        return ans;
+    }
 };

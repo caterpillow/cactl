@@ -17,49 +17,72 @@
 
 #include "../data-structures/LazySegmentTree.h"
 
-template <bool VALS_EDGES> struct HLD {
-	int N, tim = 0;
-	vector<vi> adj;
-	vi par, siz, rt, pos;
-	Node *tree;
-	HLD(vector<vi> adj_)
-		: N(sz(adj_)), adj(adj_), par(N, -1), siz(N, 1),
-		  rt(N),pos(N),tree(new Node(0, N)){ dfsSz(0); dfsHld(0); }
-	void dfsSz(int v) {
-		for (int& u : adj[v]) {
-			adj[u].erase(find(all(adj[u]), v));
-			par[u] = v;
-			dfsSz(u);
-			siz[v] += siz[u];
-			if (siz[u] > siz[adj[v][0]]) swap(u, adj[v][0]);
-		}
-	}
-	void dfsHld(int v) {
-		pos[v] = tim++;
-		for (int u : adj[v]) {
-			rt[u] = (u == adj[v][0] ? rt[v] : u);
-			dfsHld(u);
-		}
-	}
-	template <class B> void process(int u, int v, B op) {
-		for (;; v = par[rt[v]]) {
-			if (pos[u] > pos[v]) swap(u, v);
-			if (rt[u] == rt[v]) break;
-			op(pos[rt[v]], pos[v] + 1);
-		}
-		op(pos[u] + VALS_EDGES, pos[v] + 1);
-	}
-	void modifyPath(int u, int v, int val) {
-		process(u, v, [&](int l, int r) { tree->add(l, r, val); });
-	}
-	int queryPath(int u, int v) { // Modify depending on problem
-		int res = -1e9;
-		process(u, v, [&](int l, int r) {
-				res = max(res, tree->query(l, r));
-		});
-		return res;
-	}
-	int querySubtree(int v) { // modifySubtree is similar
-		return tree->query(pos[v] + VALS_EDGES, pos[v] + siz[v]);
-	}
+template<bool in_edges> struct HLD {
+    int n;
+    vt<vt<int>> adj;
+    vt<int> par, root, depth, sz, pos;
+    int time;
+    SegTree tree;
+    void ae(int u, int v) {
+        adj[u].pb(v);
+        adj[v].pb(u);
+    }
+    void dfs_sz(int u) {
+        sz[u] = 1;
+        for (int& v : adj[u]) {
+            par[v] = u;
+            depth[v] = depth[u] + 1;
+            adj[v].erase(find(all(adj[v]), u));
+            dfs_sz(v);
+            sz[u] += sz[v];
+            if (sz[v] > sz[adj[u][0]]) swap(v, adj[u][0]);
+        }
+    }
+    void dfs_hld(int u) {
+        pos[u] = time++;
+        for (int& v : adj[u]) {
+            root[v] = (v == adj[u][0] ? root[u] : v);
+            dfs_hld(v);
+        }
+    }
+    void init(int _n) {
+        n = _n;
+        adj.resize(n);
+        par = root = depth = sz = pos = vt<int>(n);
+    }
+    void gen(int r = 0) {
+        par[r] = depth[r] = time = 0;
+        dfs_sz(r);
+        root[r] = r;
+        dfs_hld(r);
+        tree.init(n);
+    }
+    int lca(int u, int v) {
+        while (root[u] != root[v]) {
+            if (depth[root[u]] > depth[root[v]]) swap(u, v);
+            v = par[root[v]];
+        }
+        return depth[u] < depth[v] ? u : v;
+    }
+    template <class Op>
+    void process(int u, int v, Op op) {
+        for (;; v = par[root[v]]) {
+            if (pos[u] > pos[v]) swap(u, v);
+            if (root[u] == root[v]) break;
+            op(pos[root[v]], pos[v] + 1);
+        }
+        op(pos[u] + in_edges, pos[v] + 1);
+    }
+    void upd(int u, int v, ll upd) {
+        process(u, v, [&] (int l, int r) { 
+            tree.upd(l, r, upd); 
+        });
+    }
+    ll query(int u, int v) {
+        ll res = 0;
+        process(u, v, [&] (int l, int r) { 
+            res = res + tree.query(l, r); 
+        });
+        return res;
+    }
 };

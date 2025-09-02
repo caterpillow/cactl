@@ -15,8 +15,8 @@ Products of three coordinates are used in intermediate steps so watch out for ov
 \includegraphics[width=\textwidth]{content/geometry/SegmentIntersection}
 \end{minipage}
  * Usage:
- * vector<P> inter = segInter(s1,e1,s2,e2);
- * if (sz(inter)==1)
+ * vector<P> inter = seg_inter(s1,e1,s2,e2);
+ * if (size(inter) == 1)
  *   cout << "segments intersect at " << inter[0] << endl;
  * Status: stress-tested, tested on kattis:intersection
  */
@@ -25,16 +25,16 @@ Products of three coordinates are used in intermediate steps so watch out for ov
 #include "Point.h"
 #include "OnSegment.h"
 
-template<class P> vector<P> segInter(P a, P b, P c, P d) {
-	auto oa = c.cross(d, a), ob = c.cross(d, b),
-	     oc = a.cross(b, c), od = a.cross(b, d);
-	// Checks if intersection is single non-endpoint point.
-	if (sgn(oa) * sgn(ob) < 0 && sgn(oc) * sgn(od) < 0)
-		return {(a * ob - b * oa) / (ob - oa)};
-	set<P> s;
-	if (onSegment(c, d, a)) s.insert(a);
-	if (onSegment(c, d, b)) s.insert(b);
-	if (onSegment(a, b, c)) s.insert(c);
-	if (onSegment(a, b, d)) s.insert(d);
-	return {all(s)};
+template<class P> vt<P> seg_inter(P a, P b, P c, P d) {
+    auto oa = c.cross(d, a), ob = c.cross(d, b),
+         oc = a.cross(b, c), od = a.cross(b, d);
+    // Checks if intersection is single non-endpoint point.
+    if (sgn(oa) * sgn(ob) < 0 && sgn(oc) * sgn(od) < 0)
+        return {(a * ob - b * oa) / (ob - oa)};
+    set<P> s;
+    if (on_segment(c, d, a)) s.insert(a);
+    if (on_segment(c, d, b)) s.insert(b);
+    if (on_segment(a, b, c)) s.insert(c);
+    if (on_segment(a, b, d)) s.insert(d);
+    return {all(s)};
 }

@@ -14,23 +14,22 @@
 #include "../data-structures/RMQ.h"
 
 struct LCA {
-	int T = 0;
+	int t = 0;
 	vi time, path, ret;
 	RMQ<int> rmq;
 
-	LCA(vector<vi>& C) : time(sz(C)), rmq((dfs(C,0,-1), ret)) {}
-	void dfs(vector<vi>& C, int v, int par) {
-		time[v] = T++;
-		for (int y : C[v]) if (y != par) {
-			path.push_back(v), ret.push_back(time[v]);
-			dfs(C, y, v);
+	LCA(vt<vi>& adj) : time(size(adj)), rmq((dfs(0, -1, adj), ret)) {}
+	void dfs(int u, int p, vt<vi> &adj) {
+		time[u] = t++;
+		for (int v : adj[u]) if (v != p) {
+			path.push_back(u), ret.push_back(time[u]);
+			dfs(v, u, adj);
 		}
 	}
 
-	int lca(int a, int b) {
-		if (a == b) return a;
-		tie(a, b) = minmax(time[a], time[b]);
-		return path[rmq.query(a, b)];
+	int operator()(int u, int v) {
+		if (u == v) return u;
+		tie(u, v) = minmax(time[u], time[v]);
+		return path[rmq.query(u, v)];
 	}
-	//dist(a,b){return depth[a] + depth[b] - 2*depth[lca(a,b)];}
 };

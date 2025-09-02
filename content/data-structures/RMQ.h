@@ -15,17 +15,17 @@
 
 template<class T>
 struct RMQ {
-	vector<vector<T>> jmp;
-	RMQ(const vector<T>& V) : jmp(1, V) {
-		for (int pw = 1, k = 1; pw * 2 <= sz(V); pw *= 2, ++k) {
-			jmp.emplace_back(sz(V) - pw * 2 + 1);
-			rep(j,0,sz(jmp[k]))
+	vt<vt<T>> jmp;
+	RMQ(const vt<T>& v) : jmp(1, v) {
+		for (int pw = 1, k = 1; pw * 2 <= size(v); pw *= 2, ++k) {
+			jmp.emplace_back(size(v) - pw * 2 + 1);
+			F0R (j, size(jmp[k]))
 				jmp[k][j] = min(jmp[k - 1][j], jmp[k - 1][j + pw]);
 		}
 	}
 	T query(int a, int b) {
 		assert(a < b); // or return inf if a == b
-		int dep = 31 - __builtin_clz(b - a);
-		return min(jmp[dep][a], jmp[dep][b - (1 << dep)]);
+		int d = 31 - __builtin_clz(b - a);
+		return min(jmp[d][a], jmp[d][b - (1 << d)]);
 	}
 };

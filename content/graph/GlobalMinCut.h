@@ -9,23 +9,23 @@
  */
 #pragma once
 
-pair<int, vi> globalMinCut(vector<vi> mat) {
-	pair<int, vi> best = {INT_MAX, {}};
-	int n = sz(mat);
-	vector<vi> co(n);
-	rep(i,0,n) co[i] = {i};
-	rep(ph,1,n) {
-		vi w = mat[0];
+pair<int, vt<int>> globalMinCut(vt<vt<int>> mat) {
+	pair<int, vt<int>> best = {INT_MAX, {}};
+	int n = size(mat);
+	vt<vt<int>> co(n);
+	F0R (i, n) co[i] = {i};
+	FOR(ph, 1, n) {
+		vt<int> w = mat[0];
 		size_t s = 0, t = 0;
-		rep(it,0,n-ph) { // O(V^2) -> O(E log V) with prio. queue
+		F0R (it, n - ph) { // O(V^2) -> O(E log V) with prio. queue
 			w[t] = INT_MIN;
 			s = t, t = max_element(all(w)) - w.begin();
-			rep(i,0,n) w[i] += mat[t][i];
+			F0R (i, n) w[i] += mat[t][i];
 		}
 		best = min(best, {w[t] - mat[t][t], co[t]});
 		co[s].insert(co[s].end(), all(co[t]));
-		rep(i,0,n) mat[s][i] += mat[t][i];
-		rep(i,0,n) mat[i][s] = mat[s][i];
+		F0R (i, n) mat[s][i] += mat[t][i];
+		F0R (i, n) mat[i][s] = mat[s][i];
 		mat[0][t] = INT_MIN;
 	}
 	return best;

@@ -14,7 +14,7 @@ Products of three coordinates are used in intermediate steps so watch out for ov
 \includegraphics[width=\textwidth]{content/geometry/lineIntersection}
 \end{minipage}
  * Usage:
- * 	auto res = lineInter(s1,e1,s2,e2);
+ * 	auto res = line_inter(s1,e1,s2,e2);
  * 	if (res.first == 1)
  * 		cout << "intersection point at " << res.second << endl;
  * Status: stress-tested, and tested through half-plane tests
@@ -24,10 +24,10 @@ Products of three coordinates are used in intermediate steps so watch out for ov
 #include "Point.h"
 
 template<class P>
-pair<int, P> lineInter(P s1, P e1, P s2, P e2) {
-	auto d = (e1 - s1).cross(e2 - s2);
-	if (d == 0) // if parallel
-		return {-(s1.cross(e1, s2) == 0), P(0, 0)};
-	auto p = s2.cross(e1, e2), q = s2.cross(e2, s1);
-	return {1, (s1 * p + e1 * q) / d};
+pair<int, P> line_inter(P s1, P e1, P s2, P e2) {
+    auto d = (e1 - s1).cross(e2 - s2);
+    if (d == 0) // if parallel
+        return {-(s1.cross(e1, s2) == 0), P(0, 0)};
+    auto p = s2.cross(e1, e2), q = s2.cross(e2, s1);
+    return {1, (s1 * p + e1 * q) / d};
 }

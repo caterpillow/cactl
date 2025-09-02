@@ -1,31 +1,30 @@
 /**
- * Author: Simon Lindholm
- * Date: 2019-12-31
+ * Author: caterpillow
+ * Date: 2025-09-01
  * License: CC0
- * Source: folklore
+ * Source: idk
  * Description: Eulerian undirected/directed path/cycle algorithm.
- * Input should be a vector of (dest, global edge index), where
- * for undirected graphs, forward/backward edges have the same index.
- * Returns a list of nodes in the Eulerian path/cycle with src at both start and end, or
- * empty list if no cycle/path exists.
- * To get edge indices back, add .second to s and ret.
+ * For edges, push the edge u came from instead of current node.
+ * First, the graph (after removing directivity) must be connected.
+ * For undirected graphs, a tour exists when all nodes have even degree.
+ * For directed graphs, a tour exists when all nodes have equal in and out degree.
+ * For trails, the condition is the same as if you added an edge from t -> s.
  * Time: O(V + E)
- * Status: stress-tested
+ * Status: no way this doesn't work
  */
 #pragma once
 
-vi eulerWalk(vector<vector<pii>>& gr, int nedges, int src=0) {
-	int n = sz(gr);
-	vi D(n), its(n), eu(nedges), ret, s = {src};
-	D[src]++; // to allow Euler paths, not just cycles
-	while (!s.empty()) {
-		int x = s.back(), y, e, &it = its[x], end = sz(gr[x]);
-		if (it == end){ ret.push_back(x); s.pop_back(); continue; }
-		tie(y, e) = gr[x][it++];
-		if (!eu[e]) {
-			D[x]--, D[y]++;
-			eu[e] = 1; s.push_back(y);
-		}}
-	for (int x : D) if (x < 0 || sz(ret) != nedges+1) return {};
-	return {ret.rbegin(), ret.rend()};
+int n, m;
+vt<vt<pair<int, int>>> adj;
+vt<int> ret, used;
+
+// 
+void dfs(int u) {
+    while (adj[u].size()) {
+        auto [v, ei] = adj[u].back();
+        adj[u].pop_back();
+        if (used[ei]++) continue;
+        dfs(v);
+    }
+    ret.push_back(u);
 }
