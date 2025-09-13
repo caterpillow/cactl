@@ -14,11 +14,11 @@
 #include "Point.h"
 
 typedef Point<int> P;
-vector<array<int, 3>> manhattanMST(vector<P> ps) {
-	vi id(sz(ps));
+vt<array<int, 3>> manhattanMST(vt<P> ps) {
+	vi id(size(ps));
 	iota(all(id), 0);
 	vector<array<int, 3>> edges;
-	rep(k,0,4) {
+	F0R (k, 4) {
 		sort(all(id), [&](int i, int j) {
 		     return (ps[i]-ps[j]).x < (ps[j]-ps[i]).y;});
 		map<int, int> sweep;

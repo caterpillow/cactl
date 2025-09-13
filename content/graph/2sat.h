@@ -9,10 +9,10 @@
  * Negated variables are represented by bit-inversions (\texttt{\tilde{}x}).
  * Usage:
  *  TwoSat ts(number of boolean variables);
- *  ts.either(0, \tilde3); // Var 0 is true or var 3 is false
- *  ts.setValue(2); // Var 2 is true
- *  ts.atMostOne({0,\tilde1,2}); // <= 1 of vars 0, \tilde1 and 2 are true
- *  ts.solve(); // Returns true iff it is solvable
+ *  ts.either(0, \tilde3); // var 0 is true or var 3 is false
+ *  ts.force(2); // var 2 is true
+ *  ts.at_most_one({0,\tilde1,2}); // <= 1 of vars 0, \tilde1 and 2 are true
+ *  ts.solve(); // returns true iff it is solvable
  *  ts.values[0..N-1] holds the assigned values to the vars
  * Time: O(N+E), where N is the number of boolean variables, and E is the number of clauses.
  * Status: stress-tested

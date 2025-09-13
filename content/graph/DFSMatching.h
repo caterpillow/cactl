@@ -14,7 +14,7 @@
  */
 #pragma once
 
-bool find(int j, vector<vi>& g, vi& btoa, vi& vis) {
+bool find(int j, vt<vi> &g, vi &btoa, vi &vis) {
 	if (btoa[j] == -1) return 1;
 	vis[j] = 1; int di = btoa[j];
 	for (int e : g[di])
@@ -24,15 +24,15 @@ bool find(int j, vector<vi>& g, vi& btoa, vi& vis) {
 		}
 	return 0;
 }
-int dfsMatching(vector<vi>& g, vi& btoa) {
+int dfsMatching(vt<vi> &g, vi &btoa) {
 	vi vis;
-	rep(i,0,sz(g)) {
-		vis.assign(sz(btoa), 0);
+	F0R (i, size(g)) {
+		vis.assign(size(btoa), 0);
 		for (int j : g[i])
 			if (find(j, g, btoa, vis)) {
 				btoa[j] = i;
 				break;
 			}
 	}
-	return sz(btoa) - (int)count(all(btoa), -1);
+	return size(btoa) - (int) count(all(btoa), -1);
 }

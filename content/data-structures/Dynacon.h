@@ -3,7 +3,7 @@
  * Date: 2016-8-24
  * License: CC0
  * Source: me
- * Description: Dynamic connectivity (TODO: replace with better version?)
+ * Description: Dynamic connectivity. Alternatively use IncrementalMST, and weight edges by deletion time (Q if never deleted).
  * Time: O(N \log^2 N)
  * Usage: i forgot
  * Status: migrated from code-library - untested
@@ -31,7 +31,7 @@ struct DynaCon {
         } else eds[{u, v}] = t++;
     }
     void query() { seg[q + t++].pb({-1, -1}); }
-    void dfs(int i, vt<int>& ans) {
+    void dfs(int i, vi &ans) {
         dsu.push();
         for (auto [u, v] : seg[i]) {
             if (u == -1) ans.pb(dsu.comps());
@@ -40,9 +40,9 @@ struct DynaCon {
         if (i < q) dfs(2 * i, ans), dfs(2 * i + 1, ans);
         dsu.pop();
     }
-    vt<int> ans() {
+    vi ans() {
         for (auto [u, v] : eds) toggle(u.f, u.s, false);
-        vt<int> res;
+        vi res;
         dfs(1, res);
         return res;
     }

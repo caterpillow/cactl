@@ -7,7 +7,7 @@
  * edges such that the path from any leaf to the root contains at most log(n)
  * light edges. Code does additive modifications and max queries, but can
  * support commutative segtree modifications/queries on paths and subtrees.
- * Takes as input the full adjacency list. VALS\_EDGES being true means that
+ * Takes as input the full adjacency list. in\_edges being true means that
  * values are stored in the edges, as opposed to the nodes. All values
  * initialized to the segtree default. Root must be 0.
  * Time: O((\log N)^2)
@@ -19,8 +19,8 @@
 
 template<bool in_edges> struct HLD {
     int n;
-    vt<vt<int>> adj;
-    vt<int> par, root, depth, sz, pos;
+    vt<vi> adj;
+    vi par, root, depth, sz, pos;
     int time;
     SegTree tree;
     void ae(int u, int v) {
@@ -48,7 +48,7 @@ template<bool in_edges> struct HLD {
     void init(int _n) {
         n = _n;
         adj.resize(n);
-        par = root = depth = sz = pos = vt<int>(n);
+        par = root = depth = sz = pos = vi(n);
     }
     void gen(int r = 0) {
         par[r] = depth[r] = time = 0;

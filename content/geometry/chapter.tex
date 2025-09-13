@@ -1,5 +1,38 @@
 \chapter{Geometry}
 
+\section{Notes}
+	For checking imprecise equalities use \texttt{abs(x) < eps}. \\
+	Clamp values to $[-1, 1]$ for \texttt{acos}, etc.
+
+\section{Precision}
+	\textbf{double} can precisely store integers up to $9 \times 10^{15}$, and \textbf{long double} can store up to $1.8 \times 10^{19}$. \\	
+	Operations $(+, \times, -, /, \sqrt{x})$ will be rounded to the nearest representable value. Hence, the \textbf{relative} error on the result of one of these operations is bounded by $\epsilon = 1.2 \times 10^{-16}$ for \textbf{double} and $\epsilon = 5.5 \times 10^{-20}$ for \textbf{long double}. \\
+	If computations are precise up to a relative error of $\epsilon$, and the magnitude of our values never exceeds $M$, then the absolute error of an operation is at most $M \epsilon$. \\
+	It is typically \textbf{more useful to consider absolute error} instead of relative error (1). \\
+
+	A series of $n$ $+$ and $-$ operations result in an absolute error of at most $nM\epsilon$. \\
+	With $\times$, the absolute error of a $d$-dimensional value computed in $n$ operations is $M^{d}((1+\epsilon)^{n}-1) \approx nM^{d}\epsilon$ (excluding multiplication by adimensional values). \\
+	Imprecisions on $x$ in $\frac{1}{x}$ can cause an arbitrary error (2). \\
+	Imprecisions on $x$ in $\sqrt{x}$ are typically bad, particularly near $0$. (3) \\
+
+	Note that $\frac{1}{x}$ and $\sqrt{x}$ perform poorly on imprecise inputs: when working with exact inputs, the \texttt{IEEE 754} standard guarantees a relative error of $\epsilon$/absolute error of $M\epsilon$. \\ 
+	In particular, circle/line/circle-line intersections on exact coordinates have relative error proportional to $\epsilon$/absolute error proportional to $M\epsilon$.
+
+	(1) subtracting two large imprecise values can blow up relative errors \\
+	(2) division by a value near $0$ can result in an arbitrarily large error in both positive and negative \\
+	(3) assuming arguments to $\sqrt{x}$ are non-negative, imprecisions on $x$ will have the most impact when $x$ is near $0$: for a given imprecision $\delta$, the biggest imprecision on $\sqrt{x}$ it might cause is $\sqrt{\delta}$. This is quite bad: an argument with imprecision $nM^2\epsilon$ will become an imprecision of $\sqrt{n}M\sqrt{\epsilon}$. This can appear with circle intersections and computing roots to quadratics. \\
+
+	\kactlimport{StableSum.h}
+
+\section{Common}
+	\subsection{Equation of line through two points}
+		Given points $p$ and $q$, equation of the line $ax + by + c = 0$ is given by:
+		\small
+		\[ a = p_y - q_y \]
+		\[ b = q_x - p_x \]
+		\[ c = p \times q \]
+		\normalsize
+
 \section{Geometric primitives}
 	\kactlimport{Point.h}
 	\kactlimport{lineDistance.h}
@@ -9,7 +42,7 @@
 	\kactlimport{sideOf.h}
 	\kactlimport{OnSegment.h}
 	\kactlimport{linearTransformation.h}
-	% \kactlimport{LineProjectionReflection.h}
+	\kactlimport{LineProjectionReflection.h}
 	\kactlimport{Angle.h}
 
 \section{Circles}
@@ -30,16 +63,17 @@
 	\kactlimport{HullDiameter.h}
 	\kactlimport{PointInsideHull.h}
 	\kactlimport{LineHullIntersection.h}
+	\kactlimport{MinkowskiSum.h}
 
 \section{Misc. Point Set Problems}
 	\kactlimport{ClosestPair.h}
-	% \kactlimport{ManhattanMST.h}
+	\kactlimport{ManhattanMST.h}
 	\kactlimport{kdTree.h}
 	% \kactlimport{DelaunayTriangulation.h}
 	\kactlimport{FastDelaunay.h}
 
 \section{3D}
-% 	\kactlimport{PolyhedronVolume.h}
-% 	\kactlimport{Point3D.h}
-% 	\kactlimport{3dHull.h}
+	\kactlimport{PolyhedronVolume.h} % bruh
+	\kactlimport{Point3D.h} % bruh
+	\kactlimport{3dHull.h} % bruh
 	\kactlimport{sphericalDistance.h}

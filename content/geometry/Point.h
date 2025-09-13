@@ -9,34 +9,32 @@
  */
 #pragma once
 
-// T can be e.g. double or long long. (Avoid int.)
 template <class T> int sgn(T x) { return (x > 0) - (x < 0); }
 template<class T>
 struct Point {
-    typedef Point P;
+    using P = Point<T>;
     T x, y;
-    explicit Point(T x = 0, T y = 0) : x(x), y(y) {}
-    bool operator<(P p) const { return tie(x, y) < tie(p.x, p.y); }
-    bool operator==(P p) const { return tie(x, y) == tie(p.x, p.y); }
-    P operator+(P p) const { return P(x + p.x, y + p.y); }
-    P operator-(P p) const { return P(x - p.x, y - p.y); }
-    P operator*(T d) const { return P(x * d, y * d); }
-    P operator/(T d) const { return P(x / d, y / d); }
+    #define op1(o) P operator o (P p) const { return {x o p.x, y o p.y}; }
+    op1(+) op1(-)
+    #define op2(o) P operator o (T z) const { return {x o z, y o z}; }
+    op2(*) op2(/)
     T dot(P p) const { return x * p.x + y * p.y; }
     T cross(P p) const { return x * p.y - y * p.x; }
-    T cross(P a, P b) const { return (a - *this).cross(b - *this); }
+    #define op3(o) T o (P a, P b) const { return (a - *this). o (b - *this); }
+    op3(dot) op3(cross)
+    #define op4(o) bool operator o (P p) const { return tie(x, y) o tie(p.x, p.y); }
+    op4(<) op4(==)
     T dist2() const { return x * x + y * y; }
-    double dist() const { return sqrt((double) dist2()); }
+    db dist() const { return sqrtl((db) dist2()); }
     // angle to x-axis in interval [-pi, pi]
-    double angle() const { return atan2(y, x); }
-    P unit() const { return *this / dist(); } // makes dist()=1
-    P perp() const { return P(-y, x); } // rotates +90 degrees
+    db angle() const { return atan2l(y, x); }
+    P unit() const { return *this / dist(); } 
+    P perp() const { return {-y, x}; } 
     P normal() const { return perp().unit(); }
-    // returns point rotated 'a' radians ccw around the origin
-    P rotate(double a) const {
+    P rotate(db a) const {
         return P(x * cos(a) - y * sin(a), x * sin(a) + y * cos(a)); 
     }
     friend ostream& operator<<(ostream& os, P p) {
-        return os << "(" << p.x << "," << p.y << ")"; 
+        return os << "(" << p.x << ", " << p.y << ") "; 
     }
 };

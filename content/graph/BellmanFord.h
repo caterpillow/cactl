@@ -15,11 +15,11 @@ const ll inf = LLONG_MAX;
 struct Ed { int a, b, w, s() { return a < b ? a : -a; }};
 struct Node { ll dist = inf; int prev = -1; };
 
-void bellmanFord(vt<Node>& nodes, vt<Ed>& eds, int s) {
+void bellmanFord(vt<Node> &nodes, vt<Ed> &eds, int s) {
 	nodes[s].dist = 0;
-	sort(all(eds), [](Ed a, Ed b) { return a.s() < b.s(); });
+	sort(all(eds), [] (Ed a, Ed b) { return a.s() < b.s(); });
 
-	int lim = size(nodes) / 2 + 2; // /3+100 with shuffled vertices
+	int lim = size(nodes) / 2 + 2; // /3 + 100 with shuffled vertices
 	F0R (i, lim) for (Ed ed : eds) {
 		Node cur = nodes[ed.a], &dest = nodes[ed.b];
 		if (abs(cur.dist) == inf) continue;

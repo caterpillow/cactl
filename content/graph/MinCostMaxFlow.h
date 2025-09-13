@@ -57,7 +57,7 @@ struct MCMF {
                 }
             }
         }
-        FOR (i, N) pi[i] = min(pi[i] + dist[i], INF);
+        F0R (i, N) pi[i] = min(pi[i] + dist[i], INF);
     }
 
     pair<ll, ll> maxflow(int s, int t) {

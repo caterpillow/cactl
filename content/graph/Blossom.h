@@ -9,7 +9,7 @@
  */
 #pragma once
 
-
+// 1-indexed!
 struct Blossom {
     int n, h, t, cnt;
     vpi edges;

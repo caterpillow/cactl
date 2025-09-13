@@ -17,8 +17,8 @@ struct BCC {
     int n, m, t; 
     vt<vt<pair<int, int>>> adj;
     vector<pair<int, int>> edges;
-    vt<vt<int>> comps; // lists of edges of bcc
-    vt<int> tin, stk, is_art, is_bridge;
+    vt<vi> comps; // lists of edges of bcc
+    vi tin, stk, is_art, is_bridge; // stk for bcc only
  
     void init(int _n, vt<pair<int, int>> &_edges) {
         n = _n;
@@ -43,18 +43,17 @@ struct BCC {
         for (auto [v, ei] : adj[u]) if (ei != par) {
             if (tin[v]) {
                 dp = min(dp, tin[v]);
-                if (tin[v] < me)
-                    stk.push_back(ei);
+                if (tin[v] < me) stk.pb(ei); // bcc
             } else {
                 int si = size(stk), up = dfs(v, ei);
                 dp = min(dp, up);
-                if (up == me) {
+                if (up == me) { // bcc and art
                     is_art[u] = 1;
                     stk.pb(ei);
                     comps.pb({si + all(stk)});
                     stk.resize(si);
-                } else if (up < me) stk.push_back(ei);
-                else { is_bridge[ei] = 1; }
+                } else if (up < me) stk.push_back(ei); // bcc
+                else is_bridge[ei] = 1; // up > me
             }
         }
         return dp;

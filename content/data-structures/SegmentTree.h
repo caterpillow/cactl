@@ -1,31 +1,31 @@
 /**
- * Author: Lucian Bicsi
- * Date: 2017-10-31
+ * Author: caterpillow
+ * Date: 2025-09-09
  * License: CC0
- * Source: folklore
- * Description: Zero-indexed max-tree. Bounds are inclusive to the left and exclusive to the right.
- * Can be changed by modifying T, f and unit.
+ * Source: idk
+ * Description: Generic segment tree for associative operations. \texttt{id} is for the identity object.
  * Time: O(\log N)
- * Status: stress-tested
+ * Status: true
  */
 #pragma once
 
-struct Tree {
-	typedef int T;
-	static constexpr T unit = INT_MIN;
-	T f(T a, T b) { return max(a, b); } // (any associative fn)
-	vector<T> s; int n;
-	Tree(int n = 0, T def = unit) : s(2*n, def), n(n) {}
-	void update(int pos, T val) {
-		for (s[pos += n] = val; pos /= 2;)
-			s[pos] = f(s[pos * 2], s[pos * 2 + 1]);
+struct Segtree {
+	int n;
+	vt<T> seg;
+	void init(int _n) {
+		for (n = 1; n < _n; n *= 2);
+		seg.resize(2 * n, id);
 	}
-	T query(int b, int e) { // query [b, e)
-		T ra = unit, rb = unit;
-		for (b += n, e += n; b < e; b /= 2, e /= 2) {
-			if (b % 2) ra = f(ra, s[b++]);
-			if (e % 2) rb = f(s[--e], rb);
+	void upd(int i, T v) {
+		seg[i += n] = v;
+		while (i /= 2) seg[i] = seg[2 * i] + seg[2 * i + 1];
+	}
+	T query(int l, int r) { 
+		T lhs = id, rhs = id;
+		for (l += n, r += n; l < r; l /= 2, r /= 2) {
+			if (l & 1)) lhs = lhs + seg[l++];
+			if (r & 1) rhs = seg[--r] + rhs;
 		}
-		return f(ra, rb);
+		return lhs + rhs;
 	}
 };
