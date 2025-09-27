@@ -1,0 +1,43 @@
+\chapter{Heuristics}
+
+\section{Tips}
+	\subsection{Simulated Annealing}
+	Default temperature schedule for SA: $t = t_0 * (\frac{t_n}{t_0})^{\text{time\_passed}}, \text{time\_passed} \in [0, 1]$
+	Acceptance function: $RNG() < exp((\text{cur} - \text{new}) / t)$
+	A good schedule should have a slowly decreasing acceptance rate. 
+	Priorities:
+	\begin{itemize}
+		\item Prototype different transitions.
+		\item Optimize eval function (= make it dynamic).
+		\item Find a proper temp schedule. Consider starting with lower temperatures and increasing until it starts getting worse.
+	\end{itemize}
+	Things to do if its easy to get stuck in a local optimum:
+	\begin{itemize}
+		\item Use a very high temperature/acceptance rate
+		\item Complex transitions
+		\item (rarely) kicks
+		\item (rarely) restarting temp schedule
+		\item (rarely) multiple runs
+	\end{itemize}
+	Things to do when there are lots of invalid states:
+	\begin{itemize}
+		\item Add an additional scoring component based on number of collisions
+		\item Do many short SA runs with high temp on partial subsolutions
+	\end{itemize}
+	If your eval is very fast, make sure RNG, exp and cur\_time are not bottlenecks.
+	When SA is bad:
+	\begin{itemize}
+		\item Very easy to get stuck in local optima
+		\item Simple transitions are mixed with complex ones -- have a separate acceptance function for each transition
+		\item Eval is erratic during transitions
+	\end{itemize}
+	Use a good local tester: make sure it has multithreading and relative scoring.
+	If you are considering whether its worth optimising speed, just run with higher time limit and see if the improvements are worth it.
+	Removing bugs is \#1 priority; results are meaningless when bugs are involved. 
+	If results do not align with intuition, investigate.
+	Merge N-dimensional coordinates into 1D.
+	Memory allocation is slow.
+
+\kactlimport{RNG.h}
+\kactlimport{SimAnneal.h}
+\kactlimport{BeamSearch.h}

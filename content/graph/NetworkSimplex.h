@@ -3,7 +3,7 @@
  * Date: 2025-09-03 
  * Source: atcoder submission
  * Description: Solves minimum cost circulation problem.
- *  To convert to a "normal" mcmf, add an edge from \text{t -> s} of big capacity and negative inf cost (remember to add this back on!).
+ *  To convert to a "normal" mcmf, add an edge from \text{t -> s} of big capacity and negative inf cost (remember to add this back on to answer!).
  *  If you don't necessarily need to maximise flow, add free edge from \text{s -> t}.
  *  Edge $i$ (one indexed) is \text{ns.edges[2 * i]]}.
  *  Works with negative cost cycles.

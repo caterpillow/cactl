@@ -10,26 +10,26 @@
  */
 #pragma once
 
-struct Matching : vt<int> {
-    vt<vt<int>> adj;
-    vt<int> rank, low, pos, vis, seen;
+struct Matching : vi {
+    vt<vi> adj;
+    vi rank, low, pos, vis, seen;
     int k{0};
     // n = size of rhs
-    Matching(int n) : vt<int>(n, -1), rank(n) {}
-    bool add(vt<int> vec) {
+    Matching(int n) :vi(n, -1), rank(n) {}
+    bool add(vi vec) {
         adj.pb(std::move(vec));
-        low.pb(0); pos.pb(0); vis.pb(0);
-        if (!adj.back().empty()) {
+        low.pb(0), pos.pb(0), vis.pb(0);
+        if (size(adj.back())) {
             int i = k;
         nxt:
             seen.clear();
             if (dfs(size(adj)-1, ++k-i)) return 1;
             for (auto &v : seen) for (auto &e : adj[v])
-                if (rank[e] < 1e9 && vis[at(e)] < k)
+                if (rank[e] < inf && vis[at(e)] < k)
                     goto nxt;
             for (auto &v : seen) {
-                low[v] = 1e9;
-				for (auto &w : adj[v]) rank[w] = 1e9;
+                low[v] = inf;
+				for (auto &w : adj[v]) rank[w] = inf;
             }
         }
         return 0;

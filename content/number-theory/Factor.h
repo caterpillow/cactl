@@ -4,7 +4,8 @@
  * License: CC0
  * Source: own
  * Description: Pollard-rho randomized factorization algorithm. Returns prime
- * factors of a number, in arbitrary order (e.g. 2299 -> \{11, 19, 11\}).
+ * factors of a number, in arbitrary order (e.g. 2299 -> \{11, 19, 11\}). Consider manually trying small primes for better runtime.
+ * In one second: average 350k numbers at 1e9, 200k numbers at 1e12, and 100k at 1e16.
  * Time: $O(n^{1/4})$, less for numbers with small factors.
  * Status: stress-tested
  *
@@ -53,10 +54,10 @@
 
 ull pollard(ull n) {
 	ull x = 0, y = 0, t = 30, prd = 2, i = 1, q;
-	auto f = [&](ull x) { return modmul(x, x, n) + i; };
+	auto f = [&](ull x) { return mmul(x, x, n) + i; };
 	while (t++ % 40 || __gcd(prd, n) == 1) {
 		if (x == y) x = ++i, y = f(x);
-		if ((q = modmul(prd, max(x,y) - min(x,y), n))) prd = q;
+		if ((q = mmul(prd, max(x,y) - min(x,y), n))) prd = q;
 		x = f(x), y = f(f(y));
 	}
 	return __gcd(prd, n);

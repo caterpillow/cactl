@@ -74,5 +74,5 @@ struct PushRelabel {
         }
         return -ec[s];
     }
-    bool leftOfMinCut(int a) { return h[a] >= size(g); }
+    // bool leftOfMinCut(int a) { return h[a] >= size(g); }
 };

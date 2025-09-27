@@ -32,8 +32,8 @@ void ntt(vt<T> &a) {
         FOR (i, k, 2 * k) rt[i] = rt[i / 2] * z[i & 1] % mod;
     }
     vi rev(n);
-    FOR (i, 0, n) rev[i] = (rev[i / 2] | (i & 1) << L) / 2;
-    FOR (i, 0, n) if (i < rev[i]) swap(a[i], a[rev[i]]);
+    F0R (i, n) rev[i] = (rev[i / 2] | (i & 1) << L) / 2;
+    F0R (i, n) if (i < rev[i]) swap(a[i], a[rev[i]]);
     for (int k = 1; k < n; k *= 2)
         for (int i = 0; i < n; i += 2 * k) FOR (j, 0, k) {
             T z = (ll) rt[j + k] * a[i + j + k] % mod, &ai = a[i + j];

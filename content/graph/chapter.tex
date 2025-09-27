@@ -2,11 +2,11 @@
 
 \subsection{Theorems}
 
-  	A matching $M$ is maximum **iff** there is no $M$-augmenting path.
+  	A matching $M$ is maximum **iff** there is no $M$-augmenting path. \\
 
 	\subsection{Hall's Marriage Theorem}
 		$G = (L, R; E)$ has a matching covering all of $L$ iff $|N(s)| \ge |S|$ for every $S \subseteq L$. \\
-		Corollary: Let $\delta=\max_{S\subseteq L}\big(|S|-|N(S)|\big)$. The size of the maximum matching is $\tau = |L|-\delta$.
+		Corollary: Let $\delta=\max_{S\subseteq L}\big(|S|-|N(S)|\big)$. The size of the maximum matching is $\tau = |L|-\delta$. \\
 
 	\subsection{Kőnig's Theorem}
  		In bipartite graphs: **max matching = min vertex cover**, i.e. $\nu(G)=\tau(G)$.
@@ -14,22 +14,22 @@
 
 		To recover min vertex cover: 
 		From all unmatched vertices in $L$, BFS alternating paths (use non-matching edges $L\!\to\!R$; matching edges $R\!\to\!L$).
-		Let $Z$ be reachable vertices. Min vertex cover is $(L\setminus Z)\cup(R\cap Z)$.
+		Let $Z$ be reachable vertices. Min vertex cover is $(L\setminus Z)\cup(R\cap Z)$. \\
 
 	\subsection{Dilworth's Theorem (posets)}
 		Run Floyd-Warshall for transitivity. \\
 		Width (max antichain size) = min number of chains in a partition. \\
 		Reduction: make bipartite graph with two copies of elements; edge $x_L\!-\!y_R$ if $x<y$. Then
 		min chain decomposition size $= |P|-\nu$; width $= |P|-(|P|-\nu)=\nu$. \\
-		Mirsky’s Theorem (dual): Height (max chain size) = min number of antichains in a partition.
+		Mirsky’s Theorem (dual): Height (max chain size) = min number of antichains in a partition. \\
 
 	\subsection{Tutte’s 1-Factor Theorem}
 		$odd(G)$ is the number of components in $G$ with an odd number of vertices. 
 		$G$ has a perfect matching iff for all $S\subseteq V$, $\text{odd}(G-S)\le |S|$.
-		Tutte–Berge formula: $\displaystyle \nu(G)=\tfrac12\min_{S\subseteq V}\big(|V|-\text{odd}(G-S)+|S|\big)$.
+		Tutte–Berge formula: $\displaystyle \nu(G)=\tfrac12\min_{S\subseteq V}\big(|V|-\text{odd}(G-S)+|S|\big)$. \\
 
 	\subsection{Edge cover}
-		In any graph without isolated vertices, the size of the minimum edge cover (set of edges that touch every vertex) is given by: $\displaystyle \rho'(G)=|V|-\nu(G)$.
+		In any graph without isolated vertices, the size of the minimum edge cover (set of edges that touch every vertex) is given by: \[\rho'(G)=|V|-\nu(G)\]. \\
 
 \section{Fundamentals}
 	\kactlimport{BellmanFord.h}
@@ -50,6 +50,28 @@
 	\kactlimport{GomoryHu.h} % TO LEARN
 
 \section{Matching}
+
+	\subsection{Reductions}
+	
+	\subsubsection{Min cut reduction}
+		Consider min cut as an instance of this problem: 
+		Given $A[N]$ and $B[N]$ (any sign) and $C[N][N]$ (non-negative), find a binary string $S$ of length $N$ that minimises the following: \\
+		\begin{itemize}[noitemsep]
+		\item Pay $A[i]$ if $S[i] = 1$ 
+		\item Pay $B[i]$ if $S[i] = 0$ 
+		\item Pay $C[i][j]$ if $S[i] = 1$ and $S[j] = 0$. 
+		\end{itemize}
+		To calculate the answer: 
+		\begin{itemize}[noitemsep]
+		\item Add edges $i$ to $t$ of capacity $B[i] + \texttt{inf}$. 
+		\item Add edges $s$ to $i$ of capacity $A[i] + \texttt{inf}$. 
+		\item Add edges $i$ to $j$ of capcity $C[i][j]$. 
+		\item The answer is the maximum flow in this graph minus $n \times \texttt{inf}$. 
+		\end{itemize}
+
+	\subsection{Circulation}
+	
+
 	\kactlimport{DFSMatching.h}
 	\kactlimport{MinimumVertexCover.h}
 	\kactlimport{hopcroftKarp.h}

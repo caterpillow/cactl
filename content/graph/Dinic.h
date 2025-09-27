@@ -13,7 +13,7 @@ struct Dinic {
     struct Edge {
         int to, rev;
         ll c, oc;
-        ll flow() { return max(oc - c, 0LL); } // if you need flows
+        // ll flow() { return max(oc - c, 0LL); } // if you need flows
     };
     vi lvl, ptr, q;
     vt<vt<Edge>> adj;
@@ -54,5 +54,5 @@ struct Dinic {
         } while (lvl[t]);
         return flow;
     }
-    bool left_of_min_cut(int a) { return lvl[a] != 0; }
+    // bool left_of_min_cut(int a) { return lvl[a] != 0; }
 };
