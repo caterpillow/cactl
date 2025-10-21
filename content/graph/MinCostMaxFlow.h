@@ -17,20 +17,20 @@ struct MCMF {
         int from, to, rev;
         ll cap, cost, flow;
     };
-    int N;
+    int n;
     vt<vt<edge>> ed;
     vt<int> seen;
     vt<ll> dist, pi;
     vt<edge*> par;
 
-    MCMF(int N) : N(N), ed(N), seen(N), dist(N), pi(N), par(N) {}
+    MCMF(int n) : n(n), ed(n), seen(n), dist(n), pi(n), par(n) {}
 
     void ae(int from, int to, ll cap, ll cost) {
         if (from == to) return;
-        ed[from].push_back(edge{ from, to, size(ed[to]), 
-            cap,cost,  0 });
-        ed[to].push_back(edge{ to,  from, size(ed[from]) - 1,  
-            0, -cost, 0 });
+        ed[from].push_back({from, to, size(ed[to]), 
+            cap, cost, 0});
+        ed[to].push_back({ to,  from, size(ed[from]) - 1,  
+            0, -cost, 0});
     }
 
     void path(int s) {
@@ -39,7 +39,7 @@ struct MCMF {
         dist[s] = 0; ll di;
 
         __gnu_pbds::priority_queue<pair<ll, int>> q;
-        vt<decltype(q)::point_iterator> its(N);
+        vt<decltype(q)::point_iterator> its(n);
         q.push({ 0, s });
 
         while (!q.empty()) {
@@ -57,7 +57,7 @@ struct MCMF {
                 }
             }
         }
-        F0R (i, N) pi[i] = min(pi[i] + dist[i], INF);
+        F0R (i, n) pi[i] = min(pi[i] + dist[i], INF);
     }
 
     pair<ll, ll> maxflow(int s, int t) {
@@ -73,19 +73,19 @@ struct MCMF {
                 ed[x->to][x->rev].flow -= fl;
             }
         }
-        FOR (i, N) for(edge& e : ed[i]) totcost += e.cost * e.flow;
+        FOR (i, n) for(edge& e : ed[i]) totcost += e.cost * e.flow;
         return {totflow, totcost/2};
     }
 
     // If some costs can be negative, call this before maxflow:
-    void setpi(int s) { // (otherwise, leave this out)
-        fill(all(pi), INF); pi[s] = 0;
-        int it = N, ch = 1; ll v;
-        while (ch-- && it--)
-            FOR (i, N) if (pi[i] != INF)
-                for (edge& e : ed[i]) if (e.cap)
-                    if ((v = pi[i] + e.cost) < pi[e.to])
-                        pi[e.to] = v, ch = 1;
-        assert(it >= 0); // negative cost cycle
-    }
+    // void setpi(int s) { // (otherwise, leave this out)
+    //     fill(all(pi), INF); pi[s] = 0;
+    //     int it = n, ch = 1; ll v;
+    //     while (ch-- && it--)
+    //         FOR (i, n) if (pi[i] != INF)
+    //             for (edge& e : ed[i]) if (e.cap)
+    //                 if ((v = pi[i] + e.cost) < pi[e.to])
+    //                     pi[e.to] = v, ch = 1;
+    //     assert(it >= 0); // negative cost cycle
+    // }
 };

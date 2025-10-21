@@ -31,11 +31,12 @@ struct Dinic {
         if (v == t || !f) return f;
         for (int& i = ptr[v]; i < size(adj[v]); i++) {
             auto &[to, rev, c, _] = adj[v][i];
-            if (lvl[to] == lvl[v] + 1)
+            if (lvl[to] == lvl[v] + 1) {
                 if (ll p = dfs(to, t, min(f, c))) {
                     c -= p, adj[to][rev].c += p;
                     return p;
                 }
+            }
         }
         return 0;
     }

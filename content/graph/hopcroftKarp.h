@@ -15,7 +15,7 @@ struct Matching : vi {
     vi rank, low, pos, vis, seen;
     int k{0};
     // n = size of rhs
-    Matching(int n) :vi(n, -1), rank(n) {}
+    Matching(int n) : vi(n, -1), rank(n) {}
     bool add(vi vec) {
         adj.pb(std::move(vec));
         low.pb(0), pos.pb(0), vis.pb(0);
@@ -24,9 +24,9 @@ struct Matching : vi {
         nxt:
             seen.clear();
             if (dfs(size(adj)-1, ++k-i)) return 1;
-            for (auto &v : seen) for (auto &e : adj[v])
-                if (rank[e] < inf && vis[at(e)] < k)
-                    goto nxt;
+            for (auto &v : seen) for (auto &e : adj[v]) {
+                if (rank[e] < inf && vis[at(e)] < k) goto nxt;
+            }
             for (auto &v : seen) {
                 low[v] = inf;
 				for (auto &w : adj[v]) rank[w] = inf;
@@ -40,8 +40,9 @@ struct Matching : vi {
             int e = adj[v][pos[v]];
             if (at(e) != v && low[v] == rank[e]) {
                 rank[e]++;
-                if (at(e) == -1 || dfs(at(e), rank[e]))
+                if (at(e) == -1 || dfs(at(e), rank[e])) {
                     return at(e) = v, 1;
+                }
             } else if (++pos[v] == size(adj[v])) {
                 pos[v] = 0; low[v]++;
             }

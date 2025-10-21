@@ -29,7 +29,7 @@ struct Point {
     // angle to x-axis in interval [-pi, pi]
     db angle() const { return atan2l(y, x); }
     P unit() const { return *this / dist(); } 
-    P perp() const { return {-y, x}; } 
+    P perp() const { return {-y, x}; } // rotate 90 degrees left
     P normal() const { return perp().unit(); }
     P rotate(db a) const {
         return P(x * cos(a) - y * sin(a), x * sin(a) + y * cos(a)); 

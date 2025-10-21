@@ -17,7 +17,7 @@ template<class T> struct RMQ {
         dp.resize(32 - __builtin_clz(size(v)), vt<T>(size(v)));
         copy(all(v), begin(dp[0]));
         for (int j = 1; 1 << j <= size(v); ++j) {
-            for (int i = 0; i < size(v) - (1 << j) + 1; i++) 
+            for (int i = 0; i <= size(v) - (1 << j); i++) 
                 dp[j][i] = func(dp[j - 1][i], 
                     dp[j - 1][i + (1 << (j - 1))]);
         }

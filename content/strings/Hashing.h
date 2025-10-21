@@ -22,17 +22,17 @@ struct HashInterval {
         }
         ROF (i, 0, size(str)) rha[i] = rha[i + 1] * C + str[i] + 1;
     }
-    H hash_interval(int a, int b) { // hash [a, b)
-        return ha[b] - ha[a] * pw[b - a];
+    H hash_interval(int l, int r) { // hash [l, r)
+        return ha[r] - ha[l] * pw[r - l];
     }
-    H rhash_interval(int a, int b) { // hash [a, b) from right to left
-        return rha[a] - rha[b] * pw[b - a];
+    H rhash_interval(int l, int r) { // hash [l, rf) from right to left
+        return rha[l] - rha[r] * pw[r - l];
     }
 };
 
 // get all hashes of length <len>
 template<class T>
-vector<H> get_hashes(T& str, int length) {
+vt<H> get_hashes(T& str, int length) {
     if (size(str) < length) return {};
     H h = 0, pw = 1;
     F0R (i, length) h = h * C + str[i] + 1, pw = pw * C;

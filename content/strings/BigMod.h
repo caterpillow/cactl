@@ -21,8 +21,8 @@ struct H {
     H operator*(H o) { auto m = (__uint128_t) x * o.x;
         return H((ull) m) + (ull)(m >> 64); }
     ull get() const { return x + !~x; }
-    bool operator==(H o) const { return get() == o.get(); }
-    bool operator<(H o) const { return get() < o.get(); }
+    #define op(o) bool operator o (H oth) const { return get() o oth.get(); }
+    op(==) op(<)
 };
 
 static const H C = (ll) 1e11 + 3; // (order ~ 3e9; random also ok)
