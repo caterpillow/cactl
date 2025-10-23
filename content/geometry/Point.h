@@ -24,6 +24,11 @@ struct Point {
     op3(dot) op3(cross)
     #define op4(o) bool operator o (P p) const { return tie(x, y) o tie(p.x, p.y); }
     op4(<) op4(==)
+    int half() const { return y < 0 || (y == 0 && x < 0); }
+    // radial
+    // bool operator<(P p) const { 
+    //     return make_pair(half(), 0ll) < make_pair(p.half(), cross(p)); 
+    // }
     T dist2() const { return x * x + y * y; }
     db dist() const { return sqrtl((db) dist2()); }
     // angle to x-axis in interval [-pi, pi]

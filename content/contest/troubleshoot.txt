@@ -50,3 +50,14 @@ What do your teammates think about your algorithm?
 Memory limit exceeded:
 What is the max amount of memory your algorithm should need?
 Are you clearing all data structures between test cases?
+
+Stupid bugs:
+Did you abs() and type your epsilons correctly?
+Is your maximum precomputed value really the maximum?
+Is your sorting comparator a strictly weak ordering? 
+Are your binary search bounds big enough? 
+
+Last ditch attempts:
+#define int ll
+#define int lll
+#define sort stable_sort

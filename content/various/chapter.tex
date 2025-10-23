@@ -1,5 +1,20 @@
 \chapter{Various}
 
+\section{Game Theory}
+	Impartial games: Both players have the same set of moves from any position.
+	Normal play: Last move wins
+	\subsection{Grundy Numbers}
+	For some position $P$:    
+	\[
+		G(P) = \mathrm{mex}\{\, G(P') \mid P' \text{ is reachable from } P \,\} 
+	\]
+	Idea: $G(P) = 0$ iff $P$ is losing. \\
+	Sprague-Grundy theorem: if you combine independent games $P_1, P_2, \dots, P_k$: 
+	\[
+		G(\text{sum}) = G(P_1) \oplus G(P_2) \oplus \dots \oplus G(P_k)
+	\]
+	TODO: Green Hackenbush
+
 \section{Intervals}
 	\kactlimport{IntervalContainer.h}
 	\kactlimport{IntervalCover.h}
@@ -48,3 +63,4 @@
 	\kactlimport{GrayCode.h}
 	\kactlimport{Timer.h}
 	\kactlimport{SIMD.h}
+	\kactlimport{Python.py}
