@@ -56,6 +56,9 @@ Did you abs() and type your epsilons correctly?
 Is your maximum precomputed value really the maximum?
 Is your sorting comparator a strictly weak ordering? 
 Are your binary search bounds big enough? 
+Are you reading into a char when it should be a string?
+Are your return types big enough?
+Are you missing arguments and accidentally defaulting them?
 
 Last ditch attempts:
 #define int ll
