@@ -59,6 +59,8 @@ Are your binary search bounds big enough?
 Are you reading into a char when it should be a string?
 Are your return types big enough?
 Are you missing arguments and accidentally defaulting them?
+Are you shadowing variables?
+Is your Pi correct (atan2 is y, x)
 
 Last ditch attempts:
 #define int ll
