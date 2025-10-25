@@ -27,6 +27,7 @@ Ask the teammate to look at your code.
 Go for a small walk, e.g. to the toilet.
 Is your output format correct? (including whitespace)
 Rewrite your solution from the start or let a teammate do it.
+How sure are you its a precision error and not a logic error?
 
 Runtime error:
 Have you tested all corner cases locally?
