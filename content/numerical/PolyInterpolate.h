@@ -15,7 +15,7 @@ vd interpolate(vd x, vd y, int n) {
 	vd res(n), temp(n);
 	F0R (k, n - 1) FOR (i, k + 1, n)
 		y[i] = (y[i] - y[k]) / (x[i] - x[k]);
-	double last = 0; temp[0] = 1;
+	db last = 0; temp[0] = 1;
 	F0R (k, n) F0R (i, n) {
 		res[i] += y[k] * temp[i];
 		swap(last, temp[i]);

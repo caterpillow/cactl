@@ -7,8 +7,8 @@
 
 struct Poly {
 	vt<db> a;
-	db operator()(double x) const {
-		double val = 0;
+	db operator()(db x) const {
+		db val = 0;
 		for (int i = size(a); i--;) (val *= x) += a[i];
 		return val;
 	}

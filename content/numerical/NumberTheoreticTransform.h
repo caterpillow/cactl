@@ -35,7 +35,7 @@ void ntt(vt<T> &a) {
     F0R (i, n) rev[i] = (rev[i / 2] | (i & 1) << L) / 2;
     F0R (i, n) if (i < rev[i]) swap(a[i], a[rev[i]]);
     for (int k = 1; k < n; k *= 2)
-        for (int i = 0; i < n; i += 2 * k) FOR (j, 0, k) {
+        for (int i = 0; i < n; i += 2 * k) F0R (j, k) {
             T z = (ll) rt[j + k] * a[i + j + k] % mod, &ai = a[i + j];
             a[i + j + k] = ai - z + (z > ai ? mod : 0);
             ai += (ai + z >= mod ? z - mod : z);
@@ -45,9 +45,8 @@ void ntt(vt<T> &a) {
 template<class T>
 vt<T> conv(const vt<T> &a, const vt<T> &b) {
     if (a.empty() || b.empty()) return {};
-    int s = size(a) + size(b) - 1, B = 32 - __builtin_clz(s),
-        n = 1 << B;
-    int inv = mpow(n, mod - 2);
+    int s = size(a) + size(b) - 1, B = 32 - __builtin_clz(s);
+    int n = 1 << B, inv = mpow(n, mod - 2);
     vt<T> L(a), R(b), out(n);
     L.resize(n), R.resize(n);
     ntt(L), ntt(R);
