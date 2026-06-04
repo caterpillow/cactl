@@ -1,0 +1,6 @@
+CompileFlags:
+  Add:
+    - -xc++
+    - -std=gnu++20
+    - -include
+    - /home/ubuntu/cactl/old-unit-tests/global.h
