@@ -23,16 +23,11 @@ using ptr = struct Node*;
 struct Node {
     ptr lc, rc;
     Line line;
-
-    Node(Line _line) {
-        line = _line;
-        lc = rc = 0;
-    }
 };
 
 // min tree (flip signs for max)
 void add(ptr& n, Line loser, ll l = 0, ll r = sz) {
-    if (n ? 0 : n = new Node(loser)) return;
+    if (n ? 0 : n = new Node{loser}) return;
     ll m = (l + r) / 2;
     if (loser(m) < n->line(m)) swap(loser, n->line);
     if (r - l == 1) return;
