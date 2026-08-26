@@ -77,3 +77,16 @@ because none of this is obvious from the code alone.
   Bumping to 4–5 lines fixes it at the cost of slightly looser pages.
 - Stress harness: `stress-tests/utilities/template.h` now mirrors the contest
   template plus legacy `rep/sz/pii` shims; tests compile from the repo root.
+
+## "This subsection bricks the latex" — root cause (fixed 2026-08-27)
+
+`\subsection`/`\subsubsection` in kactlpkg.sty had beforeskip `1ex plus -1ex
+minus -.3ex`. Standard LaTeX writes the *whole* skip negative (`-3.25ex plus
+-1ex ...`) and takes absolute values, so the stretch is really +1ex; here the
+overall skip was positive, so the stretch was literally **negative**. Whenever
+multicol had to stretch a short column to the flush bottom, every heading in
+that column moved *backwards* by the stretch ratio and overprinted the text
+above it — which only happened for certain selections of content (hence
+"different text regions"). Fixed by making the skip `-1ex plus -1ex minus
+-.3ex` (negative overall = |values| + no indent). `\myneedspace` was also
+raised to 5 lines (7 for chapter heads) so headings travel with their code.

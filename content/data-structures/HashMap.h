@@ -15,7 +15,7 @@ struct chash { // large odd number for C
     const uint64_t C = ll(4e18 * acos(0)) | 71;
     ll operator()(ll x) const { return __builtin_bswap64(x*C); }
 };
-// use key = __gnu_pbds::null_type for unordered_set
+// for a set, use __gnu_pbds::null_type as the mapped (2nd) type
 __gnu_pbds::gp_hash_table<ll, int, chash> h({}, {}, {}, {}, {1 << 16});
 
 /** For CodeForces, or other places where hacking might be a problem:
