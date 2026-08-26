@@ -11,6 +11,7 @@
 const int MAX_LEN = 1 << 20;
 template <int len = 1>
 void solve(int n) {
+    assert(n <= MAX_LEN);
     if (n > len) {
         solve<min(len * 2, MAX_LEN)>(n);
         return;

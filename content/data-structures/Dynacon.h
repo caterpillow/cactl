@@ -5,10 +5,15 @@
  * Source: me
  * Description: Dynamic connectivity. Alternatively use IncrementalMST, and weight edges by deletion time (Q if never deleted).
  * Time: O(N \log^2 N)
- * Usage: i forgot
- * Status: migrated from code-library - untested
+ * Usage: init(n, q) with q >= total toggle() + query() calls
+ * (each consumes one time slot). toggle(u, v) adds or removes
+ * an edge, query() records the component count, ans() returns
+ * all recorded answers in order.
+ * Status: stress-tested
  */
 #pragma once
+
+#include "DSURollback.h"
 
 struct DynaCon {
     int n, q, t = 0;

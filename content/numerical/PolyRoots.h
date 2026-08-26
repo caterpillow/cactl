@@ -2,34 +2,49 @@
  * Author: Per Austrin
  * Date: 2004-02-08
  * License: CC0
- * Description: Finds the real roots to a polynomial.
- * Usage: polyRoots({{2,-3,1}},-1e9,1e9) // solve x^2-3x+2 = 0
- * Time: O(n^2 \log(1/\epsilon))
+ * Description: Finds the distinct real roots in $[xmin,xmax]$.
+ * With double, use well-scaled inputs and simple roots separated
+ * by $\gg 10^{-8}\max(1,|x|)$. Multiple roots are unsafe.
+ * Usage: poly_roots({{2,-3,1}},-1e9,1e9)
+ * Time: $O(n^3)$, where $n$ is the degree.
  */
 #pragma once
 
 #include "Polynomial.h"
 
-vt<db> poly_roots(Poly p, double xmin, double xmax) {
-	if (size(p.a) == 2) { return {-p.a[0] / p.a[1]}; }
-	vt<db> ret;
+vt<db> poly_roots(Poly p, db xmin, db xmax) {
+	assert(xmin <= xmax);
+	while (!p.a.empty() && p.a.back() == 0) p.a.pop_back();
+	if (size(p.a) <= 1) return {};
+	if (size(p.a) == 2) {
+		db x = -p.a[0] / p.a[1];
+		return xmin <= x && x <= xmax ? vt<db>{x} : vt<db>{};
+	}
 	Poly der = p;
 	der.diff();
 	auto dr = poly_roots(der, xmin, xmax);
-	dr.push_back(xmin - 1);
-	dr.push_back(xmax + 1);
 	sort(all(dr));
-	F0R (i, size(dr) - 1) {
-		db l = dr[i], h = dr[i + 1];
-		bool sign = p(l) > 0;
-		if (sign ^ (p(h) > 0)) {
-			F0R (it, 60) { // while (h - l > 1e-8)
-				double m = (l + h) / 2, f = p(m);
-				if ((f <= 0) ^ sign) l = m;
-				else h = m;
-			}
-			ret.push_back((l + h) / 2);
+	vt<db> xs{xmin};
+	for (db x : dr) if (xmin < x && x < xmax) xs.push_back(x);
+	if (xmin < xmax) xs.push_back(xmax);
+	vt<db> ret;
+	F0R (i, size(xs)) {
+		db fl = p(xs[i]);
+		if (fl == 0) ret.push_back(xs[i]);
+		if (i + 1 == size(xs)) break;
+		db fh = p(xs[i + 1]);
+		if (fl == 0 || fh == 0 || (fl < 0) == (fh < 0))
+			continue;
+		db l = xs[i], h = xs[i + 1];
+		F0R (it, 60) {
+			db m = l / 2 + h / 2;
+			if (m == l || m == h) break;
+			db fm = p(m);
+			if (fm == 0) { l = h = m; break; }
+			if ((fm < 0) == (fl < 0)) l = m, fl = fm;
+			else h = m;
 		}
+		ret.push_back(l / 2 + h / 2);
 	}
 	return ret;
 }

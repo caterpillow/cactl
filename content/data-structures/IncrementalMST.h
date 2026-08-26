@@ -3,9 +3,12 @@
  * Date: 2025-09-13
  * License: CC0
  * Source: some yosupo submission
- * Description: Fast incremental MST where you can also delete max weight edges. Can be used for offline dynacon.
+ * Description: Fast incremental MST where you can also delete the current
+ * max weight copy of an edge. Weights (weight.f) must be globally distinct
+ * (the id in weight.s is not used to break ties). Can be used for offline
+ * dynacon (weight edges by deletion time).
  * Time: O(\log n) expected
- * Status: looks good
+ * Status: stress-tested
  */
 #pragma once
 
@@ -84,8 +87,8 @@ struct DSU {
         }
     }
 
-    // delete edge with weight
-    void delete_edge(int u, int v, int w) {
+    // delete edge (u, v); only valid for the current max weight copy
+    void delete_max_edge(int u, int v, int w) {
         delete_edge(u, w);
         delete_edge(v, w);
     }
@@ -99,7 +102,7 @@ struct DSU {
             return {inf, -1};
         } else if (weight[p].f > w.f) {
             pi res = weight[p];
-            delete_edge(p, weight[p].f);
+            delete_edge(p, res.f);
             add_edge(u, v, w);
             return res;
         }

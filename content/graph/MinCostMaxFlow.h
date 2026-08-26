@@ -82,7 +82,7 @@ struct MCMF {
     //     fill(all(pi), INF); pi[s] = 0;
     //     int it = n, ch = 1; ll v;
     //     while (ch-- && it--)
-    //         FOR (i, n) if (pi[i] != INF)
+    //         F0R (i, n) if (pi[i] != INF)
     //             for (edge& e : ed[i]) if (e.cap)
     //                 if ((v = pi[i] + e.cost) < pi[e.to])
     //                     pi[e.to] = v, ch = 1;

@@ -4,12 +4,16 @@
  * Time: O(N)
  * Source: https://cp-algorithms.com/geometry/minkowski.html#implementation
  */
+#pragma once
+
+#include "Point.h"
+#include "ConvexHull.h"
 
 vP minkowski_sum(vP a, vP b) {
 	if (sz(a) > sz(b)) swap(a, b);
 	if (!sz(a)) return {};
 	if (sz(a) == 1) {
-		each(t, b) t += a.ft;
+		each(t, b) t = t + a.ft;
 		return b;
 	}
 	rotate(begin(a), min_element(all(a)), end(a));
@@ -29,7 +33,7 @@ vP minkowski_sum(vP a, vP b) {
 
 T diameter2(vP p) { // example application: squared diameter
 	vP a = hull(p);
-	vP b = a; each(t, b) t *= -1;
+	vP b = a; each(t, b) t = t * -1;
 	vP c = minkowski_sum(a, b);
 	T ret = 0; each(t, c) ckmax(ret, abs2(t));
 	return ret;

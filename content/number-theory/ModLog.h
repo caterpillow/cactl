@@ -5,7 +5,8 @@
  * Source: own work
  * Description: Returns the smallest $x > 0$ s.t. $a^x = b \pmod m$, or
  * $-1$ if no such $x$ exists. modLog(a,1,m) can be used to
- * calculate the order of $a$.
+ * calculate the order of $a$. Pass a, b already reduced mod m,
+ * and keep $m < \tilde{}3e9$ ($(m-1)^2$ must fit in ll).
  * Time: $O(\sqrt m)$
  * Status: tested for all 0 <= a,x < 500 and 0 < m < 500.
  *

@@ -2,14 +2,14 @@
 
 \subsection{Theorems}
 
-  	A matching $M$ is maximum **iff** there is no $M$-augmenting path. \\
+  	A matching $M$ is maximum \textbf{iff} there is no $M$-augmenting path. \\
 
 	\subsection{Hall's Marriage Theorem}
-		$G = (L, R; E)$ has a matching covering all of $L$ iff $|N(s)| \ge |S|$ for every $S \subseteq L$. \\
+		$G = (L, R; E)$ has a matching covering all of $L$ iff $|N(S)| \ge |S|$ for every $S \subseteq L$. \\
 		Corollary: Let $\delta=\max_{S\subseteq L}\big(|S|-|N(S)|\big)$. The size of the maximum matching is $\tau = |L|-\delta$. \\
 
 	\subsection{Kőnig's Theorem}
- 		In bipartite graphs: **max matching = min vertex cover**, i.e. $\nu(G)=\tau(G)$.
+ 		In bipartite graphs: \textbf{max matching = min vertex cover}, i.e. $\nu(G)=\tau(G)$.
 		Hence max independent set size $\alpha(G)=|V|-\tau(G)=|V|-\nu(G)$. \\
 
 		To recover min vertex cover: 
@@ -20,16 +20,16 @@
 		Run Floyd-Warshall for transitivity. \\
 		Width (max antichain size) = min number of chains in a partition. \\
 		Reduction: make bipartite graph with two copies of elements; edge $x_L\!-\!y_R$ if $x<y$. Then
-		min chain decomposition size $= |P|-\nu$; width $= |P|-(|P|-\nu)=\nu$. \\
+		width $=$ min chain decomposition size $= |P|-\nu$. \\
 		Mirsky's Theorem (dual): Height (max chain size) = min number of antichains in a partition. \\
 
 	\subsection{Tutte's 1-Factor Theorem}
 		$odd(G)$ is the number of components in $G$ with an odd number of vertices. 
 		$G$ has a perfect matching iff for all $S\subseteq V$, $\text{odd}(G-S)\le |S|$.
-		Tutte'Berge formula: $\displaystyle \nu(G)=\tfrac12\min_{S\subseteq V}\big(|V|-\text{odd}(G-S)+|S|\big)$. \\
+		Tutte--Berge formula: $\displaystyle \nu(G)=\tfrac12\min_{S\subseteq V}\big(|V|-\text{odd}(G-S)+|S|\big)$. \\
 
 	\subsection{Edge cover}
-		In any graph without isolated vertices, the size of the minimum edge cover (set of edges that touch every vertex) is given by: \[\rho'(G)=|V|-\nu(G)\]. \\
+		In any graph without isolated vertices, the size of the minimum edge cover (set of edges that touch every vertex) is given by: \[\rho'(G)=|V|-\nu(G)\] \\
 
 \section{Math}
 	\subsection{Number of Spanning Trees}
@@ -49,10 +49,10 @@
 
 \section{Fundamentals}
 	\kactlimport{BellmanFord.h}
-	% \kactlimport{DEsopoPape.h}
+	\kactlimport{DEsopoPape.h}
 	\kactlimport{FloydWarshall.h}
-	% \kactlimport{DirectedCycle.h}
-	% \kactlimport{TopoSort.h} % if u mess this up u should retire
+	\kactlimport{DirectedCycle.h}
+	\kactlimport{TopoSort.h} % if u mess this up u should retire
 
 \section{Network flow}
 	\subsection{Reductions}
@@ -65,11 +65,11 @@
 		\item Pay $B[i]$ if $S[i] = 0$ 
 		\item Pay $C[i][j]$ if $S[i] = 1$ and $S[j] = 0$. 
 		\end{itemize}
-		To calculate the answer: 
+		To calculate the answer ($S[i] = 1$ means $i$ is on the $s$ side): 
 		\begin{itemize}[noitemsep]
-		\item Add edges $i$ to $t$ of capacity $B[i] + \texttt{inf}$. 
-		\item Add edges $s$ to $i$ of capacity $A[i] + \texttt{inf}$. 
-		\item Add edges $i$ to $j$ of capcity $C[i][j]$. 
+		\item Add edges $s$ to $i$ of capacity $B[i] + \texttt{inf}$. 
+		\item Add edges $i$ to $t$ of capacity $A[i] + \texttt{inf}$. 
+		\item Add edges $i$ to $j$ of capacity $C[i][j]$. 
 		\item The answer is the maximum flow in this graph minus $n \times \texttt{inf}$. 
 		\end{itemize}
 
@@ -106,21 +106,21 @@
 	We can model max $s \rightarrow t$ flow with lower bounds by adding edge $(t, s)$ and binary searching on its lower bound. 
 
 	\kactlimport{FordFulkerson.h}
-	% \kactlimport{EdmondsKarp.h}
+	\kactlimport{EdmondsKarp.h}
 	\kactlimport{Dinic.h}
-	% \kactlimport{PushRelabel.h}
+	\kactlimport{PushRelabel.h}
 	\kactlimport{MinCostMaxFlow.h}
-	% \kactlimport{MinCut.h}
+	\kactlimport{MinCut.h}
 	\kactlimport{GlobalMinCut.h}
 	\kactlimport{NetworkSimplex.h} % TO LEARN HOW IT ACTUALLY WORKS (i think i can use it?)
-	% \kactlimport{GomoryHu.h} % TO LEARN
+	\kactlimport{GomoryHu.h} % TO LEARN
 
 \section{Matching}
 	\kactlimport{DFSMatching.h}
 	\kactlimport{MinimumVertexCover.h}
 	\kactlimport{hopcroftKarp.h}
 	\kactlimport{WeightedMatching.h}
-	% \kactlimport{GeneralMatching.h} % redundantj
+	% \kactlimport{GeneralMatching.h} % redundant
 	\kactlimport{Blossom.h}
 
 \section{DFS algorithms}
@@ -130,15 +130,15 @@
 	\kactlimport{BlockCutTree.h}
 	\kactlimport{2sat.h}
 	\kactlimport{EulerWalk.h}
-	% \kactlimport{DominatorTree.h}
+	\kactlimport{DominatorTree.h}
 
-% \section{Coloring}
-	% \kactlimport{EdgeColoring.h} % idk what this is even for
+\section{Coloring}
+	\kactlimport{EdgeColoring.h} % idk what this is even for
 
 \section{Heuristics}
-% 	\kactlimport{MaximalCliques.h} % idk how useful this is
+	\kactlimport{MaximalCliques.h} % idk how useful this is
 	\kactlimport{MaximumClique.h}
-% 	\kactlimport{MaximumIndependentSet.h}
+	\kactlimport{MaximumIndependentSet.h}
 
 \section{Trees}
 	\kactlimport{BinaryLifting.h} % probably unnecessary
@@ -146,10 +146,10 @@
 	\kactlimport{VirtualTree.h}
 	\kactlimport{HLD.h}
 	\kactlimport{CentroidDecomp.h}
-	% \kactlimport{LinkCutTree.h} % pls dont need this
-	% \kactlimport{DirectedMST.h} % pls dont need this
-	% \kactlimport{LongestPath.h}
+	\kactlimport{LinkCutTree.h} % pls dont need this
+	\kactlimport{DirectedMST.h} % pls dont need this
+	\kactlimport{LongestPath.h}
 
 \section{Other}
-	% \kactlimport{KthWalk.h}
+	\kactlimport{KthWalk.h}
 	\kactlimport{MatroidIntersection.h}

@@ -1,6 +1,6 @@
 /**
  * Author: brunodccarvalho
- * Date: 2025-10-24
+ * Date: 2026-07-06
  * Description: Min-plus convolution with one convex or concave input.
  *  SMAWK handles arbitrary/convex; the border algorithm handles arbitrary/concave.
  *  Here, convex = smiley and concave = frowny.

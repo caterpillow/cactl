@@ -13,17 +13,17 @@
 	\[
 		G(\text{sum}) = G(P_1) \oplus G(P_2) \oplus \dots \oplus G(P_k)
 	\]
-	Green Hackenbush: A subtree can be replaced with a single line with length equal to xor of its subtrees. A cycle can be contracted into a single node with contracted edges sticking out. 
+	Green Hackenbush: a vertex's subtrees can be replaced by a single line of length $\bigoplus_{c \in \text{children}} (1 + \text{line}(c))$ (the connecting edge counts). A cycle can be contracted into a single node with contracted edges sticking out. 
 
-% \section{Intervals}
-% 	\kactlimport{IntervalContainer.h}
-% 	\kactlimport{IntervalCover.h}
-% 	\kactlimport{ConstantIntervals.h}
+\section{Intervals}
+	\kactlimport{IntervalContainer.h}
+	\kactlimport{IntervalCover.h}
+	\kactlimport{ConstantIntervals.h}
 
 \section{Misc. algorithms}
 	\kactlimport{TernarySearch.h}
-	% \kactlimport{LIS.h} % TODO rewrite
-	% \kactlimport{FastKnapsack.h}
+	\kactlimport{LIS.h} % TODO rewrite
+	\kactlimport{FastKnapsack.h}
 
 \section{Dynamic programming}
 	\kactlimport{KnuthDP.h}

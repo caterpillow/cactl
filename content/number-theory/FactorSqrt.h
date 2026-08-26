@@ -12,9 +12,9 @@
 vt<pair<int, int>> factor(int x) {
 	if (x == 1) return {};
 	vt<pair<int, int>> res;
-	for (int i = 2; i * i <= x; i++) {
+	for (ll i = 2; i * i <= x; i++) { // ll: i * i overflows near INT_MAX
 		if (x % i == 0) {
-			res.pb({i, 0});
+			res.pb({(int) i, 0});
 			while (x % i == 0) {
 				res.back().second++;
 				x /= i;

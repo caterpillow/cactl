@@ -45,8 +45,8 @@ vt<H> get_hashes(T& str, int length) {
 }
 
 template<class T>
-H hash_string(T& s) { 
-    H h = 1; 
+H hash_string(T& s) { // == hash_interval(0, size(s))
+    H h = 0; 
     for (auto c : s) h = h * C + c + 1; 
     return h; 
 }

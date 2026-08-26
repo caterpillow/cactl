@@ -10,15 +10,14 @@
  */
 #pragma once
 
-const ll INF = 1e18;
-vt<vt<pair<int, ll>>> adj;
+vt<vt<pair<int, ll>>> adj; // INF comes from the template
 
 void shortest_paths(int s, vt<ll> &d, vi &p) {
-    d.resize(n, INF);
+    d.assign(n, INF);
     d[s] = 0;
     vi m(n, 2);
     deque<int> q {s};
-    p.resize(n, -1);
+    p.assign(n, -1);
 
     while (!q.empty()) {
         int u = q.front(); q.pop_front();

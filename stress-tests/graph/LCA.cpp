@@ -1,88 +1,41 @@
+// Tests LCA.h (RMQ-based, new init() constructor) all-pairs vs brute parent-climbing
+// on random trees (n<=60), plus n=1, star, and path shapes. written by Claude (audit)
 #include "../utilities/template.h"
 #include "../utilities/genTree.h"
-
 #include "../../content/graph/LCA.h"
-#include "../../content/graph/BinaryLifting.h"
-#include "../../content/data-structures/RMQ.h"
 
-namespace old {
-typedef vector<pii> vpi;
-typedef vector<vpi> graph;
-
-struct LCA {
-	vi time;
-	vector<ll> dist;
-	RMQ<pii> rmq;
-
-	LCA(graph& C) : time(sz(C), -99), dist(sz(C)), rmq(dfs(C)) {}
-
-	vpi dfs(graph& C) {
-		vector<tuple<int, int, int, ll>> q(1);
-		vpi ret;
-		int T = 0, v, p, d; ll di;
-		while (!q.empty()) {
-			tie(v, p, d, di) = q.back();
-			q.pop_back();
-			if (d) ret.emplace_back(d, p);
-			time[v] = T++;
-			dist[v] = di;
-			for(auto &e: C[v]) if (e.first != p)
-				q.emplace_back(e.first, v, d+1, di + e.second);
-		}
-		return ret;
-	}
-
-	int query(int a, int b) {
-		if (a == b) return a;
-		a = time[a], b = time[b];
-		return rmq.query(min(a, b), max(a, b)).second;
-	}
-	ll distance(int a, int b) {
-		int lca = query(a, b);
-		return dist[a] + dist[b] - 2 * dist[lca];
-	}
-};
+vi par_, dep_;
+void root_dfs(vt<vi>& adj, int u, int p, int d) {
+	par_[u] = p, dep_[u] = d;
+	for (int v : adj[u]) if (v != p) root_dfs(adj, v, u, d + 1);
 }
-
-
-void getPars(vector<vi> &tree, int cur, int p, int d, vector<int> &par, vector<int> &depth) {
-	par[cur] = p;
-	depth[cur] = d;
-	for(auto i: tree[cur]) if (i != p) {
-		getPars(tree, i, cur, d+1, par, depth);
+int brute_lca(int a, int b) {
+	while (dep_[a] > dep_[b]) a = par_[a];
+	while (dep_[b] > dep_[a]) b = par_[b];
+	while (a != b) a = par_[a], b = par_[b];
+	return a;
+}
+void check(vt<vi>& adj) {
+	int n = size(adj);
+	par_ = dep_ = vi(n);
+	root_dfs(adj, 0, -1, 0);
+	LCA lca(adj);
+	F0R (a, n) F0R (b, n) assert(lca(a, b) == brute_lca(a, b));
+}
+int main() {
+	srand(1234);
+	{ vt<vi> adj(1); check(adj); } // n = 1
+	{ // star and path, n = 60
+		vt<vi> star(60), path(60);
+		FOR (i, 1, 60) star[0].pb(i), star[i].pb(0);
+		FOR (i, 1, 60) path[i - 1].pb(i), path[i].pb(i - 1);
+		check(star); check(path);
 	}
-}
-void test_n(int n, int num) {
-	for (int out=0; out<num; out++) {
-		auto graph = genRandomTree(n);
-		vector<vi> tree(n);
-		vector<vector<pair<int, int>>> oldTree(n);
-		for (auto i: graph) {
-			tree[i.first].push_back(i.second);
-			tree[i.second].push_back(i.first);
-			oldTree[i.first].push_back({i.second, 1});
-			oldTree[i.second].push_back({i.first, 1});
-		}
-		vector<int> par(n), depth(n);
-		getPars(tree, 0, 0, 0, par, depth);
-		vector<vi> tbl = treeJump(par);
-		LCA new_lca(tree);
-		old::LCA old_lca(oldTree);
-		for (int i=0; i<100; i++) {
-			int a = rand()%n, b = rand()%n;
-			int binLca = lca(tbl, depth, a, b);
-			int newLca = new_lca.lca(a,b);
-			int oldLca = old_lca.query(a,b);
-			assert(oldLca == newLca);
-			assert(binLca == newLca);
-		}
+	F0R (it, 3000) {
+		int n = rand() % 60 + 1;
+		vt<vi> adj(n);
+		if (n > 1) for (auto [a, b] : genRandomTree(n)) adj[a].pb(b), adj[b].pb(a);
+		check(adj);
 	}
+	cout << "Tests passed!" << endl;
 }
-
-signed main() {
-	test_n(10, 1000);
-	test_n(100, 100);
-	test_n(1000, 10);
-	cout<<"Tests passed!"<<endl;
-}
-

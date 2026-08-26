@@ -67,8 +67,8 @@
 }
 
 % Remove temp files from old failed runs
-\AtBeginDocument{\immediate\write18{rm -f \@builddir/header.tmp}}
-\AtEndDocument{\immediate\write18{rm -f \@builddir/header.tmp}\immediate\write18{rm -f \@builddir/header2.tmp}\immediate\write18{rm -f \@builddir/kactl.tmp}}
+\AtBeginDocument{\immediate\write18{rm -f header.tmp}}
+\AtEndDocument{\immediate\write18{rm -f header.tmp}\immediate\write18{rm -f \@builddir/header2.tmp}\immediate\write18{rm -f \@builddir/kactl.tmp}}
 
 % Include a list of source files at the top of every page. For the purpose
 % of recording those, we use eTeX marks. (We can't just append data directly to
@@ -370,15 +370,19 @@
 	{\par\noindent\footnotesize{\textbf{#1:} #2\par}}
 }
 
+% The tiny hash caption shares the last header line when it fits and
+% wraps to its own right-aligned line when it doesn't (no more overlap).
 \long\def\@makecaption#1#2{
 	\vspace{-3pt}
-	\ifthenelse{\boolean{hasdescription}}{\codeheader{Description}{\@defdescription}}{}
-	\ifthenelse{\boolean{hasusage}}{\codeheader{Usage}{\@defusage}}{}
-	\ifthenelse{\boolean{hasmemory}}{\codeheader{Memory}{\@defmemory}}{}
-	\ifthenelse{\boolean{hastime}}{\codeheader{Time}{\@deftime}}{}
-	\ifthenelse{\boolean{hasleftcaption}}{\vspace{0pt}}{\vspace{-5pt}}
-	\tiny
-	\texttt{\@leftcaption} \hfill \@rightcaption
+	{\par\noindent\footnotesize
+	\def\@chsep{}
+	\ifthenelse{\boolean{hasdescription}}{\@chsep\textbf{Description:} \@defdescription\def\@chsep{\\}}{}
+	\ifthenelse{\boolean{hasusage}}{\@chsep\textbf{Usage:} \@defusage\def\@chsep{\\}}{}
+	\ifthenelse{\boolean{hasmemory}}{\@chsep\textbf{Memory:} \@defmemory\def\@chsep{\\}}{}
+	\ifthenelse{\boolean{hastime}}{\@chsep\textbf{Time:} \@deftime\def\@chsep{\\}}{}
+	\unskip\nobreak\hfil\penalty50\hskip1em\hbox{}\nobreak\hfil
+	{\tiny\texttt{\@leftcaption}\enspace\@rightcaption}%
+	\parfillskip=0pt \finalhyphendemerits=0 \par}
 }
 
 \newcommand{\bigo}[1] {\ensuremath{\mathcal{O} \left( #1 \right)}}

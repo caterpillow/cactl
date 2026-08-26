@@ -1,107 +1,56 @@
+// Tests IntDeterminant.h (the REAL header) with mod = 1e9+7: random small
+// matrices vs exact determinant computed via long-double Gaussian elimination
+// (values kept small enough to round exactly), reduced mod p.
+// written by Claude (audit)
 #include "../utilities/template.h"
+ll mod = 1e9 + 7; // global consumed by the header
+#include "../../content/numerical/IntDeterminant.h"
 
-const int mod = 7; // 4
+mt19937 rng(555);
 
-typedef vector<vector<ll>> vvll;
-ll det(vvll& a) { // integer determinant
-	int n = sz(a); ll ans = 1;
-	rep(i,0,n) {
-		rep(j,i+1,n) {
-			while (a[j][i] != 0) { // gcd step
-				ll t = a[i][i] / a[j][i];
-				rep(k,i,n)
-					a[i][k] = (a[i][k] - a[j][k] * t) % mod;
-				swap(a[i], a[j]);
-				ans *= -1;
-			}
-		}
-		if (!a[i][i]) return 0;
-		ans = ans * a[i][i] % mod;
-	}
-	if (ans < 0) ans += mod;
-	return ans;
-}
-
-ll idet(vvll& a) { // integer determinant
-	int n = sz(a); ll ans = 1;
-	rep(i,0,n) {
-		rep(j,i+1,n) {
-			while (a[j][i] != 0) { // gcd step
-				ll t = a[i][i] / a[j][i]; // can take mod-inv if mod p
-				rep(k,i,n) a[i][k] -= a[j][k] * t;
-				swap(a[i], a[j]);
-				ans *= -1;
-			}
-		}
-		if (!a[i][i]) return 0;
-		ans *= a[i][i];
-	}
-	return ans;
-}
-
-double det(vector<vector<double>>& a) {
-	int n = sz(a); double res = 1;
-	rep(i,0,n) {
+ll floatDet(vt<vt<long double>> a) {
+	int n = size(a); long double res = 1;
+	F0R (i, n) {
 		int b = i;
-		rep(j,i+1,n) if (fabs(a[j][i]) > fabs(a[b][i])) b = j;
-		if (i != b) swap(a[i], a[b]), res *= -1;
+		FOR (j, i + 1, n) if (fabsl(a[j][i]) > fabsl(a[b][i])) b = j;
+		if (i != b) swap(a[i], a[b]), res = -res;
 		res *= a[i][i];
 		if (res == 0) return 0;
-		rep(j,i+1,n) {
-			double v = a[j][i] / a[i][i];
-			if (v != 0) rep(k,i+1,n) a[j][k] -= v * a[i][k];
+		FOR (j, i + 1, n) {
+			long double v = a[j][i] / a[i][i];
+			if (v != 0) FOR (k, i + 1, n) a[j][k] -= v * a[i][k];
 		}
 	}
-	return res;
-}
-
-template<class F>
-void rec(int i, int j, vvll& A, F f) {
-	if (i == sz(A)) {
-		f();
-	}
-	else if (j == sz(A[i])) {
-		rec(i+1, 0, A, f);
-	}
-	else {
-		rep(v,0,mod) {
-			A[i][j] = v;
-			rec(i, j+1, A, f);
-		}
-	}
-}
-
-template<class F>
-void rec2(int i, vector<ll>& A, F f) {
-	if (i == sz(A)) f();
-	else {
-		rep(v,0,mod) {
-			A[i] = v;
-			rec2(i+1, A, f);
-		}
-	}
+	return llroundl(res);
 }
 
 int main() {
-	rep(n,0,4) {
-		vvll mat(n, vector<ll>(n, 0)), mat2;
-		vector<vector<double>> mat3(n, vector<double>(n, 0));
-		rec(0,0,mat,[&]() {
-			rep(i,0,n) rep(j,0,n) mat3[i][j] = mat[i][j];
-			// mat2 = mat; ll a = det(mat2);
-			int a = (int)round(det(mat3)) % mod;
-			mat2 = mat; ll b = idet(mat2) % mod;
-			if (a < 0) a += mod;
-			if (b < 0) b += mod;
-			if (a != b) {
-				rep(i,0,n) {
-					rep(j,0,n) cout << mat[i][j];
-					cout << endl;
-				}
-				cout << a << ' ' << b << endl;
-				assert(a == b);
-			}
-		});
+	F0R (it, 50000) {
+		int n = rng() % 7; // 0..6; |det| <= 6! * 20^6 ~ 4.6e10, exact in ldb
+		vt<vl> m(n, vl(n));
+		vt<vt<long double>> fm(n, vt<long double>(n));
+		F0R (i, n) F0R (j, n) {
+			ll v = (ll)(rng() % 41) - 20;
+			if (rng() % 5 == 0) v = 0;
+			m[i][j] = v; fm[i][j] = (long double)v;
+		}
+		ll want = floatDet(fm) % mod;
+		if (want < 0) want += mod;
+		ll got = det(m);
+		assert(got == want);
 	}
-	cout<<"Tests passed!"<<endl;
+	// also negative entries reduced into (-mod, mod), larger magnitude, n<=3
+	F0R (it, 20000) {
+		int n = rng() % 4;
+		vt<vl> m(n, vl(n));
+		vt<vt<long double>> fm(n, vt<long double>(n));
+		F0R (i, n) F0R (j, n) {
+			ll v = (ll)(rng() % 20001) - 10000;
+			m[i][j] = v; fm[i][j] = (long double)v;
+		}
+		ll want = floatDet(fm) % mod;
+		if (want < 0) want += mod;
+		assert(det(m) == want);
+	}
+	cout << "Tests passed!" << endl;
 }

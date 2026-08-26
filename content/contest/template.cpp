@@ -2,6 +2,7 @@
 
 using namespace std;
 using ll = long long;
+using db = double;
 
 #define FOR(i, a, b) for (int i = a; i < (b); i++)
 #define F0R(i, b) FOR(i, 0, b)
@@ -13,6 +14,11 @@ using ll = long long;
 #define f first
 #define s second
 using vi = vt<int>;
+using vl = vt<ll>;
+using pi = pair<int, int>;
+using pl = pair<ll, ll>;
+const int inf = 1e9;
+const ll INF = 1e18;
 
 int main() {
     cin.tie(0)->sync_with_stdio(0);

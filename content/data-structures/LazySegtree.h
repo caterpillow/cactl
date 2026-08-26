@@ -6,7 +6,7 @@
  * Description: Generic lazy segment tree
  * Time: O(\log N).
  * Usage: Implement +, upd and id for Node object; += and id for Lazy object.
- * Status: migrated from code-library - untested
+ * Status: stress-tested
  */
 #pragma once
 
@@ -72,6 +72,6 @@ struct Lazyseg {
     //     seg[i] = seg[2 * i] + seg[2 * i + 1];
     // }
     // void build() {
-    //     for (int i = n - 1; i > 0; i--) pull(i);
+    //     for (int i = sz - 1; i > 0; i--) pull(i);
     // }
 };

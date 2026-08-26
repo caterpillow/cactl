@@ -1,40 +1,46 @@
+// Tests Hashing.h: hash_string == hash_interval(0,n) == get_hashes(s,n)[0],
+// all interval/rolling/reverse hashes vs independent recomputation, no collisions.
+// written by Claude (audit)
 #include "../utilities/template.h"
 
 #include "../../content/strings/Hashing.h"
 
-#include <sys/time.h>
+H brute(const string& t) { H h = 0; for (char c : t) h = h * C + c + 1; return h; }
+
 int main() {
 	assert((H(1)*2+1-3).get() == 0);
-
-	rep(it,0,10000) {
-		int n = rand() % 10;
+	srand(42);
+	F0R (it, 20000) {
+		int n = rand() % 12;
 		int alpha = rand() % 10 + 1;
 		string s;
-		rep(i,0,n) s += (char)('a' + rand() % alpha);
+		F0R (i, n) s += (char)('a' + rand() % alpha);
 		HashInterval hi(s);
 		set<string> strs;
 		set<ull> hashes;
 
-		// HashInterval
-		rep(i,0,n+1) rep(j,i,n+1) {
+		// hash_string agreement
+		assert(hash_string(s).get() == hi.hash_interval(0, n).get());
+		if (n) assert(get_hashes(s, n)[0].get() == hash_string(s).get());
+
+		for (int i = 0; i <= n; i++) for (int j = i; j <= n; j++) {
 			string sub = s.substr(i, j - i);
-			ull hash = hashString(sub).get();
-			assert(hi.hashInterval(i, j).get() == hash);
-			hashes.insert(hash);
+			ull h = brute(sub).get();
+			assert(hi.hash_interval(i, j).get() == h);
+			string rsub(sub.rbegin(), sub.rend());
+			assert(hi.rhash_interval(i, j).get() == brute(rsub).get());
+			hashes.insert(h);
 			strs.insert(sub);
 		}
 
-		// getHashes
-		rep(le,1,n+1) {
-			auto ve = getHashes(s, le);
-			assert(sz(ve) == n-le+1);
-			rep(i,0,n-le+1) {
-				assert(ve[i].get() == hi.hashInterval(i, i + le).get());
-			}
+		// get_hashes (all rolling hashes of each length)
+		FOR (le, 1, n + 1) {
+			auto ve = get_hashes(s, le);
+			assert(size(ve) == n - le + 1);
+			F0R (i, n - le + 1)
+				assert(ve[i].get() == hi.hash_interval(i, i + le).get());
 		}
-
-		// No collisions
-		assert(sz(strs) == sz(hashes));
+		assert(size(strs) == size(hashes)); // no collisions
 	}
-	cout<<"Tests passed!"<<endl;
+	cout << "Tests passed!" << endl;
 }

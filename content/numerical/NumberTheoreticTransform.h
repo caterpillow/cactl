@@ -18,7 +18,7 @@
 
 #include "../number-theory/ModPow.h"
 
-const ll root = 62; // = 998244353
+const ll root = 62; // mod = 998244353
 // For p < 2^30 there is also e.g. 5 << 25, 7 << 26, 479 << 21
 // and 483 << 21 (same root). The last two are > 10^9.
 
@@ -30,7 +30,7 @@ void ntt(vt<T> &a) {
         rt.resize(n);
         ll z[] = {1, mpow(root, mod >> s)};
         FOR (i, k, 2 * k) rt[i] = rt[i / 2] * z[i & 1] % mod;
-    }
+    } // <hash>
     vi rev(n);
     F0R (i, n) rev[i] = (rev[i / 2] | (i & 1) << L) / 2;
     F0R (i, n) if (i < rev[i]) swap(a[i], a[rev[i]]);
@@ -40,7 +40,7 @@ void ntt(vt<T> &a) {
             a[i + j + k] = ai - z + (z > ai ? mod : 0);
             ai += (ai + z >= mod ? z - mod : z);
         }
-}
+} // <hash>
 
 template<class T>
 vt<T> conv(const vt<T> &a, const vt<T> &b) {

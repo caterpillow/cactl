@@ -3,7 +3,7 @@
  * Date: 2025-08-26
  * Source: me
  * Description: KD-tree (2d)
- * Status: uhhh idk
+ * Status: stress-tested
  */
 #pragma once
 
@@ -32,6 +32,7 @@ struct Node {
 
     template<class ptr>
     Node (ptr l, ptr r, int d) : lc(0), rc(0) {
+        assert(l != r);
         lo = {inf, inf}, hi = {-inf, -inf};
         for (ptr p = l; p < r; p++) {
             F0R (i, 2) lo[i] = min(lo[i], (*p)[i]), hi[i] = max(hi[i], (*p)[i]);
@@ -50,7 +51,7 @@ struct Node {
             lc->search(p, best);
             if (dr < best) rc->search(p, best);
         } else best = min(best, dist2(p, lo));
-    } 
+    } // nearest neighbour: init best = INF (ok for |coords| <= 7e8); 0 if p in set
 
     // fill pq with k infinities for nearest k points
     void search(P p, priority_queue<ll> &pq) {

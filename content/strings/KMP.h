@@ -10,7 +10,7 @@
  */
 #pragma once
 
-vi pi(const string& s) {
+vi pfun(const string& s) { // renamed: pi is a template alias
 	vi p(size(s));
 	FOR (i, 1, size(s)) {
 		int g = p[i - 1];
@@ -21,7 +21,7 @@ vi pi(const string& s) {
 }
 
 vi match(const string &s, const string &pat) {
-	vi p = pi(pat + '\0' + s), res;
+	vi p = pfun(pat + '\0' + s), res;
 	FOR (i, size(p) - size(s), size(p))
 		if (p[i] == size(pat)) res.push_back(i - 2 * size(pat));
 	return res;

@@ -17,9 +17,9 @@ int solveLinear(vt<bs>& A, vi& b, bs& x, int m) {
 	assert(m <= size(x));
 	vi col(m); iota(all(col), 0);
 	F0R (i, n) {
-		FOR (br, i, n) if (A[br].any()) break;
+		for (br = i; br < n; br++) if (A[br].any()) break;
 		if (br == n) {
-			F0R (j, i, n) if(b[j]) return -1;
+			FOR (j, i, n) if(b[j]) return -1;
 			break;
 		}
 		int bc = (int) A[br]._Find_next(i - 1);

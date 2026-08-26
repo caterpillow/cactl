@@ -79,7 +79,9 @@ struct qdlong {
         qdlong prod = b * qdlong(q1);
         qdlong r = a - prod;
         ldb q2 = (r.hi) / b.hi; // one correction term (good accuracy)
-        qdlong result = qdlong(q1 + q2);
+        ldb hi_out, lo_out;
+        twoSum(q1, q2, hi_out, lo_out); // keep both words of q1 + q2
+        qdlong result(hi_out, lo_out);
         // optional extra correction (commented out; enable if you want extra accuracy):
         // qdlong prod2 = b * result;
         // qdlong r2 = a - prod2;

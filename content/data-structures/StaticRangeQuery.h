@@ -4,9 +4,10 @@
  * License: CC0
  * Source: me
  * Description: Generic static range query for associative operations.
+ * Queries are half-open: query(l, r) folds over $[l, r)$.
  * Time: O(N \log N) build, O(1) query.
  * Usage: Define the desired operation
- * Status: migrated from code-library - untested
+ * Status: stress-tested
  */
 #pragma once
 
@@ -33,13 +34,13 @@ template<class T> struct RangeQuery {
         n = 1 << lg;
         a.resize(n, id);
         for (It i = l; i != r; i++) a[i - l] = *i;
-        stor.resize(n, vt<T>(32 - __builtin_clz(n)));
+        stor.resize(n, vt<T>(lg + 1));
         fill(0, n, lg - 1);
     }
-    T query(int l, int r) {
-        if (l == r) return a[l];
-        int t = 31 - __builtin_clz(r ^ l);
-        return comb(stor[l][t], stor[r][t]);
+    T query(int l, int r) { // [l, r)
+        if (r - l == 1) return a[l];
+        int t = __lg(l ^ (r - 1));
+        return comb(stor[l][t], stor[r - 1][t]);
     }
     #undef id
     #undef comb

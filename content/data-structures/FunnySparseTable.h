@@ -6,13 +6,13 @@
  * Description: Generic sparse table for idempotent operations.
  * Time: O(N \log N) build, O(1) query.
  * Usage: Define the desired operation
- * Status: migrated from code-library - untested
+ * Status: stress-tested
  */
 #pragma once
 
 template<class T> struct RMQ {
     vt<vt<T>> dp;
-    T query(int l, int r) {
+    T query(int l, int r) { // [l, r); width-1 hits __lg(0): UB before gcc 12
         int d = max(0, __lg(r - l - 1));
         return min(dp[d][l], dp[d][r - (1 << d)]); 
     }

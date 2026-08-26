@@ -3,11 +3,15 @@
  * Date: 2025-09-03 
  * Source: atcoder submission
  * Description: Solves minimum cost circulation problem.
- *  To convert to a "normal" mcmf, add an edge from \text{t -> s} of big capacity and negative inf cost (remember to add this back on to answer!).
+ *  To convert to a "normal" mcmf, add an edge from \text{t -> s} of big
+ *  capacity and cost below $-(V \cdot \max|cost|)$ (NOT -1e18: costs
+ *  multiply flows and accumulate into duals). Add it back onto the answer!
  *  If you don't necessarily need to maximise flow, add free edge from \text{s -> t}.
  *  Edge $i$ (one indexed) is \text{ns.edges[2 * i]]}.
  *  Works with negative cost cycles.
- * Status: seems to print the right answer at least
+ *  Flow is int; set Flow = ll if capacities/flows exceed 2\ensuremath{^{31}}.
+ *  Total |cost x flow| must fit in ll.
+ * Status: stress-tested (random circulations + mcmf vs MCMF)
  * Time: $O(VE)$ on average maybe
  */
 #pragma once
@@ -63,7 +67,7 @@ struct NetworkSimplex {
         while (pen) mark[pen] = ti, pen = fa[pen];
         while (mark[lca] != ti) mark[lca] = ti, lca = fa[lca];
 
-        int e2 = 0, f = edges[e].cap, path = 2, clen = 0;
+        int e2 = 0, path = 2, clen = 0; Flow f = edges[e].cap;
         for (int i = edges[e ^ 1].to; i != lca; i = fa[i]) {
             cyc[++clen] = fe[i];
             if (edges[fe[i]].cap < f)
@@ -93,6 +97,7 @@ struct NetworkSimplex {
 
     Cost compute() {
         Cost cost = 0;
+        if (size(edges) <= 2) return 0; // no ae() calls
         init_tree(0);
         mark[0] = ti = 2, fa[0] = cost = 0;
         int ncnt = size(edges) - 1;

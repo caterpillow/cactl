@@ -1,26 +1,22 @@
+// Tests KMP.h: pfun() exhaustively vs brute prefix function on small alphabets
+// (~2.2M strings), plus match() vs brute substring search on random cases.
+// written by Claude (audit)
 #include "../utilities/template.h"
 
 #include "../../content/strings/KMP.h"
 
 template<class F>
-void gen(string& s, int at, int alpha, F f) {
-	if (at == sz(s)) f();
-	else {
-		rep(i,0,alpha) {
-			s[at] = (char)('a' + i);
-			gen(s, at+1, alpha, f);
-		}
-	}
+void gen(string& s, int at, int alpha, F fun) {
+	if (at == size(s)) fun();
+	else F0R (i, alpha) { s[at] = (char)('a' + i); gen(s, at + 1, alpha, fun); }
 }
 
 void test(const string& s) {
-	vi p = pi(s);
-	rep(i,0,sz(s)) {
+	vi p = pfun(s);
+	F0R (i, size(s)) {
 		int maxlen = -1;
-		rep(len,0,i+1) {
-			rep(j,0,len) {
-				if (s[j] != s[i+1 - len + j]) goto fail;
-			}
+		F0R (len, i + 1) {
+			F0R (j, len) if (s[j] != s[i + 1 - len + j]) goto fail;
 			maxlen = len;
 fail:;
 		}
@@ -29,20 +25,19 @@ fail:;
 }
 
 int main() {
-	// string str; cin >> str; for(auto &x: pi(str)) cout << x; cout << endl;
-	// test ~3^12 strings
-	rep(n,0,13) {
-		string s(n, 'x');
-		gen(s, 0, 3, [&]() {
-			test(s);
-		});
+	F0R (n, 13) { string t(n, 'x'); gen(t, 0, 3, [&]() { test(t); }); }
+	F0R (n, 11) { string t(n, 'x'); gen(t, 0, 4, [&]() { test(t); }); }
+
+	// match() vs brute
+	srand(1234);
+	F0R (it, 20000) {
+		int n = rand() % 30, m = rand() % 8 + 1, alpha = rand() % 3 + 1;
+		string t, pat;
+		F0R (i, n) t += (char)('a' + rand() % alpha);
+		F0R (i, m) pat += (char)('a' + rand() % alpha);
+		vi res = match(t, pat), exp;
+		F0R (i, n - m + 1) if (t.substr(i, m) == pat) exp.pb(i);
+		assert(res == exp);
 	}
-	// then ~4^10 strings
-	rep(n,0,11) {
-		string s(n, 'x');
-		gen(s, 0, 4, [&]() {
-			test(s);
-		});
-	}
-	cout<<"Tests passed!"<<endl;
+	cout << "Tests passed!" << endl;
 }

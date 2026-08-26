@@ -12,6 +12,7 @@
 
 using vd = vt<db>;
 vd interpolate(vd x, vd y, int n) {
+	assert(n > 0);
 	vd res(n), temp(n);
 	F0R (k, n - 1) FOR (i, k + 1, n)
 		y[i] = (y[i] - y[k]) / (x[i] - x[k]);

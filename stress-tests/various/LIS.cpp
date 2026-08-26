@@ -1,51 +1,46 @@
+// Tests LIS.h: lis_dp[i] vs O(n^2) DP (length of strict LIS ending at i),
+// lis_construct indices form a valid maximal strictly-increasing subsequence
+// (maximality checked by bitmask brute), incl. empty and fully-increasing
+// inputs (old out-of-bounds case). written by Claude (audit)
 #include "../utilities/template.h"
-
 #include "../../content/various/LIS.h"
 
-template<class I> vi lisWeak(const vector<I>& S) {
-	if (S.empty()) return {};
-	vi prev(sz(S));
-	typedef pair<I, int> p;
-	vector<p> res;
-	rep(i,0,sz(S)) {
-		// 0 -> i for longest non-decreasing subsequence
-		auto it = lower_bound(all(res), p{S[i], i});
-		if (it == res.end()) res.emplace_back(), it = res.end()-1;
-		*it = {S[i], i};
-		prev[i] = it == res.begin() ? 0 : (it-1)->second;
+mt19937 rng(999);
+
+void check(const vi& v) {
+	int n = size(v);
+	// brute LIS length + per-index DP
+	vi len(n, 1);
+	int best = 0;
+	F0R (i, n) {
+		F0R (j, i) if (v[j] < v[i]) len[i] = max(len[i], len[j] + 1);
+		best = max(best, len[i]);
 	}
-	int L = sz(res), cur = res.back().second;
-	vi ans(L);
-	while (L--) ans[L] = cur, cur = prev[cur];
-	return ans;
+	vi dp = lis_dp(v);
+	assert(size(dp) == n);
+	F0R (i, n) assert(dp[i] == len[i]);
+	vi idx = lis_construct(v);
+	assert(size(idx) == best);
+	F0R (k, size(idx) - 1) {
+		assert(idx[k] < idx[k + 1]);
+		assert(v[idx[k]] < v[idx[k + 1]]);
+	}
+	F0R (k, size(idx)) assert(0 <= idx[k] && idx[k] < n);
 }
 
 int main() {
-	rep(weak,0,2) {
-		auto lt = [weak](int a, int b) { return weak ? a <= b : a < b; };
-		rep(it,0,1000000) {
-			int n = rand() % 7;
-			vi v(n);
-			for(auto &x: v) x = rand() % 4;
-			vi inds = weak ? lisWeak(v) : lis(v);
-			rep(i,0,sz(inds)-1) {
-				assert(lt(v[inds[i]], v[inds[i+1]]));
-			}
-			rep(bi,0,(1 << n)) {
-				int si = (int)bitset<32>(bi).count();
-				if (si <= sz(inds)) continue;
-				int prev = INT_MIN;
-				rep(i,0,n) if (bi & (1 << i)) {
-					if (!lt(prev, v[i])) goto next;
-					prev = v[i];
-				}
-				cout << "exists lis of size " << si << " but found only " << sz(inds) << endl;
-				for(auto &x: v) cout << x << ' ';
-				cout << endl;
-				abort();
-	next:;
-			}
-		}
+	check({}); // empty
+	FOR (n, 1, 12) { // fully increasing (old OOB when LIS length == n)
+		vi v(n); iota(all(v), 0);
+		check(v);
+	}
+	F0R (it, 200000) {
+		int n = rng() % 9; // 0..8
+		vi v(n);
+		for (int& x : v) x = (int)(rng() % 5) - 2;
+		if (it % 10 == 0) sort(all(v)); // sorted-ish, incl. strictly increasing
+		if (it % 20 == 0) { v.assign(n, 0); iota(all(v), (int)(rng() % 3)); }
+		check(v);
 	}
 	cout << "Tests passed!" << endl;
 }

@@ -41,6 +41,9 @@ mi one() { return _mm256_set1_epi32(-1); }
 bool all_zero(mi m) { return _mm256_testz_si256(m, m); }
 bool all_one(mi m) { return _mm256_testc_si256(m, one()); }
 
+// NOTE: only correct if every kept product a[i]*b[i] is >= 0 -- the
+// 32->64 widening zero-extends. Unpack with srai(vp, 31) instead of
+// zero to sign-extend.
 ll example_filteredDotProduct(int n, short* a, short* b) {
 	int i = 0; ll r = 0;
 	mi zero = _mm256_setzero_si256(), acc = zero;

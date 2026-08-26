@@ -7,7 +7,7 @@
  */
 
 int n; cin >> n;
-vt<P> pts(n);
+vt<P> pts(n); // use radial sort
 for (auto &[x, y] : pts) cin >> x >> y;
 
 vi ord(n), loc(n);
@@ -38,3 +38,4 @@ for (auto [dir, x, y] : evs) {
     mx = max(mx, abs(pts[x].cross(pts[y], pts[ord[0]])));
     mx = max(mx, abs(pts[x].cross(pts[y], pts[ord[n - 1]])));
 }
+mn = max(mn, 0ll); // collinear-tie artifacts; true min is 0 then

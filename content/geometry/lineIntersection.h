@@ -27,16 +27,7 @@ template<class P>
 pair<int, P> line_inter(P s1, P e1, P s2, P e2) {
     auto d = (e1 - s1).cross(e2 - s2);
     if (d == 0) // if parallel
-        return {-(s1.cross(e1, s2) == 0), P(0, 0)};
+        return {-(s1.cross(e1, s2) == 0), P{}};
     auto p = s2.cross(e1, e2), q = s2.cross(e2, s1);
     return {1, (s1 * p + e1 * q) / d};
-}
-
-template<class P>
-pair<int, P> line_inter(P s0, P d0, P s1, P d1) {
-    auto d = (d0).cross(d1);
-    if (d == 0) // if parallel
-        return {0, {}};
-    auto p = (s0 + d0 - s1).cross(d1), q = (d1).cross(s0 - s1);
-    return {1, (s0 * p + (s0 + d0) * q) / d}
 }

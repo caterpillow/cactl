@@ -8,12 +8,12 @@
  */
 #pragma once
 
-using P = arrray<db, 2>;
+using P = array<db, 2>;
 
 template<class F> pair<db, P> hillClimb(P start, F f) {
 	pair<db, P> cur(f(start), start);
 	for (db jmp = 1e9; jmp > 1e-20; jmp /= 2) {
-		F0R (j, 100) FOR (dx, -1, 2) F0R (dy, -1, 2) {
+		F0R (j, 100) FOR (dx, -1, 2) FOR (dy, -1, 2) {
 			P p = cur.second;
 			p[0] += dx * jmp;
 			p[1] += dy * jmp;

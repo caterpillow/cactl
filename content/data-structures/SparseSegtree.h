@@ -6,7 +6,7 @@
  * Description: Generic-ish sparse segment tree (point update, range query).
  * Time: O(\log N).
  * Usage: Choose appropriate identity element and merge function.
- * Status: migrated from code-library - untested
+ * Status: stress-tested
  */
 #pragma once
 

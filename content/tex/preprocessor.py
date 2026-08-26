@@ -145,12 +145,23 @@ def processwithcomments(caption, instream, outstream, listingslang):
         nsource = nsource.rstrip() + source[end:]
     nsource = nsource.strip()
 
+    def runhash(text):
+        p = subprocess.Popen(['sh', 'content/contest/hash.sh'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, encoding="utf-8")
+        out, _ = p.communicate(text)
+        return out.split(None, 1)[0]
+
+    if listingslang in ['C++', 'Java'] and '<hash>' in nsource:
+        # Prefix-hash markers: a "<hash>" is replaced with the hash of the
+        # listing up to and including its line (the marker line itself is a
+        # comment, so it does not affect the hash).
+        hlines = nsource.split('\n')
+        for i, hline in enumerate(hlines):
+            if '<hash>' in hline:
+                hlines[i] = hline.replace('<hash>', runhash('\n'.join(hlines[:i + 1])))
+        nsource = '\n'.join(hlines)
+
     if listingslang in ['C++', 'Java']:
-        hash_script = 'hash'
-        p = subprocess.Popen(['sh', 'content/contest/%s.sh' % hash_script], stdin=subprocess.PIPE, stdout=subprocess.PIPE, encoding="utf-8")
-        hsh, _ = p.communicate(nsource)
-        hsh = hsh.split(None, 1)[0]
-        hsh = hsh + ', '
+        hsh = runhash(nsource) + ', '
     else:
         hsh = ''
     # Produce output
@@ -222,11 +233,10 @@ def print_header(data, outstream):
     def adjust(name):
         return name if name.startswith('.') else name.split('.')[0]
     output = r"\enspace{}".join(map(adjust, lines[:ind]))
-    font_size = 10
-    if header_length > 150:
-        font_size = 8
     output = r"\hspace{3mm}\textbf{" + output + "}"
-    output = "\\fontsize{%d}{%d}" % (font_size, font_size) + output
+    if header_length > 110:
+        # shrink long lists so they never reach the side headers
+        output = r"\resizebox{\dimexpr\headwidth-12cm\relax}{!}{" + output + "}"
     print(output, file=outstream)
     with open('header.tmp', 'w') as f:
         for line in lines[ind:]:

@@ -1,52 +1,44 @@
+// Tests WeightedMatching.h (hungarian, ll costs): vs permutation brute force
+// n<=m<=5 with small and +-1e9 costs; explicit 3x3 all-1e9 overflow regression.
+// written by Claude (audit)
 #include "../utilities/template.h"
-#include "../utilities/utils.h"
 #include "../utilities/random.h"
-
 #include "../../content/graph/WeightedMatching.h"
-#include <bits/extc++.h> /// include-line, keep-include
-#include "../../content/graph/MinCostMaxFlow.h"
 
-void test(int N, int mxCost, int iters) {
-	for (int it = 0; it < iters; it++) {
-		int n = randRange(0, N), m = randRange(0, N);
-		if (n > m)
-			swap(n, m);
-
-		MCMF mcmf(n + m + 2);
-		int s = 0;
-		int t = 1;
-		for (int i = 0; i < n; i++)
-			mcmf.addEdge(s, i + 2, 1, 0);
-		for (int i = 0; i < m; i++)
-			mcmf.addEdge(2 + n + i, t, 1, 0);
-
-		vector<vi> cost(n, vi(m));
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < m; j++) {
-				cost[i][j] = randRange(-mxCost, mxCost);
-				mcmf.addEdge(i + 2, 2 + n + j, 1, cost[i][j]);
-			}
-		}
-		mcmf.setpi(s);
-		auto maxflow = mcmf.maxflow(s, t);
-		auto matching = hungarian(cost);
-		assert(maxflow.first == n);
-		assert(maxflow.second == matching.first);
-		int matchSum = 0;
-		set<int> used;
-		for (int i = 0; i < n; i++) {
-			matchSum += cost[i][matching.second[i]];
-			assert(used.count(matching.second[i]) == 0);
-			used.insert(matching.second[i]);
-		}
-		assert(matchSum == matching.first);
-		return;
-	}
+ll brute(vt<vl>& a) {
+	int n = size(a), m = size(a[0]);
+	vi perm(m); iota(all(perm), 0);
+	ll best = INF;
+	do {
+		ll cur = 0;
+		F0R (i, n) cur += a[i][perm[i]];
+		best = min(best, cur);
+	} while (next_permutation(all(perm)));
+	return best;
 }
-signed main() {
-	test(25, 5, 1000);
-	test(100, 1000, 100);
-	test(100, 1, 50);
-	test(5, 5, 10000);
+
+int main() {
+	srand(1234);
+	assert(hungarian({}).first == 0);
+	{ // old int-overflow case
+		vt<vl> a(3, vl(3, (ll) 1e9));
+		assert(hungarian(a).first == (ll) 3e9);
+	}
+	F0R (it, 50000) {
+		int n = randIncl(1, 5), m = randIncl(n, 5);
+		bool big = it & 1;
+		vt<vl> a(n, vl(m));
+		F0R (i, n) F0R (j, m)
+			a[i][j] = big ? randIncl((int64_t) -1000000000, (int64_t) 1000000000)
+			              : randIncl(-10, 10);
+		auto [cost, match] = hungarian(a);
+		assert(cost == brute(a));
+		ll sum = 0; vi used(m);
+		F0R (i, n) {
+			assert(0 <= match[i] && match[i] < m && !used[match[i]]++);
+			sum += a[i][match[i]];
+		}
+		assert(sum == cost);
+	}
 	cout << "Tests passed!" << endl;
 }

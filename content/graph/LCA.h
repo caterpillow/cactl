@@ -11,14 +11,14 @@
  */
 #pragma once
 
-#include "../data-structures/RMQ.h"
+#include "../data-structures/SparseTable.h"
 
 struct LCA {
 	int t = 0;
 	vi time, path, ret;
 	RMQ<int> rmq;
 
-	LCA(vt<vi>& adj) : time(size(adj)), rmq((dfs(0, -1, adj), ret)) {}
+	LCA(vt<vi>& adj) : time(size(adj)) { dfs(0, -1, adj); rmq.init(ret); }
 	void dfs(int u, int p, vt<vi> &adj) {
 		time[u] = t++;
 		for (int v : adj[u]) if (v != p) {

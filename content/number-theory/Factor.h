@@ -6,6 +6,7 @@
  * Description: Pollard-rho randomized factorization algorithm. Returns prime
  * factors of a number, in arbitrary order (e.g. 2299 -> \{11, 19, 11\}). Consider manually trying small primes for better runtime.
  * In one second: average 350k numbers at 1e9, 200k numbers at 1e12, and 100k at 1e16.
+ * Worst-case semiprimes near 1e18: \tilde{}0.6ms each (\tilde{}1500/s).
  * Time: $O(n^{1/4})$, less for numbers with small factors.
  * Status: stress-tested
  *

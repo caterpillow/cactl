@@ -54,7 +54,7 @@ array<int, 2> lineHull(P a, P b, vector<P>& poly) {
 	}
 	if (res[0] == res[1]) return {res[0], -1};
 	if (!cmpL(res[0]) && !cmpL(res[1]))
-		switch ((res[0] - res[1] + sz(poly) + 1) % sz(poly)) {
+		switch ((res[0] - res[1] + size(poly) + 1) % size(poly)) {
 			case 0: return {res[0], res[0]};
 			case 2: return {res[1], res[1]};
 		}

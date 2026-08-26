@@ -44,17 +44,17 @@ struct Fast_Mo {
 
  private:
   void sort() {
-    assert((int)order.size() == Q);
+    assert(size(order) == Q);
     vector<int> cnt(N + 1), buf(Q);
     for (int i = 0; i < Q; i++) cnt[R[i]]++;
-    for (int i = 1; i < (int)cnt.size(); i++) cnt[i] += cnt[i - 1];
+    for (int i = 1; i < size(cnt); i++) cnt[i] += cnt[i - 1];
     for (int i = 0; i < Q; i++) buf[--cnt[R[i]]] = i;
     vector<int> b(Q);
     for (int i = 0; i < Q; i++) b[i] = L[i] / width;
     cnt.resize(N / width + 1);
     fill(begin(cnt), end(cnt), 0);
     for (int i = 0; i < Q; i++) cnt[b[i]]++;
-    for (int i = 1; i < (int)cnt.size(); i++) cnt[i] += cnt[i - 1];
+    for (int i = 1; i < size(cnt); i++) cnt[i] += cnt[i - 1];
     for (int i = 0; i < Q; i++) order[--cnt[b[buf[i]]]] = buf[i];
     for (int i = 0, j = 0; i < Q; i = j) {
       int bi = b[order[i]];
@@ -67,6 +67,7 @@ struct Fast_Mo {
   int dist(int i, int j) { return abs(L[i] - L[j]) + abs(R[i] - R[j]); }
 
   void climb(int iter = 3, int interval = 5) {
+    if (Q == 0) return;
     vector<int> d(Q - 1);
     for (int i = 0; i < Q - 1; i++) d[i] = dist(order[i], order[i + 1]);
     while (iter--) {

@@ -5,14 +5,14 @@
  * Source: idk yosupo probably
  * Description: Matching for general graphs. 1-indexed!
  * Time: O(NM)
- * Status: hopefully works
+ * Status: stress-tested
  */
 #pragma once
 
 // 1-indexed!
 struct Blossom {
-    int n, h, t, cnt;
-    vpi edges;
+    int n, h, t, cnt = 0;
+    vt<pi> edges;
     vi vis, q, mate, col, fa, pre, he;
     void ae(int u, int v) {
         assert(u && v);
@@ -25,7 +25,8 @@ struct Blossom {
             p = mate[v], mate[mate[u] = v] = u;
     }
     void init(int _n) {
-        n = _n;
+        n = _n, cnt = 0;
+        edges.assign(1, {}); // index 0 terminates adjacency lists
         vis = q = mate = col = fa = pre = he = vi(n + 1);
     }
     int lca(int u, int v) {

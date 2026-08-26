@@ -1,20 +1,21 @@
+// Tests SparseTable.h (RMQ): all-pairs min queries vs brute for n=0..100
+// (n=0 init must not crash; includes n=1). written by Claude (audit)
 #include "../utilities/template.h"
-
-#include "../../content/data-structures/RMQ.h"
+#include "../../content/data-structures/SparseTable.h"
 
 int main() {
-	srand(2);
-	rep(N,0,100) {
-		vi v(N);
-		rep(i,0,N) v[i] = i;
-		random_shuffle(all(v));
-		RMQ<int> rmq(v);
-		rep(i,0,N) rep(j,i+1,N+1) {
-			int m = rmq.query(i,j);
-			int n = 1 << 29;
-			rep(k,i,j) n = min(n, v[k]);
-			assert(n == m);
-		}
-	}
-	cout<<"Tests passed!"<<endl;
+    srand(2);
+    F0R (N, 101) {
+        vi v(N);
+        F0R (i, N) v[i] = i;
+        random_shuffle(all(v));
+        RMQ<int> rmq;
+        rmq.init(v); // N=0: must not crash
+        F0R (i, N) FOR (j, i + 1, N + 1) {
+            int n = inf;
+            FOR (k, i, j) n = min(n, v[k]);
+            assert(n == rmq.query(i, j));
+        }
+    }
+    cout << "Tests passed!" << endl;
 }

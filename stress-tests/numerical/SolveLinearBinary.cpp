@@ -1,99 +1,61 @@
+// Tests SolveLinearBinary.h (the REAL header, not a copy): exhaustive n,m<=4
+// vs solution enumeration, plus 20k random systems (incl. infeasible /
+// underdetermined) vs independent F2 elimination. Run under ASan.
+// written by Claude (audit)
 #include "../utilities/template.h"
+#include "../../content/numerical/SolveLinearBinary.h"
 
-const int nmax = 5, mmax = 5, nmmax = 16;
+mt19937 rng(777);
 
-typedef bitset<5> bs;
-
-int solveLinear(vector<bs>& A, vi& b, bs& x, int m) {
-	int n = sz(A), rank = 0, br;
-	assert(m <= sz(x));
-	vi col(m); iota(all(col), 0);
-	rep(i,0,n) {
-		for (br=i; br<n; ++br) if (A[br].any()) break;
-		if (br == n) {
-			rep(j,i,n) if(b[j]) return -1;
-			break;
-		}
-		int bc = (int)A[br]._Find_next(i-1);
-		swap(A[i], A[br]);
-		swap(b[i], b[br]);
-		swap(col[i], col[bc]);
-		rep(j,0,n) if (A[j][i] != A[j][bc]) {
-			A[j].flip(i); A[j].flip(bc);
-		}
-		rep(j,i+1,n) if (A[j][i]) {
-			b[j] ^= b[i];
-			A[j] ^= A[i];
-		}
-		rank++;
+// independent rank of an n x m F2 matrix given as row masks
+int f2rank(vt<unsigned>& rows, int m) {
+	int r = 0;
+	F0R (c, m) {
+		int p = -1;
+		FOR (i, r, size(rows)) if (rows[i] >> c & 1) { p = i; break; }
+		if (p < 0) continue;
+		swap(rows[r], rows[p]);
+		F0R (i, size(rows)) if (i != r && (rows[i] >> c & 1)) rows[i] ^= rows[r];
+		r++;
 	}
-
-	x = bs();
-	for (int i = rank; i--;) {
-		if (!b[i]) continue;
-		x[col[i]] = 1;
-		rep(j,0,i) b[j] ^= A[j][i];
-	}
-	return rank; // (multiple solutions if rank < m)
+	return r;
 }
 
-template<class F>
-void rec(int i, int j, vector<bs>& A, int m, F f) {
-	if (i == sz(A)) {
-		f();
-	}
-	else if (j == m) {
-		rec(i+1, 0, A, m, f);
-	}
-	else {
-		rep(v,0,2) {
-			A[i][j] = v;
-			rec(i, j+1, A, m, f);
-		}
-	}
-}
-
-template<class F>
-void rec2(int i, bs& A, int m, F f) {
-	if (i == m) f();
-	else {
-		rep(v,0,2) {
-			A[i] = v;
-			rec2(i+1, A, m, f);
-		}
+void runCase(int n, int m, vt<unsigned>& rowA, vt<int>& bv) {
+	vt<bs> A(n); vi b(n); bs x;
+	F0R (i, n) { F0R (j, m) A[i][j] = rowA[i] >> j & 1; b[i] = bv[i]; }
+	int r = solveLinear(A, b, x, m);
+	vt<unsigned> Ab(n), Ao(n);
+	F0R (i, n) { Ao[i] = rowA[i]; Ab[i] = rowA[i] | (unsigned)bv[i] << m; }
+	int rA = f2rank(Ao, m), rAb = f2rank(Ab, m + 1);
+	if (rA != rAb) { assert(r == -1); return; }
+	assert(r == rA);
+	F0R (i, n) { // check A x == b
+		int v = 0;
+		F0R (j, m) v ^= (rowA[i] >> j & 1) & (int)x[j];
+		assert(v == bv[i]);
 	}
 }
 
 int main() {
-	int ct = 0;
-	rep(n,0,nmax+1) rep(m,0,mmax+1) {
-		int nm = n*m;
-		if (nm > nmmax) continue;
-		vector<bs> A(n, bs(m));
-		bs b, x, theX;
-		vi b2(n);
-		rec(0, 0, A, m, [&]() {
-			rec2(0, b, n, [&]() {
-				int sols = 0;
-				rec2(0, x, m, [&]() {
-					rep(i,0,n) {
-						int v = 0;
-						rep(j,0,m) v ^= A[i][j] & x[j];
-						if (v != b[i]) return;
-					}
-					sols++;
-					if (sols == 1) theX = x;
-				});
-				vector<bs> A2 = A;
-				bs x2 = x; rep(i,0,n) b2[i] = b[i];
-				int r = solveLinear(A2, b2, x2, m);
-				if (sols == 0) assert(r == -1);
-				else if (sols == 1) assert(r == m);
-				else assert(r < m);
-				if (sols == 1) assert(x2 == theX);
-				ct++;
-			});
-		});
+	// exhaustive small systems
+	F0R (n, 4) F0R (m, 5) if (n * m <= 12) {
+		vt<unsigned> rowA(n); vt<int> bv(n);
+		F0R (mask, 1 << (n * m)) F0R (bm, 1 << n) {
+			F0R (i, n) rowA[i] = (mask >> (i * m)) & ((1u << m) - 1), bv[i] = bm >> i & 1;
+			runCase(n, m, rowA, bv);
+		}
 	}
-	cout<<"Tests passed!"<<endl;
+	// 20k random systems, up to 10x12, biased toward singular/infeasible
+	F0R (it, 20000) {
+		int n = rng() % 10 + 1, m = rng() % 12 + 1;
+		vt<unsigned> rowA(n); vt<int> bv(n);
+		F0R (i, n) rowA[i] = rng() & ((1u << m) - 1), bv[i] = rng() & 1;
+		if (n > 1 && rng() % 3 == 0) { // force dependent row, maybe inconsistent
+			int i = rng() % n, j = rng() % n;
+			if (i != j) { rowA[i] = rowA[j]; bv[i] = rng() & 1 ? bv[j] : bv[j] ^ 1; }
+		}
+		runCase(n, m, rowA, bv);
+	}
+	cout << "Tests passed!" << endl;
 }

@@ -3,7 +3,7 @@
  * Source: Stanford Notebook
  * License: MIT
  * Description: Solves a general linear maximization problem: maximize $c^T x$ subject to $Ax \le b$, $x \ge 0$.
- * Returns -inf if there is no solution, inf if there are arbitrarily good solutions, or the maximum value of $c^T x$ otherwise.
+ * Returns IEEE -inf if there is no solution, +inf if there are arbitrarily good solutions, or the maximum value of $c^T x$ otherwise.
  * The input vector is set to an optimal $x$ (or in the unbounded case, an arbitrary solution fulfilling the constraints).
  * Numerical stability is not guaranteed. For better performance, define variables such that $x = 0$ is viable.
  * Usage:
@@ -20,7 +20,7 @@ using T = db;
 using vd = vt<db>;
 using vvd = vt<vd>;
 const db eps = 1e-9;
-const int inf = 1e9;
+const db linf = 1 / .0;
 
 #define ltj(X) if (s == -1 || mp(X[j], N[j]) < mp(X[s], N[s])) s = j
 struct LPSolver {
@@ -62,9 +62,8 @@ struct LPSolver {
 	T solve(vd &x) { 
 		int r = 0; FOR (i, 1, m) if (D[i][n + 1] < D[r][n + 1]) r = i;
 		if (D[r][n + 1] < -eps) { 
-			pivot(r,n); 
-			assert(simplex(2)); 
-			if (D[m + 1][n + 1] < -eps) return -inf;
+			pivot(r, n); 
+			if (!simplex(2) || D[m + 1][n + 1] < -eps) return -linf;
 			F0R (i, m) if (B[i] == -1) { 
 				int s = 0; FOR (j, 1, n + 1) ltj(D[i]); 
 				pivot(i, s);
@@ -72,6 +71,6 @@ struct LPSolver {
 		}
 		bool ok = simplex(1); x = vd(n);
 		F0R (i, m) if (B[i] < n) x[B[i]] = D[i][n + 1];
-		return ok ? D[m][n + 1] : inf;
+		return ok ? D[m][n + 1] : linf;
 	}
 };

@@ -23,7 +23,7 @@ struct Segtree {
 	T query(int l, int r) { 
 		T lhs = id, rhs = id;
 		for (l += n, r += n; l < r; l /= 2, r /= 2) {
-			if (l & 1)) lhs = lhs + seg[l++];
+			if (l & 1) lhs = lhs + seg[l++];
 			if (r & 1) rhs = seg[--r] + rhs;
 		}
 		return lhs + rhs;

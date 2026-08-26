@@ -1,88 +1,50 @@
+// Tests SCC.h (Kosaraju) and SCC2.h (Tarjan) vs brute-force SCC on random
+// small digraphs: comp[] partition, comps = one rep per SCC, topological order.
+// written by Claude (audit)
 #include "../utilities/template.h"
 
+namespace k1 {
 #include "../../content/graph/SCC.h"
-
-namespace old {
-vi orig, low, comp, z;
-int no_vertices, no_components;
-template<class G> void dfs(int j, G &g) {
-	low[j] = orig[j] = no_vertices++;
-	comp[j] = -2; z.push_back(j);
-	for(auto &e:g[j])
-		if (comp[e] == -1) {
-			dfs(e, g);
-			low[j] = min(low[j], low[e]);
-		}
-		else if (comp[e] == -2)
-			low[j] = min(low[j], orig[e]);
-
-	if (orig[j] == low[j]) {
-		for (;;) {
-			int x = z.back(); z.pop_back();
-			comp[x] = no_components;
-			if (x == j) break;
-		}
-		no_components++;
-	}
 }
-template<class G> vi scc(G &g) {
-	int n = sz(g);
-	orig.assign(n, 0); low = orig;
-	no_vertices = no_components = 0;
-	comp.assign(n, -1);
-	rep(i,0,n) if (comp[i] == -1) dfs(i, g);
-	return comp;
+namespace k2 {
+#include "../../content/graph/SCC2.h"
 }
+
+mt19937 rng(12345);
+
+// check one implementation's output against brute same-SCC relation
+void check(int n, vt<vi>& adj, vt<vi>& same, vi& comp, vi& comps) {
+    F0R (u, n) F0R (v, n) assert((comp[u] == comp[v]) == same[u][v]);
+    // comps: one rep per SCC, rep is its own comp id, all distinct
+    set<int> reps(all(comps)), ids(all(comp));
+    assert(size(comps) == size(reps) && reps == ids);
+    for (int c : comps) assert(comp[c] == c);
+    // topological order: every edge goes left to right in comps
+    vi pos(n, -1);
+    F0R (i, size(comps)) pos[comps[i]] = i;
+    F0R (u, n) for (int v : adj[u]) assert(pos[comp[u]] <= pos[comp[v]]);
 }
 
 int main() {
-	unsigned r = 1;
-	for (int N = 0; N <= 4; N++) {
-		// cout << "N = " << N << endl;
-		vector<vi> mat(N, vi(N)), adj(N);
-		vi compsize(N), seen(N);
-		int count = 0;
-		rep(bits,0,(1 << (N*N))) {
-			// if (bits % 10000 == 0) cerr << "." << flush;
-			rep(i,0,N) rep(j,0,N)
-				mat[i][j] = bits & 1 << (i*N+j);
-
-			rep(i,0,N) {
-				adj[i].clear();
-				rep(j,0,N) if (bits & 1 << (i*N+j)) {
-					adj[i].push_back(j);
-					r *= 12387123; r += 1231;
-					if ((r >> 6 & 31) == 3)
-						adj[i].push_back(j);
-				}
-			}
-			vi comp2 = old::scc(adj);
-			scc(adj, [&](vi& v) {
-				compsize[ncomps] = sz(v);
-			});
-			if (comp != comp2) {
-				for(auto &x: comp) cout << x << ' ';
-				cout << endl;
-				for(auto &x: comp2) cout << x << ' ';
-				cout << endl;
-			}
-			rep(i,0,N) assert(comp[i] >= 0 && comp[i] < ncomps);
-			rep(i,0,N) for(auto &j: adj[i]) assert(comp[j] <= comp[i]);
-			rep(i,0,N) {
-				seen.assign(N, 0); seen[i] = 1;
-				rep(it,0,N) {
-					rep(j,0,N) if (seen[j]) for(auto &k: adj[j]) seen[k] = 1;
-				}
-				rep(j,0,N) {
-					if (seen[j]) assert(comp[j] <= comp[i]);
-					else assert(comp[j] != comp[i]);
-				}
-			}
-
-			count++;
-		}
-		// cout << "tested " << count << endl;
-	}
-	cout<<"Tests passed!"<<endl;
-	return 0;
+    F0R (it, 100000) {
+        int n = rng() % 8 + 1;
+        vt<vi> adj(n);
+        int m = rng() % (n * n + 1);
+        vt<vt<bool>> reach(n, vt<bool>(n));
+        F0R (i, n) reach[i][i] = 1;
+        F0R (e, m) {
+            int u = rng() % n, v = rng() % n; // self loops + dups allowed
+            adj[u].pb(v);
+            reach[u][v] = 1;
+        }
+        F0R (k, n) F0R (i, n) F0R (j, n)
+            if (reach[i][k] && reach[k][j]) reach[i][j] = 1;
+        vt<vi> same(n, vi(n));
+        F0R (i, n) F0R (j, n) same[i][j] = reach[i][j] && reach[j][i];
+        k1::SCC s1(adj);
+        k2::SCC s2(n, adj);
+        check(n, adj, same, s1.comp, s1.comps);
+        check(n, adj, same, s2.comp, s2.comps);
+    }
+    cout << "Tests passed!" << endl;
 }

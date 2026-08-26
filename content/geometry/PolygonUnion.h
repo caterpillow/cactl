@@ -36,7 +36,7 @@ db poly_union(vt<vt<P>>& poly) {
             }
         }
         sort(all(segs));
-        for (auto& s : segs) s.first = min(max(s.first, 0.0), 1.0);
+        for (auto& s : segs) s.first = min(max(s.first, (db) 0), (db) 1);
         db sum = 0;
         int cnt = segs[0].second;
         FOR (j, 1, size(segs)) {

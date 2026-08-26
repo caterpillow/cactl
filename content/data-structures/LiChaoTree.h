@@ -6,7 +6,7 @@
  * Description: LiChao tree
  * Time: O(\log N).
  * Usage: self explanatory i think
- * Status: migrated from code-library - untested
+ * Status: stress-tested
  */
 #pragma once
 
@@ -21,8 +21,8 @@ const ll sz = 1ll << 30;
 
 using ptr = struct Node*;
 struct Node {
-    ptr lc, rc;
     Line line;
+    ptr lc, rc;
 };
 
 // min tree (flip signs for max)
@@ -36,7 +36,7 @@ void add(ptr& n, Line loser, ll l = 0, ll r = sz) {
 }
 
 ll query(ptr n, ll x, ll l = 0, ll r = sz) {
-    if (!n) return sz;
+    if (!n) return INF;
     ll m = (l + r) / 2;
     if (x < m) return min(n->line(x), query(n->lc, x, l, m));
     else return min(n->line(x), query(n->rc, x, m, r));

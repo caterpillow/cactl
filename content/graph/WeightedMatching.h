@@ -14,24 +14,24 @@
  */
 #pragma once
 
-pair<int, vi> hungarian(const vt<vi> &a) {
+pair<ll, vi> hungarian(const vt<vl> &a) {
     if (a.empty()) return {0, {}};
     int n = size(a) + 1, m = size(a[0]) + 1;
-    vi u(n), v(m), p(m), ans(n - 1);
+    vl u(n), v(m); vi p(m), ans(n - 1);
     FOR (i, 1, n) {
         p[0] = i;
         int j0 = 0;
-        vi dist(m, INT_MAX), pre(m, -1);
+        vl dist(m, INF); vi pre(m, -1);
         vector<bool> done(m + 1);
         do { 
             done[j0] = true;
-            int i0 = p[j0], j1, delta = INT_MAX;
+            int i0 = p[j0], j1; ll delta = INF;
             FOR (j, 1, m) if (!done[j]) {
                 auto cur = a[i0 - 1][j - 1] - u[i0] - v[j];
                 if (cur < dist[j]) dist[j] = cur, pre[j] = j0;
                 if (dist[j] < delta) delta = dist[j], j1 = j;
             }
-            FOR (j, m) {
+            F0R (j, m) {
                 if (done[j]) u[p[j]] += delta, v[j] -= delta;
                 else dist[j] -= delta;
             }

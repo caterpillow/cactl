@@ -20,7 +20,7 @@ vt<int> ret, used;
 
 // 
 void dfs(int u) {
-    while (adj[u].size()) {
+    while (size(adj[u])) {
         auto [v, ei] = adj[u].back();
         adj[u].pop_back();
         if (used[ei]++) continue;

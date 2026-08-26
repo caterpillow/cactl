@@ -2,31 +2,35 @@
  * Author: wery0
  * Date: 2025-10-24
  * Source: wery0
- * Description: Wildcard pattern matching. wc is wildcard character. Fails with probability 1/mod
+ * Description: Wildcard pattern matching. wc is wildcard character.
+ * res[i] = '1' iff pattern matches text starting at i.
+ * Fails with probability \tilde{}N/mod per call.
  * Time: $O(N \log N)$
  */
 
 #pragma once
 
-template<typename T_arr, typename T, typename mint>
+#include "../numerical/FastFourierTransformMod.h"
+
+const int wpm_mod = (119 << 23) + 1;
+template<class T_arr, class T>
 string wildcard_pattern_matching(const T_arr& text, const T_arr& pattern, T wc) {
-    using C = uint64_t;
-    static uniform_int_distribution<C> gen(1, numeric_limits<C>::max());
-    static mt19937 rng;
-    const size_t N = text.size(), M = pattern.size();
+    static mt19937_64 rng;
+    int N = size(text), M = size(pattern);
     if (N == 0 || M > N) return "";
     assert(M);
-    map<T, C> char_to_rnd;
-    auto f = [&](T x) {auto& res = char_to_rnd[x]; if (!res) res = gen(rng); return res;};
-    vector<mint> mt(N), mp(M);
-    for (size_t i = 0; T x : text) mt[i++] = x == wc ? 0 : f(x);
-    for (size_t i = M; T x : pattern) mp[--i] = x == wc ? 0 : f(x);
-    vector<mint> sc1 = sum_convolution<mint>(mp, mt);
-    for (size_t i = 0; T x : text) mt[i++] = x == wc;
-    for (mint& x : mp) x *= x;
-    mint must = accumulate(mp.begin(), mp.end(), mint(0));
-    vector<mint> sc2 = sum_convolution<mint>(mp, mt);
+    map<T, ll> char_to_rnd;
+    auto f = [&] (T x) { ll& r = char_to_rnd[x]; 
+        if (!r) r = rng() % (wpm_mod - 1) + 1; return r; };
+    vl mt(N), mp(M);
+    F0R (i, N) mt[i] = text[i] == wc ? 0 : f(text[i]);
+    F0R (i, M) mp[M - 1 - i] = pattern[i] == wc ? 0 : f(pattern[i]);
+    vl sc1 = convMod<wpm_mod>(mp, mt);
+    F0R (i, N) mt[i] = text[i] == wc;
+    ll must = 0;
+    for (ll& x : mp) x = x * x % wpm_mod, must = (must + x) % wpm_mod;
+    vl sc2 = convMod<wpm_mod>(mp, mt);
     string res(N - M + 1, '0');
-    for (size_t i = M - 1; i < N; ++i) res[i + 1 - M] += sc1[i] + sc2[i] == must;
+    FOR (i, M - 1, N) res[i + 1 - M] += (sc1[i] + sc2[i]) % wpm_mod == must;
     return res;
 }

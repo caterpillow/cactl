@@ -15,7 +15,7 @@
 	\kactlimport{FastEratosthenes.h}
 	\kactlimport{MillerRabin.h}
 	\kactlimport{Factor.h}
-	% \kactlimport{PrimeCnt.h}
+	\kactlimport{PrimeCnt.h}
 
 \section{Divisibility}
 	\kactlimport{euclid.h}
@@ -55,7 +55,7 @@
 
 \section{Primes}
 	$p=962592769$ is such that $2^{21} \mid p-1$, which may be useful. For hashing
-	use 970592641 (31-bit number), 31443539979727 (45-bit), 3006703054056749
+	use 970592641 (30-bit number), 31443539979727 (45-bit), 3006703054056749
 	(52-bit). There are 78498 primes less than 1\,000\,000.
 
 	Primitive roots exist modulo any prime power $p^a$, except for $p = 2, a > 2$, and there are $\phi(\phi(p^a))$ many.
@@ -64,7 +64,7 @@
 \section{Estimates}
 	$\sum_{d|n} d = O(n \log \log n)$.
 
-	The number of divisors of $n$ is at most around 100 for $n < 5e4$, 250 for $n < 1e6$, 500 for $n < 1e7$, 2000 for $n < 1e10$, 200\,000 for $n < 1e19$.
+	The number of divisors of $n$ is at most around 100 for $n < 5e4$, 250 for $n < 1e6$, 500 for $n < 1e7$, 2304 for $n < 1e10$, 200\,000 for $n < 1e19$.
 
 \section{Mobius Function}
 	\[

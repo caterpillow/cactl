@@ -15,9 +15,9 @@
 #pragma once
 
 struct Angle {
-	int x, y;
+	ll x, y;
 	int t;
-	Angle(int x, int y, int t = 0) : x(x), y(y), t(t) {}
+	Angle(ll x, ll y, int t = 0) : x(x), y(y), t(t) {}
 	Angle operator-(Angle b) const { return {x - b.x, y - b.y, t}; }
 	int half() const {
 		assert(x || y);
@@ -29,8 +29,8 @@ struct Angle {
 };
 bool operator<(Angle a, Angle b) {
 	// add a.dist2() and b.dist2() to also compare distances
-	return make_tuple(a.t, a.half(), a.y * (ll) b.x) <
-	       make_tuple(b.t, b.half(), a.x * (ll) b.y);
+	return make_tuple(a.t, a.half(), a.y * b.x) <
+	       make_tuple(b.t, b.half(), a.x * b.y);
 }
 
 // Given two points, this calculates the smallest angle between

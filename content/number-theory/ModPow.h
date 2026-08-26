@@ -10,7 +10,7 @@
 
 const ll mod = 1000000007; // faster if const
 
-ll mpow(ll b, ll e) {
+ll mpow(ll b, ll e = mod - 2) {
 	ll ans = 1;
 	for (; e; b = b * b % mod, e /= 2)
 		if (e & 1) ans = ans * b % mod;

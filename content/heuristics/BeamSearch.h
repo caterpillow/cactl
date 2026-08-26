@@ -109,10 +109,9 @@ class Move : public Transition {
     State& cur;
     int i{}, j{}, xi{}, yi{};
 public:
-    explicit Move(State& cur_) : cur(cur_) {
-        i = gen(0, k - 1);
-        j = gen(0, k - 2);
-        if (j >= i) ++j;
+    explicit Move(State& cur_) : cur(cur_) { // exchanges two elements
+        do { i = gen(0, k - 1); } while (cur.buckets[i].empty());
+        do { j = gen(0, k - 2); if (j >= i) ++j; } while (cur.buckets[j].empty());
 
         xi = gen(0, size(cur.buckets[i]) - 1);
         yi = gen(0, size(cur.buckets[j]) - 1);
@@ -176,8 +175,9 @@ signed main() {
         for (auto &st : states) {
             if (st.value > best.value) best = st;
             F0R (_, neighbours) {
-                if (k > 1) transitions.emplace_back(make_unique<Swap>(st));
-                transitions.emplace_back(make_unique<Move>(st));
+                // n > k: some bucket has 2+ els, else Swap's ctor spins
+                if (k > 1 && n > k) transitions.emplace_back(make_unique<Swap>(st));
+                if (n > 1) transitions.emplace_back(make_unique<Move>(st));
             }
         }
 

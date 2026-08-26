@@ -2,7 +2,8 @@
  * Author: Benq
  * Description: Used only a few times. Assuming that all nodes are 
  * reachable from $root,$ $a$ dominates $b$ iff every path from 
- * $root$ to $b$ passes through $a.$
+ * $root$ to $b$ passes through $a.$ Declare as global/static
+ * (the raw arrays are uninitialized otherwise).
  * Time: O(M\log N)
  * Source: https://tanujkhattar.wordpress.com/2016/01/11/dominator-tree-of-a-directed-graph/
  */

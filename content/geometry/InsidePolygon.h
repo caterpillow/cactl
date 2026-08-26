@@ -20,8 +20,8 @@
 
 template<class P>
 bool in_polygon(vector<P> &p, P a, bool strict = true) {
-	int cnt = 0, n = sz(p);
-	FOR (i, n) {
+	int cnt = 0, n = size(p);
+	F0R (i, n) {
 		P q = p[(i + 1) % n];
 		if (on_segment(p[i], q, a)) return !strict;
 		//or: if (segDist(p[i], q, a) <= eps) return !strict;

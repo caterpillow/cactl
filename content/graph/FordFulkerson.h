@@ -13,6 +13,7 @@ int seen[mx], tim;
 unordered_map<int, int> adj[mx];
 
 int flow(int s, int t) {
+    assert(s != t);
     auto dfs = [&] (auto &&self, int u) {
         if (u == t) return 1;
         if (exchange(seen[u], tim) == tim) return 0;

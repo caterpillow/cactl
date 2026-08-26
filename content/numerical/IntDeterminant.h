@@ -4,11 +4,14 @@
  * Source: somewhere on github
  * Description: Calculates determinant using modular arithmetics.
  * Modulos can also be removed to get a pure-integer version.
+ * Pass entries already reduced into $(-mod, mod)$ and keep
+ * $mod < \tilde{}3e9$: intermediates reach $mod^2$.
  * Time: $O(N^3)$
  * Status: bruteforce-tested for N <= 3, mod <= 7
  */
 #pragma once
 
+// needs a global ll mod, e.g. from "../number-theory/ModPow.h"
 ll det(vt<vl> &a) {
 	int n = size(a); ll ans = 1;
 	F0R (i, n) {

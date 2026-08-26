@@ -1,5 +1,6 @@
-# A and B are executables you want to compare, gen takes int 
-# as command line arg. Usage: 'sh stress.sh'
+#!/usr/bin/env bash
+# A and B are executables you want to compare, gen takes int
+# as command line arg. Usage: './stress.sh' (bash, not sh)
 for((i = 1; ; ++i)); do
     echo $i
     ./gen $i > int

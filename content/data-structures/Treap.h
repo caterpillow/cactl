@@ -4,7 +4,7 @@
  * Source: me
  * Description: Treap with too many operations 
  * Time: $O(\log N)$
- * Status: migrated from code-library - untested
+ * Status: stress-tested
  */
 #pragma once
 
@@ -34,7 +34,7 @@ struct Value {
 };
 
 const Lazy LID = {0, true, false};
-const Value VID = {INF, 0};
+const Value VID = {-INF, 0};
 
 using ptr = struct Node*;
 
@@ -131,8 +131,10 @@ ptr insi(ptr n, int i, K k, Value val) { // insert before i
 	return merge(l, merge(new Node(k, val), r));
 }
 
-ptr del(ptr n, K k) { // delete k 
+ptr del(ptr n, K k) { // delete one copy of k, if present
 	auto a = split(n, k), b = spliti(a.s, 1);
+	if (b.f && b.f->key != k) // k was absent; reattach
+		return merge(a.f, merge(b.f, b.s));
 	return merge(a.f, b.s);
 }
 
@@ -151,15 +153,15 @@ ptr find(ptr n, K k) {
 ptr findi(ptr n, int i) {
 	push(n);
 	if (!n || i == sz(n->l)) return n;
-	if (i < sz(n->l)) return find(n->l, i);
-	else return find(n->r, i);
+	if (i < sz(n->l)) return findi(n->l, i);
+	else return findi(n->r, i - 1 - sz(n->l));
 }
 
 ptr upd(ptr n, K lo, K hi, Lazy nv) {
 	if (lo > hi) return n;
 	auto [lhs, r] = split(n, hi + 1);
 	auto [l, m] = split(lhs, lo);
-	m->lazy += nv;
+	if (m) m->lazy += nv;
 	return merge(l, merge(m, r));
 }
 
@@ -167,7 +169,7 @@ ptr updi(ptr n, int lo, int hi, Lazy nv) {
 	if (lo > hi) return n;
 	auto [lm, r] = spliti(n, hi + 1);
 	auto [l, m] = spliti(lm, lo);
-	m->lazy += nv;
+	if (m) m->lazy += nv;
 	return merge(l, merge(m, r));
 }
 

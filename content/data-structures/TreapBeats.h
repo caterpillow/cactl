@@ -32,12 +32,13 @@ Lazy add_tag(ll x) { Lazy lazy = lid; lazy.add = x; return lazy; }
 
 // You can implement your own monoid here for custom operations.
 struct Value {
-    int sum;
+    ll sum;
     int mx, mxcnt, mx2;
     int mn, mncnt, mn2;
 
     static Value make(ll x, ll len = 1) {
-        return {x * len, x, len, -1'000'000'000, x, len, 1'000'000'000};
+        int xi = x, li = len;
+        return {x * len, xi, li, -1'000'000'000, xi, li, 1'000'000'000};
     }
 
     bool can_break(const Lazy& lazy) {
@@ -52,16 +53,16 @@ struct Value {
         if (mn == mx) {
             mn = mx = min(lazy.mn, mn);
             mn = mx = max(lazy.mx, mn);
-            sum = mn * mncnt;
+            sum = (ll) mn * mncnt;
         } else if (mn == mx2) {
             if (lazy.mx > mn) mn = mx2 = lazy.mx;
             if (lazy.mn < mx) mx = mn2 = lazy.mn;
-            sum = mn * mncnt + mx * mxcnt;
+            sum = (ll) mn * mncnt + (ll) mx * mxcnt;
         } else {
-            if (lazy.mn < mx) sum -= (mx - lazy.mn) * mxcnt, mx = lazy.mn;
-            if (lazy.mx > mn) sum += (lazy.mx - mn) * mncnt, mn = lazy.mx;
+            if (lazy.mn < mx) sum -= (ll) (mx - lazy.mn) * mxcnt, mx = lazy.mn;
+            if (lazy.mx > mn) sum += (ll) (lazy.mx - mn) * mncnt, mn = lazy.mx;
         }
-        sum += lazy.add * sz;
+        sum += (ll) lazy.add * sz;
         mx += lazy.add, mx2 += lazy.add;
         mn += lazy.add, mn2 += lazy.add;
     }

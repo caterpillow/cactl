@@ -7,6 +7,8 @@
  * to contain a minimum spanning tree for the graph with edge weights w(p, q) =
  * |p.x - q.x| + |p.y - q.y|. Edges are in the form (distance, src, dst). Use a
  * standard MST algorithm on the result to find the final MST.
+ * Coordinates must stay below \tilde{}5e8 in magnitude (int arithmetic:
+ * differences and d.x + d.y must fit in int).
  * Time: O(N \log N)
  * Status: Stress-tested
  */

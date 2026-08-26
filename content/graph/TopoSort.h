@@ -12,10 +12,10 @@
 #pragma once
 
 vi topoSort(const vector<vi>& gr) {
-	vi indeg(sz(gr)), q;
+	vi indeg(size(gr)), q;
 	for (auto& li : gr) for (int x : li) indeg[x]++;
-	rep(i,0,sz(gr)) if (indeg[i] == 0) q.push_back(i);
-	rep(j,0,sz(q)) for (int x : gr[q[j]])
+	F0R (i, size(gr)) if (indeg[i] == 0) q.push_back(i);
+	F0R (j, size(q)) for (int x : gr[q[j]])
 		if (--indeg[x] == 0) q.push_back(x);
 	return q;
 }
