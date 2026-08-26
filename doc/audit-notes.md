@@ -68,13 +68,8 @@ because none of this is obvious from the code alone.
 - template.cpp's `cin.exceptions(cin.failbit)` makes the read-until-EOF idiom
   `while (cin >> x)` throw instead of ending the loop — catch or avoid.
 
-## Not applied, still worth considering
+## Misc
 
-- HashMap.h comment says "use key = null_type for unordered_set" — it's the
-  *mapped* type that becomes `null_type`: `gp_hash_table<ll, null_type, chash>`.
-- `\myneedspace{3\baselineskip}` in kactlpkg.sty is slightly too small:
-  headings occasionally strand at column bottoms (SuffixTree, AhoCorasick).
-  Bumping to 4–5 lines fixes it at the cost of slightly looser pages.
 - Stress harness: `stress-tests/utilities/template.h` now mirrors the contest
   template plus legacy `rep/sz/pii` shims; tests compile from the repo root.
 
