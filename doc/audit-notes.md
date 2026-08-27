@@ -60,9 +60,10 @@ because none of this is obvious from the code alone.
 - Paste-into-main snippets (never compile at namespace scope): Sieve.h,
   CentroidDecomp.h, AllPointPairs.h, STL.h, MoQueries.h (`{ ... }` stubs).
 - AllPointPairs.h requires Point's **radial** `operator<` (commented block in
-  Point.h) — the default lexicographic order gives wrong answers. With it,
-  exact-collinear triples can still yield a negative `mn`, hence the final
-  clamp `mn = max(mn, 0ll)` (a collinear triple means the true min is 0).
+  Point.h) and distinct points. The live loop assumes no three collinear
+  points (one adjacent swap per event); with collinear points several events
+  share a direction and the correct move is reversing each collinear block,
+  which the commented variant in the same file does.
 - Simplex returns IEEE `-linf/linf` for infeasible/unbounded — a legitimate
   optimum can't be confused with them anymore (old code used ±1e9).
 - template.cpp's `cin.exceptions(cin.failbit)` makes the read-until-EOF idiom

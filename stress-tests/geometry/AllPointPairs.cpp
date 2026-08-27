@@ -1,5 +1,5 @@
 // Tests AllPointPairs.h: mn/mx vs brute min/max |cross| over all ordered
-// triples, collinear-heavy (small grids, many parallel pairs). The snippet
+// triples on distinct points with no three collinear (live variant). The snippet
 // needs Point.h's radial operator< uncommented; P here replicates exactly
 // that (x, y, perp, cross, half, radial <). written by Claude (audit)
 #include "../utilities/template.h"
@@ -29,12 +29,15 @@ int main() {
         int n = 3 + rng() % 6, lim = 4 + rng() % 12;
         vt<P> pts(n);
         string in = to_string(n);
-        set<pair<ll, ll>> seen; // points must be distinct
+        set<pair<ll, ll>> seen; // distinct points, no three collinear
+        bool ok = 1;
         for (P& p : pts) {
             do p = {(ll) (rng() % lim) - lim / 2, (ll) (rng() % lim) - lim / 2};
             while (!seen.insert({p.x, p.y}).second);
             in += " " + to_string(p.x) + " " + to_string(p.y);
         }
+        F0R (i, n) F0R (j, i) F0R (k, j) if (pts[i].cross(pts[j], pts[k]) == 0) ok = 0;
+        if (!ok) continue;
         auto [mn, mx] = run_snippet(in);
         ll bmn = INF, bmx = -INF;
         F0R (i, n) F0R (j, n) F0R (k, n) if (i != j && j != k && i != k) {
