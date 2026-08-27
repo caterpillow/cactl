@@ -14,46 +14,46 @@
  */
 
 struct PalTree {
-	static const int ASZ = 26;
-	struct node {
-		array<int,ASZ> to = array<int,ASZ>();
-		int len, link, oc = 0; // # occurrences of pal
-		int slink = 0, diff = 0;
-		array<int,2> seriesAns;
-		node(int _len, int _link) : len(_len), link(_link) {}
-	};
-	string s = "@"; vt<array<int,2>> ans = {{0,MOD}};
-	vt<node> d = {{0,1},{-1,0}}; // dummy pals of len 0,-1
-	int last = 1;
-	int getLink(int v) {
-		while (s[size(s)-d[v].len-2] != s.back()) v = d[v].link;
-		return v;
-	}
-	void updAns() { // serial path has O(log n) vertices
-		ans.pb({MOD,MOD});
-		for (int v = last; d[v].len > 0; v = d[v].slink) {
-			d[v].seriesAns =
-				ans[size(s)-1-d[d[v].slink].len-d[v].diff];
-			if (d[v].diff == d[d[v].link].diff) 
-				F0R (i,2) d[v].seriesAns[i] = min(d[v].seriesAns[i],
-							d[d[v].link].seriesAns[i]);
+    static const int ASZ = 26;
+    struct node {
+        array<int, ASZ> to = array<int, ASZ>();
+        int len, link, oc = 0; // # occurrences of pal
+        int slink = 0, diff = 0;
+        array<int, 2> seriesAns;
+        node(int _len, int _link) : len(_len), link(_link) {}
+    };
+    string s = "@"; vt<array<int, 2>> ans = {{0, MOD}};
+    vt<node> d = {{0, 1}, {-1, 0}}; // dummy pals of len 0,-1
+    int last = 1;
+    int getLink(int v) {
+        while (s[size(s) - d[v].len - 2] != s.back()) v = d[v].link;
+        return v;
+    }
+    void updAns() { // serial path has O(log n) vertices
+        ans.pb({MOD, MOD});
+        for (int v = last; d[v].len > 0; v = d[v].slink) {
+            d[v].seriesAns =
+                ans[size(s) - 1 - d[d[v].slink].len - d[v].diff];
+            if (d[v].diff == d[d[v].link].diff)
+                F0R (i, 2) d[v].seriesAns[i] = min(d[v].seriesAns[i],
+                            d[d[v].link].seriesAns[i]);
 			// start of previous oc of link[v]=start of last oc of v
-			F0R (i,2) ans.back()[i] = min(ans.back()[i],
-				d[v].seriesAns[i^1]+1);
-		}
-	}
-	void addChar(char C) {
-		s += C; int c = C-'a'; last = getLink(last);
-		if (!d[last].to[c]) {
-			d.emplace_back(d[last].len+2,
-				d[getLink(d[last].link)].to[c]);
-			d[last].to[c] = size(d)-1;
-			auto& z = d.back(); z.diff = z.len-d[z.link].len;
-			z.slink = z.diff == d[z.link].diff 
-				? d[z.link].slink : z.link;
-		} // max suf with different dif
-		last = d[last].to[c]; ++d[last].oc;
-		updAns();
-	}
-	void numOc() { ROF(i,2,size(d)) d[d[i].link].oc += d[i].oc; }
+            F0R (i, 2) ans.back()[i] = min(ans.back()[i],
+                d[v].seriesAns[i ^ 1] + 1);
+        }
+    }
+    void addChar(char C) {
+        s += C; int c = C-'a'; last = getLink(last);
+        if (!d[last].to[c]) {
+            d.emplace_back(d[last].len + 2,
+                d[getLink(d[last].link)].to[c]);
+            d[last].to[c] = size(d) - 1;
+            auto& z = d.back(); z.diff = z.len - d[z.link].len;
+            z.slink = z.diff == d[z.link].diff
+                ? d[z.link].slink : z.link;
+        } // max suf with different dif
+        last = d[last].to[c]; ++d[last].oc;
+        updAns();
+    }
+    void numOc() { ROF (i, 2, size(d)) d[d[i].link].oc += d[i].oc; }
 };

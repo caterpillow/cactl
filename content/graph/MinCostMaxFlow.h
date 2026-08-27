@@ -27,9 +27,9 @@ struct MCMF {
 
     void ae(int from, int to, ll cap, ll cost) {
         if (from == to) return;
-        ed[from].pb({from, to, size(ed[to]), 
+        ed[from].pb({from, to, size(ed[to]),
             cap, cost, 0});
-        ed[to].pb({ to,  from, size(ed[from]) - 1,  
+        ed[to].pb({ to, from, size(ed[from]) - 1,
             0, -cost, 0});
     }
 
@@ -73,8 +73,8 @@ struct MCMF {
                 ed[x->to][x->rev].flow -= fl;
             }
         }
-        F0R (i, n) for(edge& e : ed[i]) totcost += e.cost * e.flow;
-        return {totflow, totcost/2};
+        F0R (i, n) for (edge& e : ed[i]) totcost += e.cost * e.flow;
+        return {totflow, totcost / 2};
     }
 
     // If some costs can be negative, call this before maxflow:

@@ -26,24 +26,24 @@ struct Point {
     op4(<) op4(==)
     int half() const { return y < 0 || (y == 0 && x < 0); }
     // radial
-    // bool operator<(P p) const { 
-    //     return make_pair(half(), (T) 0) < make_pair(p.half(), cross(p)); 
+    // bool operator<(P p) const {
+    //     return make_pair(half(), (T) 0) < make_pair(p.half(), cross(p));
     // }
     T dist2() const { return x * x + y * y; }
     db dist() const { return sqrtl((db) dist2()); }
     // angle to x-axis in interval [-pi, pi]
     db angle() const { return atan2l(y, x); }
-    P unit() const { return *this / dist(); } 
+    P unit() const { return *this / dist(); }
     P perp() const { return {-y, x}; } // rotate 90 degrees left
     P normal() const { return perp().unit(); }
     P rotate(db a) const {
-        return P{x * cos(a) - y * sin(a), x * sin(a) + y * cos(a)}; 
+        return P{x * cos(a) - y * sin(a), x * sin(a) + y * cos(a)};
     }
     // angle at *this between a and b, in [-pi, pi]
     db angle(P a, P b) const {
         return atan2l((db) cross(a, b), (db) dot(a, b));
     }
     friend ostream& operator<<(ostream& os, P p) {
-        return os << "(" << p.x << ", " << p.y << ") "; 
+        return os << "(" << p.x << ", " << p.y << ") ";
     }
 };

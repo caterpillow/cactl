@@ -13,11 +13,11 @@
 #pragma once
 
 void floydWarshall(vt<vt<ll>>& m) {
-	int n = size(m);
-	F0R (i, n) m[i][i] = min(m[i][i], 0LL);
-	F0R (k, n) F0R (i, n) F0R (j, n) 
-		if (m[i][k] != INF && m[k][j] != INF)
-			m[i][j] = min(m[i][j], max(m[i][k] + m[k][j], -INF));
-	F0R (k, n) if (m[k][k] < 0) F0R (i, n) F0R (j, n)
-		if (m[i][k] != INF && m[k][j] != INF) m[i][j] = -INF;
+    int n = size(m);
+    F0R (i, n) m[i][i] = min(m[i][i], 0LL);
+    F0R (k, n) F0R (i, n) F0R (j, n)
+        if (m[i][k] != INF && m[k][j] != INF)
+            m[i][j] = min(m[i][j], max(m[i][k] + m[k][j], -INF));
+    F0R (k, n) if (m[k][k] < 0) F0R (i, n) F0R (j, n)
+        if (m[i][k] != INF && m[k][j] != INF) m[i][j] = -INF;
 }

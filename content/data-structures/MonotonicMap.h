@@ -8,9 +8,9 @@
 
 // dir = less<> for suffix queries, greater<> for prefix
 // cmp = less_equal<> for min, greater_equal<> for max
-template<class dir, class cmp> 
+template<class dir, class cmp>
 struct RangeQuery {
-    map<int, ll, dir> data; 
+    map<int, ll, dir> data;
     void ins(int k, ll v) {
         if (auto it = data.lower_bound(k); it != data.end() && cmp{}(it->s, v)) return;
         auto it = data.insert_or_assign(k, v).f;

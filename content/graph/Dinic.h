@@ -17,12 +17,12 @@ struct Dinic {
     };
     vi lvl, ptr, q;
     vt<vt<Edge>> adj;
- 
+
     void init(int n) {
         lvl = ptr = q = vi(n);
         adj.resize(n);
     }
- 
+
     void ae(int a, int b, ll c, ll rcap = 0) {
         adj[a].pb({b, size(adj[b]), c, c});
         adj[b].pb({a, size(adj[a]) - 1, rcap, rcap});

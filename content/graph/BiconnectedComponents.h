@@ -13,13 +13,13 @@
  */
 #pragma once
 
-struct BCC { 
-    int t; 
+struct BCC {
+    int t;
     vt<vt<pi>> adj;
     vt<vi> comps; // lists of edges of bcc
     vi tin, stk, is_bridge; // stk for bcc only
     // vi is_art;
- 
+
     void init(int n, vt<pi> &edges) {
         int m = size(edges);
         adj.resize(n);
@@ -32,11 +32,11 @@ struct BCC {
         tin.resize(n);
         // is_art.resize(n);
         is_bridge.resize(m);
-        F0R (u, n) if (!tin[u]) dfs(u, -1); 
+        F0R (u, n) if (!tin[u]) dfs(u, -1);
         // if we include bridges as 2-node bcc
         // F0R (i, m) if (is_bridge[i]) comps.pb({i});
     }
- 
+
     int dfs(int u, int par) {
         int me = tin[u] = ++t, dp = me;
         // int cnt = (par != -1); // art
@@ -48,7 +48,7 @@ struct BCC {
                 int si = size(stk), up = dfs(v, ei);
                 dp = min(dp, up);
                 // cnt += up >= me; // art
-                if (up == me) { // bcc 
+                if (up == me) { // bcc
                     stk.pb(ei);
                     comps.pb({si + all(stk)});
                     stk.resize(si);

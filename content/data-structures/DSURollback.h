@@ -12,10 +12,10 @@
 struct DSU {
     int n;
     vt<int> e;
-    vt<vt<pi>> stk; 
+    vt<vt<pi>> stk;
     void init(int _n) { n = _n; e.resize(n + 1, -1); e[n] = n; }
     void push() { stk.pb({}); }
-    void pop() { 
+    void pop() {
         reverse(all(stk.back()));
         for (auto [i, v] : stk.back()) e[i] = v;
         stk.pop_back();

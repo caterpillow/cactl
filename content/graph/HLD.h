@@ -48,7 +48,7 @@ template<bool in_edges> struct HLD {
     }
     template <class Op>
     void process(int u, int v, Op op) {
-        for (;; v = par[root[v]]) {
+        for (; ; v = par[root[v]]) {
             if (pos[u] > pos[v]) swap(u, v);
             if (root[u] == root[v]) break;
             op(pos[root[v]], pos[v] + 1);

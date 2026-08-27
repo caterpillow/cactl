@@ -8,8 +8,8 @@
 
 using ldb = long double;
 struct qdlong {
-    ldb hi;   
-    ldb lo;   
+    ldb hi;
+    ldb lo;
 
     static inline void twoSum(ldb a, ldb b, ldb &s, ldb &err) {
         s = a + b;

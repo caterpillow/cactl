@@ -20,15 +20,15 @@
 
 using Edge = array<ll, 3>;
 vt<Edge> gomoryHu(int N, vt<Edge> ed) {
-	vt<Edge> tree;
-	vi par(N);
-	FOR (i, 1, N) {
-		PushRelabel D; // Dinic also works
-		D.init(N);
-		for (Edge t : ed) D.ae(t[0], t[1], t[2], t[2]);
-		tree.pb({i, par[i], D.calc(i, par[i])});
-		FOR (j, i + 1, N)
-			if (par[j] == par[i] && D.leftOfMinCut(j)) par[j] = i;
-	}
-	return tree;
+    vt<Edge> tree;
+    vi par(N);
+    FOR (i, 1, N) {
+        PushRelabel D; // Dinic also works
+        D.init(N);
+        for (Edge t : ed) D.ae(t[0], t[1], t[2], t[2]);
+        tree.pb({i, par[i], D.calc(i, par[i])});
+        FOR (j, i + 1, N)
+            if (par[j] == par[i] && D.leftOfMinCut(j)) par[j] = i;
+    }
+    return tree;
 }

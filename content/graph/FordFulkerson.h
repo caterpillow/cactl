@@ -17,10 +17,10 @@ int flow(int s, int t) {
     auto dfs = [&] (auto &&self, int u) {
         if (u == t) return 1;
         if (exchange(seen[u], tim) == tim) return 0;
-        for (auto &[v, c] : adj[u]) 
+        for (auto &[v, c] : adj[u])
             if (c && self(self, v)) return --adj[u][v], ++adj[v][u];
         return 0;
-    }; 
+    };
     int flow = 0;
     while (tim++, dfs(dfs, s)) flow++;
     return flow;

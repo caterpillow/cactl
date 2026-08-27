@@ -14,7 +14,7 @@ mt19937 mt(rd());
 
 struct Lazy {
     ll v;
-	bool inc, rev;
+    bool inc, rev;
     void operator+=(const Lazy &b) {
         if (b.inc) v += b.v;
         else v = b.v, inc = false;
@@ -117,76 +117,76 @@ ptr merge(ptr l, ptr r) {
     push(l), push(r);
     ptr t;
     if (l->pri > r->pri) l->r = merge(l->r, r), t = l;
-    else r->l = merge(l, r->l), t = r; 
+    else r->l = merge(l, r->l), t = r;
     return pull(t);
 }
 
-ptr ins(ptr n, K k, Value val) { // insert k 
-	auto [l, r] = split(n, k);
-	return merge(l, merge(new Node(k, val), r));
+ptr ins(ptr n, K k, Value val) { // insert k
+    auto [l, r] = split(n, k);
+    return merge(l, merge(new Node(k, val), r));
 }
 
-ptr insi(ptr n, int i, K k, Value val) { // insert before i	
-	auto [l, r] = spliti(n, i);
-	return merge(l, merge(new Node(k, val), r));
+ptr insi(ptr n, int i, K k, Value val) { // insert before i
+    auto [l, r] = spliti(n, i);
+    return merge(l, merge(new Node(k, val), r));
 }
 
 ptr del(ptr n, K k) { // delete one copy of k, if present
-	auto a = split(n, k), b = spliti(a.s, 1);
-	if (b.f && b.f->key != k) // k was absent; reattach
-		return merge(a.f, merge(b.f, b.s));
-	return merge(a.f, b.s);
+    auto a = split(n, k), b = spliti(a.s, 1);
+    if (b.f && b.f->key != k) // k was absent; reattach
+        return merge(a.f, merge(b.f, b.s));
+    return merge(a.f, b.s);
 }
 
 ptr deli(ptr n, int i) {
-	auto b = spliti(n, i + 1), a = spliti(b.f, i);
-	return merge(a.f, b.s);
+    auto b = spliti(n, i + 1), a = spliti(b.f, i);
+    return merge(a.f, b.s);
 }
 
 ptr find(ptr n, K k) {
-	push(n);	
-	if (!n || n->key == k) return n;
-	if (k < n->key) return find(n->l, k);
-	else return find(n->r, k);
+    push(n);
+    if (!n || n->key == k) return n;
+    if (k < n->key) return find(n->l, k);
+    else return find(n->r, k);
 }
 
 ptr findi(ptr n, int i) {
-	push(n);
-	if (!n || i == sz(n->l)) return n;
-	if (i < sz(n->l)) return findi(n->l, i);
-	else return findi(n->r, i - 1 - sz(n->l));
+    push(n);
+    if (!n || i == sz(n->l)) return n;
+    if (i < sz(n->l)) return findi(n->l, i);
+    else return findi(n->r, i - 1 - sz(n->l));
 }
 
 ptr upd(ptr n, K lo, K hi, Lazy nv) {
-	if (lo > hi) return n;
-	auto [lhs, r] = split(n, hi + 1);
-	auto [l, m] = split(lhs, lo);
-	if (m) m->lazy += nv;
-	return merge(l, merge(m, r));
+    if (lo > hi) return n;
+    auto [lhs, r] = split(n, hi + 1);
+    auto [l, m] = split(lhs, lo);
+    if (m) m->lazy += nv;
+    return merge(l, merge(m, r));
 }
 
 ptr updi(ptr n, int lo, int hi, Lazy nv) {
-	if (lo > hi) return n;
-	auto [lm, r] = spliti(n, hi + 1);
-	auto [l, m] = spliti(lm, lo);
-	if (m) m->lazy += nv;
-	return merge(l, merge(m, r));
+    if (lo > hi) return n;
+    auto [lm, r] = spliti(n, hi + 1);
+    auto [l, m] = spliti(lm, lo);
+    if (m) m->lazy += nv;
+    return merge(l, merge(m, r));
 }
 
-Value query(ptr &n, K lo, K hi)  {
-	auto [lm, r] = split(n, hi + 1);
-	auto [l, m] = split(lm, lo);
-	Value res = agg(m);
-	n = merge(l, merge(m, r));
-	return res;
+Value query(ptr &n, K lo, K hi) {
+    auto [lm, r] = split(n, hi + 1);
+    auto [l, m] = split(lm, lo);
+    Value res = agg(m);
+    n = merge(l, merge(m, r));
+    return res;
 }
 
 Value queryi(ptr &n, int lo, int hi) {
-	auto [lm, r] = spliti(n, hi + 1);
-	auto [l, m] = spliti(lm, lo);
-	Value res = agg(m);
-	n = merge(l, merge(m, r));
-	return res;
+    auto [lm, r] = spliti(n, hi + 1);
+    auto [l, m] = spliti(lm, lo);
+    Value res = agg(m);
+    n = merge(l, merge(m, r));
+    return res;
 }
 
 int mn(ptr n) {
@@ -205,26 +205,26 @@ ptr unite(ptr l, ptr r) {
         auto [lt, rt] = split(l, mn(r) + 1);
         res = merge(res, lt);
         tie(l, r) = make_pair(r, rt);
-    }   
+    }
     return merge(res, l);
 }
 
 void heapify(ptr n) {
-	if (!n) return;
-	ptr mx = n;
-	if (n->l && n->l->pri > mx->pri) mx = n->l;
-	if (n->r && n->r->pri > mx->pri) mx = n->r;
-	if (mx != n) swap(n->pri, mx->pri), heapify(mx);
+    if (!n) return;
+    ptr mx = n;
+    if (n->l && n->l->pri > mx->pri) mx = n->l;
+    if (n->r && n->r->pri > mx->pri) mx = n->r;
+    if (mx != n) swap(n->pri, mx->pri), heapify(mx);
 }
 
 ptr build(int l, int r, vt<ptr>& ns) {
-	if (l > r) return nullptr;
-	if (l == r) return ns[l];
-	int m = (r + l) / 2;
-	ns[m]->l = build(l, m - 1, ns);
-	ns[m]->r = build(m + 1, r, ns);
-	heapify(ns[m]);
-	return pull(ns[m]);
+    if (l > r) return nullptr;
+    if (l == r) return ns[l];
+    int m = (r + l) / 2;
+    ns[m]->l = build(l, m - 1, ns);
+    ns[m]->r = build(m + 1, r, ns);
+    heapify(ns[m]);
+    return pull(ns[m]);
 }
 
 Node* tree;

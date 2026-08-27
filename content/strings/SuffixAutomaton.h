@@ -10,75 +10,75 @@
  * Time: O(N\log \sum)
  * Source: *
  */
- 
+
 struct SuffixAutomaton {
-	int N = 1; vi lnk{-1}, len{0}, pos{-1}; // suffix link, 
+    int N = 1; vi lnk{-1}, len{0}, pos{-1}; // suffix link,
 	// max length of state, last pos of first occurrence of state
-	vt<map<char,int>> nex{1}; vt<bool> isClone{0};
+    vt<map<char, int>> nex{1}; vt<bool> isClone{0};
 	// transitions, cloned -> not terminal state
-	vt<vi> iLnk; // inverse links
-	int add(int p, char c) { // ~p nonzero if p != -1
-		auto getNex = [&]() {
-			if (p == -1) return 0;
-			int q = nex[p][c]; if (len[p]+1 == len[q]) return q;
-			int clone = N++; lnk.pb(lnk[q]); lnk[q] = clone;
-			len.pb(len[p]+1), nex.pb(nex[q]),
-			pos.pb(pos[q]), isClone.pb(1);
-			for (; ~p && nex[p][c] == q; p = lnk[p]) nex[p][c]=clone;
-			return clone;
-		};
+    vt<vi> iLnk; // inverse links
+    int add(int p, char c) { // ~p nonzero if p != -1
+        auto getNex = [&] () {
+            if (p == -1) return 0;
+            int q = nex[p][c]; if (len[p] + 1 == len[q]) return q;
+            int clone = N++; lnk.pb(lnk[q]); lnk[q] = clone;
+            len.pb(len[p] + 1), nex.pb(nex[q]),
+            pos.pb(pos[q]), isClone.pb(1);
+            for (; ~p && nex[p][c] == q; p = lnk[p]) nex[p][c] = clone;
+            return clone;
+        };
 		// if (nex[p].count(c)) return getNex();
 		// ^ need if adding > 1 string
-		int cur = N++; // make new state
-		lnk.emplace_back(), len.pb(len[p]+1), nex.emplace_back(),
-		pos.pb(pos[p]+1), isClone.pb(0);
-		for (; ~p && !nex[p].count(c); p = lnk[p]) nex[p][c] = cur;
-		int x = getNex(); lnk[cur] = x; return cur;
-	}
-	void init(string s) { int p = 0;
-		for (auto& x : s) p = add(p,x); } /// add string to automaton
+        int cur = N++; // make new state
+        lnk.emplace_back(), len.pb(len[p] + 1), nex.emplace_back(),
+        pos.pb(pos[p] + 1), isClone.pb(0);
+        for (; ~p && !nex[p].count(c); p = lnk[p]) nex[p][c] = cur;
+        int x = getNex(); lnk[cur] = x; return cur;
+    }
+    void init(string s) { int p = 0;
+        for (auto& x : s) p = add(p, x); } /// add string to automaton
 	// inverse links
-	void genIlnk() {iLnk.resize(N);FOR(v,1,N)iLnk[lnk[v]].pb(v);}
+    void genIlnk() {iLnk.resize(N); FOR (v, 1, N)iLnk[lnk[v]].pb(v); }
 	// APPLICATIONS
-	void getAllOccur(vi& oc, int v) {
-		if (!isClone[v]) oc.pb(pos[v]); // terminal position
-		for (auto& u : iLnk[v]) getAllOccur(oc,u); }
-	vi allOccur(string s) { // all occurrences of s
-		int cur = 0;
-		for (auto& x : s) {
-			if (!nex[cur].count(x)) return {};
-			cur = nex[cur][x]; }
+    void getAllOccur(vi& oc, int v) {
+        if (!isClone[v]) oc.pb(pos[v]); // terminal position
+        for (auto& u : iLnk[v]) getAllOccur(oc, u); }
+    vi allOccur(string s) { // all occurrences of s
+        int cur = 0;
+        for (auto& x : s) {
+            if (!nex[cur].count(x)) return {};
+            cur = nex[cur][x]; }
 		// convert end pos -> start pos
-		vi oc; getAllOccur(oc,cur);
-		for (auto& t : oc) t += 1-size(s);
-		sort(all(oc)); return oc;
-	}
-	vl distinct;
-	ll getDistinct(int x) {
+        vi oc; getAllOccur(oc, cur);
+        for (auto& t : oc) t += 1 - size(s);
+        sort(all(oc)); return oc;
+    }
+    vl distinct;
+    ll getDistinct(int x) {
 		// # distinct strings starting at state x
-		if (distinct[x]) return distinct[x];
-		distinct[x]=1;
-		for (auto& y : nex[x]) distinct[x]+=getDistinct(y.s);
-		return distinct[x]; }
-	ll numDistinct() { // # distinct substrings including empty
-		distinct.resize(N); return getDistinct(0); }
-	ll numDistinct2() { // assert(numDistinct()==numDistinct2());
-		ll ans = 1; FOR (i,1,N) ans += len[i]-len[lnk[i]];
-		return ans; } 
+        if (distinct[x]) return distinct[x];
+        distinct[x] = 1;
+        for (auto& y : nex[x]) distinct[x] += getDistinct(y.s);
+        return distinct[x]; }
+    ll numDistinct() { // # distinct substrings including empty
+        distinct.resize(N); return getDistinct(0); }
+    ll numDistinct2() { // assert(numDistinct()==numDistinct2());
+        ll ans = 1; FOR (i, 1, N) ans += len[i] - len[lnk[i]];
+        return ans; }
 };
 
 SuffixAutomaton S;
 vi sa; string s;
 void dfs(int x) {
-	if (!S.isClone[x]) sa.pb(size(s)-1-S.pos[x]);
-	vt<pair<char,int>> chr;
-	for (auto& t : S.iLnk[x]) chr.pb({s[S.pos[t]-S.len[x]],t});
-	sort(all(chr)); for (auto& t : chr) dfs(t.s);
+    if (!S.isClone[x]) sa.pb(size(s) - 1 - S.pos[x]);
+    vt<pair<char, int>> chr;
+    for (auto& t : S.iLnk[x]) chr.pb({s[S.pos[t] - S.len[x]], t});
+    sort(all(chr)); for (auto& t : chr) dfs(t.s);
 }
 
 int main() {
-	cin >> s; reverse(all(s));
-	S.init(s); S.genIlnk();
-	dfs(0); // generating suffix array for s
-	for (int x : sa) cout << x << ' '; cout << '\n';
+    cin >> s; reverse(all(s));
+    S.init(s); S.genIlnk();
+    dfs(0); // generating suffix array for s
+    for (int x : sa) cout << x << ' '; cout << '\n';
 }

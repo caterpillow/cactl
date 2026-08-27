@@ -19,7 +19,7 @@ struct H {
     H operator+(H o) { return x + o.x + (x + o.x < x); }
     H operator-(H o) { return *this + ~o.x; }
     H operator*(H o) { auto m = (__uint128_t) x * o.x;
-        return H((ull) m) + (ull)(m >> 64); }
+        return H((ull) m) + (ull) (m >> 64); }
     ull get() const { return x + !~x; }
     #define op(o) bool operator o (H oth) const { return get() o oth.get(); }
     op(==) op(<)

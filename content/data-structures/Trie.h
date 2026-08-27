@@ -36,7 +36,7 @@ struct Node {
     int qmin(int x, int i = lg) {
         push(i);
         if (!i--) return 0;
-        int b = 1 & x >> i; 
+        int b = 1 & x >> i;
         return c(b)->cnt ? c(b)->qmin(x, i) :
             c(!b)->qmin(x, i) | (1 << i);
     }
@@ -45,7 +45,7 @@ struct Node {
     int qmax(int x, int i = lg) {
         push(i);
         if (!i--) return 0;
-        int b = 1 & ~x >> i; 
+        int b = 1 & ~x >> i;
         return c(b)->cnt ? c(b)->qmax(x, i) | (1 << i) :
             c(!b)->qmax(x, i);
     }
@@ -56,7 +56,7 @@ struct Node {
         push(i);
         if (!i-- || !cnt) return 0;
         int b = 1 & (x ^ k) >> i;
-        return ((1 & k >> i) ^ sgn ? c(!b)->cnt : 0) 
+        return ((1 & k >> i) ^ sgn ? c(!b)->cnt : 0)
             + c(b)->count<sgn>(x, k, i);
     }
 
@@ -66,7 +66,7 @@ struct Node {
         if (i && 1 & lazy >> (i - 1)) swap(_c[0], _c[1]);
         for (int j = 2; j--; _c[j] && (_c[j]->lazy ^= lazy));
         lazy = 0;
-    } 
+    }
 
     int mex(int i = lg) {
         if (!i) return 0;
@@ -87,4 +87,4 @@ int merge(ptr &l, ptr r, int i = lg) {
     F0R (j, 2) l->cnt += merge(l->_c[j], r->_c[j], i - 1);
     return l->cnt;
 }
- 
+

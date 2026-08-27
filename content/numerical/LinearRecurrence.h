@@ -18,27 +18,27 @@ const ll mod = 5; /** exclude-line */
 
 using Poly = vt<ll>;
 ll linearRec(Poly S, Poly tr, ll k) {
-	int n = size(tr);
+    int n = size(tr);
 
-	auto combine = [&](Poly a, Poly b) {
-		Poly res(n * 2 + 1);
-		F0R (i, n + 1) F0R (j, n + 1)
-			res[i + j] = (res[i + j] + a[i] * b[j]) % mod;
-		for (int i = 2 * n; i > n; --i) F0R (j, n)
-			res[i - 1 - j] = (res[i - 1 - j] + res[i] * tr[j]) % mod;
-		res.resize(n + 1);
-		return res;
-	};
+    auto combine = [&] (Poly a, Poly b) {
+        Poly res(n * 2 + 1);
+        F0R (i, n + 1) F0R (j, n + 1)
+            res[i + j] = (res[i + j] + a[i] * b[j]) % mod;
+        for (int i = 2 * n; i > n; --i) F0R (j, n)
+            res[i - 1 - j] = (res[i - 1 - j] + res[i] * tr[j]) % mod;
+        res.resize(n + 1);
+        return res;
+    };
 
-	Poly pol(n + 1), e(pol);
-	pol[0] = e[1] = 1;
+    Poly pol(n + 1), e(pol);
+    pol[0] = e[1] = 1;
 
-	for (++k; k; k /= 2) {
-		if (k % 2) pol = combine(pol, e);
-		e = combine(e, e);
-	}
+    for (++k; k; k /= 2) {
+        if (k % 2) pol = combine(pol, e);
+        e = combine(e, e);
+    }
 
-	ll res = 0;
-	F0R (i, n) res = (res + pol[i + 1] * S[i]) % mod;
-	return res;
+    ll res = 0;
+    F0R (i, n) res = (res + pol[i + 1] * S[i]) % mod;
+    return res;
 }

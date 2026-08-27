@@ -15,7 +15,7 @@ F0R (i, n) ord[i] = i;
 sort(all(ord), [&] (int i, int j) { return pts[i].x < pts[j].x; });
 F0R (i, n) loc[ord[i]] = i;
 
-// when the dot vector reaches P, x should be greater than y 
+// when the dot vector reaches P, x should be greater than y
 vt<tuple<P, int, int>> evs;
 F0R (x, n) {
     F0R (y, n) {

@@ -20,11 +20,11 @@ template<class T> struct RangeQuery {
     void fill(int l, int r, int ind) {
         if (ind < 0) return;
         int m = (l + r) / 2;
-        T prod = id; 
+        T prod = id;
         FOR (i, m, r) stor[i][ind] = prod = comb(prod, a[i]);
-        prod = id; 
+        prod = id;
         ROF (i, l, m) stor[i][ind] = prod = comb(a[i], prod);
-        fill(l, m, ind - 1); 
+        fill(l, m, ind - 1);
         fill(m, r, ind - 1);
     }
     template <typename It>

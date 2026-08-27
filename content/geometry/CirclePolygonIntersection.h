@@ -15,19 +15,19 @@
 using P = Point<db>;
 #define arg(p, q) atan2(p.cross(q), p.dot(q))
 db circlePoly(P c, db r, vt<P> ps) {
-	auto tri = [&](P p, P q) {
-		auto r2 = r * r / 2;
-		P d = q - p;
-		auto a = d.dot(p) / d.dist2(), b = (p.dist2() - r * r) / d.dist2();
-		auto det = a * a - b;
-		if (det <= 0) return arg(p, q) * r2;
-		auto s = max(0., -a - sqrt(det)), t = min(1., -a + sqrt(det));
-		if (t < 0 || 1 <= s) return arg(p, q) * r2;
-		P u = p + d * s, v = q + d * (t - 1);
-		return arg(p, u) * r2 + u.cross(v) / 2 + arg(v, q) * r2;
-	};
-	auto sum = 0.0;
-	F0R (i, size(ps)) 
-		sum += tri(ps[i] - c, ps[(i + 1) % size(ps)] - c);
-	return sum;
+    auto tri = [&] (P p, P q) {
+        auto r2 = r * r / 2;
+        P d = q - p;
+        auto a = d.dot(p) / d.dist2(), b = (p.dist2() - r * r) / d.dist2();
+        auto det = a * a - b;
+        if (det <= 0) return arg(p, q) * r2;
+        auto s = max(0., -a - sqrt(det)), t = min(1., -a + sqrt(det));
+        if (t < 0 || 1 <= s) return arg(p, q) * r2;
+        P u = p + d * s, v = q + d * (t - 1);
+        return arg(p, u) * r2 + u.cross(v) / 2 + arg(v, q) * r2;
+    };
+    auto sum = 0.0;
+    F0R (i, size(ps))
+        sum += tri(ps[i] - c, ps[(i + 1) % size(ps)] - c);
+    return sum;
 }

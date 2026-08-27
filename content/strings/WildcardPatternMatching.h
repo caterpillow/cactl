@@ -24,7 +24,7 @@ string wildcard_pattern_matching(const T_arr& text, const T_arr& pattern, T wc) 
     if (N == 0 || M > N) return "";
     assert(M);
     map<T, ll> char_to_rnd;
-    auto f = [&] (T x) { ll& r = char_to_rnd[x]; 
+    auto f = [&] (T x) { ll& r = char_to_rnd[x];
         if (!r) r = rng() % (wpm_mod - 1) + 1; return r; };
     vl mt(N), mp(M);
     F0R (i, N) mt[i] = text[i] == wc ? 0 : f(text[i]);

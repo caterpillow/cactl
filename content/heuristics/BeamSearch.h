@@ -36,9 +36,9 @@ int gen(int l, int r) {
     return uniform_int_distribution<int>(l, r)(mt);
 }
 
-double get_time() {timeval tv; gettimeofday(&tv, NULL); return tv.tv_sec + tv.tv_usec * 1e-6;}
+double get_time() {timeval tv; gettimeofday(&tv, NULL); return tv.tv_sec + tv.tv_usec * 1e-6; }
 double start_time = get_time();
-double elapsed() {return get_time() - start_time;}
+double elapsed() {return get_time() - start_time; }
 
 const db TIME_LIMIT = 5;
 
@@ -93,7 +93,7 @@ public:
     }
 
     State accept() override {
-        State nxt = cur;                 
+        State nxt = cur;
         int &x = nxt.buckets[i][el];
         nxt.buckets[j].pb(x);
         nxt.sums[i] -= x;
@@ -183,7 +183,7 @@ signed main() {
 
         if (transitions.empty()) break;
 
-        sort(all(transitions), [](const auto& a, const auto& b){ return a->new_val > b->new_val; });
+        sort(all(transitions), [] (const auto& a, const auto& b) { return a->new_val > b->new_val; });
 
         vector<State> new_states;
         int take = min<int>(beam_width, size(transitions));

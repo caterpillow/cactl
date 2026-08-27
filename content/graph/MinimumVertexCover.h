@@ -12,22 +12,22 @@
 #include "DFSMatching.h"
 
 vi cover(vt<vi>& g, int n, int m) {
-	vi match(m, -1);
-	int res = dfsMatching(g, match);
-	vt<bool> lfound(n, true), seen(m);
-	for (int it : match) if (it != -1) lfound[it] = false;
-	vi q, cover;
-	F0R (i, n) if (lfound[i]) q.pb(i);
-	while (!q.empty()) {
-		int i = q.back(); q.pop_back();
-		lfound[i] = 1;
-		for (int e : g[i]) if (!seen[e] && match[e] != -1) {
-			seen[e] = true;
-			q.pb(match[e]);
-		}
-	}
-	F0R (i, n) if (!lfound[i]) cover.pb(i);
-	F0R (i, m) if (seen[i]) cover.pb(n+i);
-	assert(size(cover) == res);
-	return cover;
+    vi match(m, -1);
+    int res = dfsMatching(g, match);
+    vt<bool> lfound(n, true), seen(m);
+    for (int it : match) if (it != -1) lfound[it] = false;
+    vi q, cover;
+    F0R (i, n) if (lfound[i]) q.pb(i);
+    while (!q.empty()) {
+        int i = q.back(); q.pop_back();
+        lfound[i] = 1;
+        for (int e : g[i]) if (!seen[e] && match[e] != -1) {
+            seen[e] = true;
+            q.pb(match[e]);
+        }
+    }
+    F0R (i, n) if (!lfound[i]) cover.pb(i);
+    F0R (i, m) if (seen[i]) cover.pb(n + i);
+    assert(size(cover) == res);
+    return cover;
 }

@@ -19,7 +19,7 @@ int matInv(vt<vt<db>>& A) {
         // pick largest non-zero pivot; return any non-zero if under mod
         int r = i, c = i;
         FOR (j, i, n) FOR (k, i, n)
-            if (fabs(A[j][k]) > fabs(A[r][c])) 
+            if (fabs(A[j][k]) > fabs(A[r][c]))
                 r = j, c = k;
         if (fabs(A[r][c]) < 1e-12) return i;
         A[i].swap(A[r]); tmp[i].swap(tmp[r]);

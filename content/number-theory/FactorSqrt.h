@@ -10,17 +10,17 @@
 #pragma once
 
 vt<pi> factor(int x) {
-	if (x == 1) return {};
-	vt<pi> res;
-	for (ll i = 2; i * i <= x; i++) { // ll: i * i overflows near INT_MAX
-		if (x % i == 0) {
-			res.pb({(int) i, 0});
-			while (x % i == 0) {
-				res.back().second++;
-				x /= i;
-			}
-		}
-	}
-	if (x > 1) res.pb({x, 1});
-	return res;
+    if (x == 1) return {};
+    vt<pi> res;
+    for (ll i = 2; i * i <= x; i++) { // ll: i * i overflows near INT_MAX
+        if (x % i == 0) {
+            res.pb({(int) i, 0});
+            while (x % i == 0) {
+                res.back().second++;
+                x /= i;
+            }
+        }
+    }
+    if (x > 1) res.pb({x, 1});
+    return res;
 }

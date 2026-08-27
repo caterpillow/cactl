@@ -50,8 +50,8 @@ struct PushRelabel {
         ec[t] = 1;
         vi co(2 * v);
         co[0] = v - 1;
-		F0R (i, v) cur[i] = g[i].data();
-        for(auto &e : g[s]) add_flow(e, e.c);
+        F0R (i, v) cur[i] = g[i].data();
+        for (auto &e : g[s]) add_flow(e, e.c);
         if (size(hs[0]))
         for (int hi = 0; hi >= 0;) {
             int u = hs[hi].back();
@@ -63,7 +63,7 @@ struct PushRelabel {
                         if (e.c && h[u] > h[e.to] + 1)
                             h[u] = h[e.to] + 1, cur[u] = &e;
                     if (++co[h[u]], !--co[hi] && hi < v)
-						F0R (i, v)
+                        F0R (i, v)
                             if (hi < h[i] && h[i] < v)
                                 --co[h[i]], h[i] = v + 1;
                     hi = h[u];

@@ -23,13 +23,13 @@ struct Matching : vi {
             int i = k;
         nxt:
             seen.clear();
-            if (dfs(size(adj)-1, ++k-i)) return 1;
+            if (dfs(size(adj) - 1, ++k - i)) return 1;
             for (auto &v : seen) for (auto &e : adj[v]) {
                 if (rank[e] < inf && vis[at(e)] < k) goto nxt;
             }
             for (auto &v : seen) {
                 low[v] = inf;
-				for (auto &w : adj[v]) rank[w] = inf;
+                for (auto &w : adj[v]) rank[w] = inf;
             }
         }
         return 0;

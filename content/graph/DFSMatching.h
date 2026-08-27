@@ -15,24 +15,24 @@
 #pragma once
 
 bool find(int j, vt<vi> &g, vi &btoa, vi &vis) {
-	if (btoa[j] == -1) return 1;
-	vis[j] = 1; int di = btoa[j];
-	for (int e : g[di])
-		if (!vis[e] && find(e, g, btoa, vis)) {
-			btoa[e] = di;
-			return 1;
-		}
-	return 0;
+    if (btoa[j] == -1) return 1;
+    vis[j] = 1; int di = btoa[j];
+    for (int e : g[di])
+        if (!vis[e] && find(e, g, btoa, vis)) {
+            btoa[e] = di;
+            return 1;
+        }
+    return 0;
 }
 int dfsMatching(vt<vi> &g, vi &btoa) {
-	vi vis;
-	F0R (i, size(g)) {
-		vis.assign(size(btoa), 0);
-		for (int j : g[i])
-			if (find(j, g, btoa, vis)) {
-				btoa[j] = i;
-				break;
-			}
-	}
-	return size(btoa) - (int) count(all(btoa), -1);
+    vi vis;
+    F0R (i, size(g)) {
+        vis.assign(size(btoa), 0);
+        for (int j : g[i])
+            if (find(j, g, btoa, vis)) {
+                btoa[j] = i;
+                break;
+            }
+    }
+    return size(btoa) - (int) count(all(btoa), -1);
 }

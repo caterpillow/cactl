@@ -29,7 +29,7 @@ db poly_union(vt<vt<P>>& poly) {
                     db sa = C.cross(D, A), sb = C.cross(D, B);
                     if (min(sc, sd) < 0)
                         segs.emplace_back(sa / (sa - sb), sgn(sc - sd));
-                } else if (!sc && !sd && j < i && sgn((B - A).dot(D-C)) > 0){
+                } else if (!sc && !sd && j < i && sgn((B - A).dot(D - C)) > 0) {
                     segs.emplace_back(rat(C - A, B - A), 1);
                     segs.emplace_back(rat(D - A, B - A), -1);
                 }

@@ -18,7 +18,7 @@ int n, m;
 vt<vt<pi>> adj;
 vi ret, used;
 
-// 
+//
 void dfs(int u) {
     while (size(adj[u])) {
         auto [v, ei] = adj[u].back();

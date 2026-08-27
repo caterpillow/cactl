@@ -16,7 +16,7 @@ const int sz = 1 << (depth * 6);
 
 struct Tree {
     vt<ull> seg[depth];
-    
+
     Tree() {
         F0R (i, depth) seg[i].resize(1 << (6 * i));
     }
@@ -26,7 +26,7 @@ struct Tree {
             seg[d][x >> 6] |= 1ull << (x & 63);
             x >>= 6;
         }
-    } 
+    }
 
     void erase(int x) {
         ull b = 0;
@@ -97,5 +97,5 @@ struct Tree {
     }
 
     inline bool empty() { return !seg[0][0]; }
-    inline int operator[](int i) { return 1 & (seg[depth - 1][i >> 6] >> (i & 63)); }
+    inline int operator[] (int i) { return 1 & (seg[depth - 1][i >> 6] >> (i & 63)); }
 };

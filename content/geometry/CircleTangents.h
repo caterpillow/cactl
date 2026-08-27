@@ -16,14 +16,14 @@
 
 template<class P>
 vt<pair<P, P>> tangents(P c1, db r1, P c2, db r2) {
-	P d = c2 - c1;
-	db dr = r1 - r2, d2 = d.dist2(), h2 = d2 - dr * dr;
-	if (d2 == 0 || h2 < 0)  return {};
-	vt<pair<P, P>> out;
-	for (db sign : {-1, 1}) {
-		P v = (d * dr + d.perp() * sqrt(h2) * sign) / d2;
-		out.pb({c1 + v * r1, c2 + v * r2});
-	}
-	if (h2 == 0) out.pop_back();
-	return out;
+    P d = c2 - c1;
+    db dr = r1 - r2, d2 = d.dist2(), h2 = d2 - dr * dr;
+    if (d2 == 0 || h2 < 0) return {};
+    vt<pair<P, P>> out;
+    for (db sign : {-1, 1}) {
+        P v = (d * dr + d.perp() * sqrt(h2) * sign) / d2;
+        out.pb({c1 + v * r1, c2 + v * r2});
+    }
+    if (h2 == 0) out.pop_back();
+    return out;
 }

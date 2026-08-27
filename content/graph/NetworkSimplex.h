@@ -84,7 +84,7 @@ struct NetworkSimplex {
             edges[cyc[i]].cap -= f, edges[cyc[i] ^ 1].cap += f;
             cost += edges[cyc[i]].cost * f;
         }
-        if (path == 2)  return;
+        if (path == 2) return;
 
         int laste = e ^ path, last = edges[laste].to, cur = edges[laste ^ 1].to;
         while (last != e2) {

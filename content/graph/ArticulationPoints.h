@@ -7,13 +7,13 @@
  */
 #pragma once
 
-struct Arts : vi { 
-    int t; 
+struct Arts : vi {
+    int t;
     vi tin;
     Arts(int n, vt<vi> &adj) : vi(n), t(0), tin(n) {
-        F0R (u, n) if (!tin[u]) dfs(u, adj, 0); 
+        F0R (u, n) if (!tin[u]) dfs(u, adj, 0);
     }
- 
+
     int dfs(int u, vt<vi> &adj, int cnt = 1) {
         int dp = tin[u] = ++t;
         for (int v : adj[u]) {
@@ -21,7 +21,7 @@ struct Arts : vi {
             else {
                 int up = dfs(v, adj);
                 dp = min(dp, up);
-                cnt += up >= tin[u]; 
+                cnt += up >= tin[u];
             }
         }
         at(u) = cnt >= 2;

@@ -10,34 +10,34 @@
 #pragma once
 
 template<class T> T edmondsKarp(vt<unordered_map<int, T>>&
-		adj, int s, int t) {
-	assert(s != t);
-	T flow = 0;
-	vi par(size(adj)), q = par;
+        adj, int s, int t) {
+    assert(s != t);
+    T flow = 0;
+    vi par(size(adj)), q = par;
     while (1) {
-		fill(all(par), -1);
-		int ptr = 1;
-		q[0] = s, par[s] = 0;
+        fill(all(par), -1);
+        int ptr = 1;
+        q[0] = s, par[s] = 0;
         F0R (i, ptr) {
-			int u = q[i];
+            int u = q[i];
             for (auto &[v, c] : adj[u]) {
-				if (par[v] == -1 && c) {
-					par[v] = u, q[ptr++] = v;
-					if (v == t) goto out;
-				}
-			}
-		}
+                if (par[v] == -1 && c) {
+                    par[v] = u, q[ptr++] = v;
+                    if (v == t) goto out;
+                }
+            }
+        }
         return flow;
     out:
-		T inc = numeric_limits<T>::max();
-		for (int y = t; y != s; y = par[y])
-			inc = min(inc, adj[par[y]][y]);
+        T inc = numeric_limits<T>::max();
+        for (int y = t; y != s; y = par[y])
+            inc = min(inc, adj[par[y]][y]);
 
-		flow += inc;
-		for (int y = t; y != s; y = par[y]) {
-			int p = par[y];
-			if ((adj[p][y] -= inc) <= 0) adj[p].erase(y);
-			adj[y][p] += inc;
-		}
-	}
+        flow += inc;
+        for (int y = t; y != s; y = par[y]) {
+            int p = par[y];
+            if ((adj[p][y] -= inc) <= 0) adj[p].erase(y);
+            adj[y][p] += inc;
+        }
+    }
 }

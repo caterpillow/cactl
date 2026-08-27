@@ -18,7 +18,7 @@ struct Lazy {
         else v = b.v, inc = false;
     }
 };
- 
+
 struct Node {
     ll mx, sum;
     Node operator+(const Node &b) {
@@ -34,7 +34,7 @@ const Lazy lid = {0, true};
 const Node nid = {-INF, 0};
 
 const int sz = 1 << 18;
-struct Lazyseg { 
+struct Lazyseg {
     vt<Node> seg;
     vt<Lazy> lazy;
     // careful: max is initialised to -1e18; perform range set or write build function
@@ -62,10 +62,10 @@ struct Lazyseg {
         if (r <= lo || l >= hi) return nid;
         if (lo <= l && r <= hi) return seg[i];
         int m = (l + r) / 2;
-        return query(lo, hi, 2 * i, l, m) 
+        return query(lo, hi, 2 * i, l, m)
             + query(lo, hi, 2 * i + 1, m, r);
     }
-    Node& operator[](int i) {
+    Node& operator[] (int i) {
         return seg[i + sz];
     }
     // void pull(int i) {

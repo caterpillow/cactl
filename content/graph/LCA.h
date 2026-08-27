@@ -14,23 +14,23 @@
 #include "../data-structures/SparseTable.h"
 
 struct LCA {
-	int t = 0;
-	vi time, path, ret;
-	RMQ<int> rmq;
+    int t = 0;
+    vi time, path, ret;
+    RMQ<int> rmq;
 
 	// n == 1: ret is empty and RMQ asserts; special-case it
-	LCA(vt<vi>& adj) : time(size(adj)) { dfs(0, -1, adj); rmq.init(ret); }
-	void dfs(int u, int p, vt<vi> &adj) {
-		time[u] = t++;
-		for (int v : adj[u]) if (v != p) {
-			path.pb(u), ret.pb(time[u]);
-			dfs(v, u, adj);
-		}
-	}
+    LCA(vt<vi>& adj) : time(size(adj)) { dfs(0, -1, adj); rmq.init(ret); }
+    void dfs(int u, int p, vt<vi> &adj) {
+        time[u] = t++;
+        for (int v : adj[u]) if (v != p) {
+            path.pb(u), ret.pb(time[u]);
+            dfs(v, u, adj);
+        }
+    }
 
-	int operator()(int u, int v) {
-		if (u == v) return u;
-		tie(u, v) = minmax(time[u], time[v]);
-		return path[rmq.query(u, v)];
-	}
+    int operator()(int u, int v) {
+        if (u == v) return u;
+        tie(u, v) = minmax(time[u], time[v]);
+        return path[rmq.query(u, v)];
+    }
 };

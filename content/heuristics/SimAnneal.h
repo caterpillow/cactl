@@ -21,9 +21,9 @@ __gnu_cxx::sfmt19937 mt(random_device{}());
 int gen(int l, int r) { return uniform_int_distribution<int>(l, r)(mt); }
 db next_double() { return uniform_real_distribution<db>(0, 1)(mt); }
 
-db get_time() {timeval tv; gettimeofday(&tv, NULL); return tv.tv_sec + tv.tv_usec * 1e-6;}
+db get_time() {timeval tv; gettimeofday(&tv, NULL); return tv.tv_sec + tv.tv_usec * 1e-6; }
 db start_time = get_time();
-db elapsed() {return get_time() - start_time;}
+db elapsed() {return get_time() - start_time; }
 
 const db TIME_LIMIT = 0.95;
 db t0 = 1e9, tn = 0.1, time_passed = 1e-9;
@@ -42,9 +42,9 @@ struct State {
     // static transition: consider optimising to dynamic
     void to_neighbour() {
         int i, j;
-        switch(gen(0, 4)) {
+        switch (gen(0, 4)) {
             case 0:
-                i = gen(0, n - 1); 
+                i = gen(0, n - 1);
                 j = gen(0, n - 2);
                 if (i == j) j++;
                 swap(a[i], a[j]);
@@ -80,7 +80,7 @@ struct State {
             else cout << -a[i] << " f\n";
         }
         cout << value << '\n';
-    }    
+    }
 };
 
 State cur, best;
@@ -91,7 +91,7 @@ signed main() {
     cin >> n;
     a.resize(n);
     for (int &x : a) cin >> x;
-    sort(all(a)); 
+    sort(all(a));
     F0R (i, n) if (a[i] % 4 == 1 || a[i] % 4 == 2) a[i] *= -1;
     cur.a = a;
     cur.calc_value();
@@ -115,7 +115,7 @@ signed main() {
 
         State neighbour = cur;
         neighbour.to_neighbour();
-        if ((neighbour.calc_value() - cur.value) * maximise_score >= 0 
+        if ((neighbour.calc_value() - cur.value) * maximise_score >= 0
             || next_double() < exp(((neighbour.value - cur.value) * maximise_score) / t)) {
             cur = neighbour;
             if ((cur.value - best.value) * maximise_score > 0) {

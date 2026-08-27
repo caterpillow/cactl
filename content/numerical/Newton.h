@@ -15,14 +15,14 @@
 
 template<class F, class D>
 db newton(db lo, db hi, F f, D df) {
-	db x = (lo + hi) / 2, fl = f(lo);
-	F0R (it, 200) {
-		db fx = f(x);
-		if ((fx < 0) == (fl < 0)) lo = x, fl = fx; else hi = x;
-		db nx = x - fx / df(x);
-		if (!(lo < nx && nx < hi)) nx = (lo + hi) / 2; // bisect
-		if (abs(nx - x) <= 1e-13 * (1 + abs(x))) return nx;
-		x = nx;
-	}
-	return x;
+    db x = (lo + hi) / 2, fl = f(lo);
+    F0R (it, 200) {
+        db fx = f(x);
+        if ((fx < 0) == (fl < 0)) lo = x, fl = fx; else hi = x;
+        db nx = x - fx / df(x);
+        if (!(lo < nx && nx < hi)) nx = (lo + hi) / 2; // bisect
+        if (abs(nx - x) <= 1e-13 * (1 + abs(x))) return nx;
+        x = nx;
+    }
+    return x;
 }

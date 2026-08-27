@@ -14,18 +14,18 @@
 
 // don't forget MOD!
 void FST(vi &a, bool inv) {
-	for (int n = size(a), step = 1; step < n; step *= 2) {
-		for (int i = 0; i < n; i += 2 * step) FOR (j, i, i + step) {
-			int &u = a[j], &v = a[j + step]; tie(u, v) =
-				inv ? pi(v - u, u) : pi(v, u + v); // AND
+    for (int n = size(a), step = 1; step < n; step *= 2) {
+        for (int i = 0; i < n; i += 2 * step) FOR (j, i, i + step) {
+            int &u = a[j], &v = a[j + step]; tie(u, v) =
+                inv ? pi(v - u, u) : pi(v, u + v); // AND
 				// inv ? pi(v, u - v) : pi(u + v, u); // OR /// include-line
 				// pi(u + v, u - v);                   // XOR /// include-line
-		}
-	}
+        }
+    }
 	// if (inv) for (int& x : a) x /= size(a); // XOR only /// include-line
 }
 vi conv(vi a, vi b) {
-	FST(a, 0); FST(b, 0);
-	F0R (i, size(a)) a[i] *= b[i];
-	FST(a, 1); return a;
+    FST(a, 0); FST(b, 0);
+    F0R (i, size(a)) a[i] *= b[i];
+    FST(a, 1); return a;
 }

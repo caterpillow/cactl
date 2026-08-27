@@ -21,50 +21,50 @@
 #include "SCC2.h"
 
 struct TwoSAT {
-    int n; 
+    int n;
     vt<pi> edges;
     int add() { return n++; }
     void either(int x, int y) { // x | y
         x = max(2 * x, -1 - 2 * x); // ~(2 * x)
         y = max(2 * y, -1 - 2 * y); // ~(2 * y)
-        edges.pb({x, y}); 
+        edges.pb({x, y});
     }
-    void implies(int x, int y) { either(~x, y); } 
-    void force(int x) { either(x, x); } 
-    void exactly_one(int x, int y) { 
-        either(x, y), either(~x, ~y); 
+    void implies(int x, int y) { either(~x, y); }
+    void force(int x) { either(x, x); }
+    void exactly_one(int x, int y) {
+        either(x, y), either(~x, ~y);
     }
-    void tie(int x, int y) { 
-        implies(x, y), implies(~x, ~y); 
-    } 
-    void nand(int x, int y ) { either(~x, ~y); } 
-    void at_most_one(const vi &li) { 
+    void tie(int x, int y) {
+        implies(x, y), implies(~x, ~y);
+    }
+    void nand(int x, int y ) { either(~x, ~y); }
+    void at_most_one(const vi &li) {
         if (size(li) <= 1) return;
         int cur = ~li[0];
         FOR (i, 2, size(li)) {
             int next = add();
-            either(cur, ~li[i]); 
-            either(cur,next);
-            either(~li[i], next); 
+            either(cur, ~li[i]);
+            either(cur, next);
+            either(~li[i], next);
             cur = ~next;
         }
         either(cur, ~li[1]);
     }
     vt<bool> solve() {
         G adj(2 * n);
-        for(auto& e : edges) {
+        for (auto& e : edges) {
             adj[e.f ^ 1].pb(e.s);
             adj[e.s ^ 1].pb(e.f);
         }
         SCC scc(2 * n, adj);
         reverse(all(scc.comps)); // reverse topo order
-        for (int i = 0; i < 2 * n; i += 2) 
+        for (int i = 0; i < 2 * n; i += 2)
             if (scc.comp[i] == scc.comp[i ^ 1]) return {};
-        vi tmp(2 * n); 
+        vi tmp(2 * n);
         for (auto i : scc.comps) {
             if (!tmp[i]) tmp[i] = 1, tmp[scc.comp[i ^ 1]] = -1;
         }
-        vt<bool> ans(n); 
+        vt<bool> ans(n);
         F0R (i, n) ans[i] = tmp[scc.comp[2 * i]] == 1;
         return ans;
     }

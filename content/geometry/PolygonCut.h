@@ -23,14 +23,14 @@
 
 using P = Point<db>;
 vt<P> polygonCut(const vt<P>& poly, P s, P e) {
-	vt<P> res;
-	F0R (i, size(poly)) {
-		P cur = poly[i], prev = i ? poly[i - 1] : poly.back();
-		auto a = s.cross(e, cur), b = s.cross(e, prev);
-		if ((a < 0) != (b < 0))
-			res.pb(cur + (prev - cur) * (a / (a - b)));
-		if (a < 0)
-			res.pb(cur);
-	}
-	return res;
+    vt<P> res;
+    F0R (i, size(poly)) {
+        P cur = poly[i], prev = i ? poly[i - 1] : poly.back();
+        auto a = s.cross(e, cur), b = s.cross(e, prev);
+        if ((a < 0) != (b < 0))
+            res.pb(cur + (prev - cur) * (a / (a - b)));
+        if (a < 0)
+            res.pb(cur);
+    }
+    return res;
 }

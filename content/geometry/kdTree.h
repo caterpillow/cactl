@@ -15,13 +15,13 @@ struct Node {
     P lo, hi;
     struct Node *lc, *rc;
 
-    ll dist2(const P &a, const P &b) const { 
-        return 1ll * _sq(a[0] - b[0]) + 1ll * _sq(a[1] - b[1]); 
+    ll dist2(const P &a, const P &b) const {
+        return 1ll * _sq(a[0] - b[0]) + 1ll * _sq(a[1] - b[1]);
     }
 
     ll dist2(P &p) {
 		#define _loc(i) (p[i] < lo[i] ? lo[i] : (p[i] > hi[i] ? hi[i] : p[i]))
-		return dist2(p, {_loc(0), _loc(1)});
+        return dist2(p, {_loc(0), _loc(1)});
     }
 
     template<class ptr>
@@ -46,7 +46,7 @@ struct Node {
             lc->search(p, best);
             if (dr < best) rc->search(p, best);
         } else best = min(best, dist2(p, lo));
-    } 
+    }
 
     // fill pq with k infinities for nearest k points
     void search(P p, priority_queue<ll> &pq) {

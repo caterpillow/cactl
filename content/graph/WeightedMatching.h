@@ -23,7 +23,7 @@ pair<ll, vi> hungarian(const vt<vl> &a) {
         int j0 = 0;
         vl dist(m, INF); vi pre(m, -1);
         vt<bool> done(m + 1);
-        do { 
+        do {
             done[j0] = true;
             int i0 = p[j0], j1; ll delta = INF;
             FOR (j, 1, m) if (!done[j]) {

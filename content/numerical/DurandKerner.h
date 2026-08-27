@@ -14,24 +14,24 @@
 #pragma once
 
 vt<complex<db>> dk_roots(vt<db> a, int iters = 500) {
-	int n = size(a) - 1;
-	vt<complex<db>> z(n);
-	F0R (i, n)
-		z[i] = polar(1 + .2 * i / n, 2 * M_PI * i / n + .4);
-	F0R (it, iters) {
-		db mv = 0;
-		F0R (i, n) {
-			complex<db> v = a[n], d = 1;
-			ROF (k, 0, n) v = v * z[i] + a[k];
-			F0R (j, n) if (j != i) d *= z[i] - z[j];
-			v /= a[n] * d, z[i] -= v, mv = max(mv, abs(v));
-		}
-		if (mv < 1e-14) break;
-	}
-	F0R (i, n) F0R (t, 3) { // Newton polish
-		complex<db> v = 0, d = 0;
-		ROF (k, 0, n + 1) d = d * z[i] + v, v = v * z[i] + a[k];
-		if (abs(d) > 0) z[i] -= v / d;
-	}
-	return z;
+    int n = size(a) - 1;
+    vt<complex<db>> z(n);
+    F0R (i, n)
+        z[i] = polar(1 + .2 * i / n, 2 * M_PI * i / n + .4);
+    F0R (it, iters) {
+        db mv = 0;
+        F0R (i, n) {
+            complex<db> v = a[n], d = 1;
+            ROF (k, 0, n) v = v * z[i] + a[k];
+            F0R (j, n) if (j != i) d *= z[i] - z[j];
+            v /= a[n] * d, z[i] -= v, mv = max(mv, abs(v));
+        }
+        if (mv < 1e-14) break;
+    }
+    F0R (i, n) F0R (t, 3) { // Newton polish
+        complex<db> v = 0, d = 0;
+        ROF (k, 0, n + 1) d = d * z[i] + v, v = v * z[i] + a[k];
+        if (abs(d) > 0) z[i] -= v / d;
+    }
+    return z;
 }

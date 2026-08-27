@@ -13,28 +13,28 @@
 #pragma once
 
 template<class T, int N> struct Matrix {
-	using M = Matrix;
-	array<array<T, N>, N> d{};
-	M operator*(const M& m) const {
-		M a;
-		F0R (i, N) F0R (j, N)
-			F0R (k, N) a.d[i][k] += d[i][j] * m.d[j][k];
-		return a;
-	}
-	array<T, N> operator*(const array<T, N>& vec) const {
-		array<T, N> ret{};
-		F0R (i, N) F0R (j, N) ret[i] += d[i][j] * vec[j];
-		return ret;
-	}
-	M operator^(ll p) const {
-		assert(p >= 0);
-		M a, b(*this);
-		F0R (i, N) a.d[i][i] = 1;
-		while (p) {
-			if (p & 1) a = a * b;
-			b = b * b;
-			p >>= 1;
-		}
-		return a;
-	}
+    using M = Matrix;
+    array<array<T, N>, N> d{};
+    M operator*(const M& m) const {
+        M a;
+        F0R (i, N) F0R (j, N)
+            F0R (k, N) a.d[i][k] += d[i][j] * m.d[j][k];
+        return a;
+    }
+    array<T, N> operator*(const array<T, N>& vec) const {
+        array<T, N> ret{};
+        F0R (i, N) F0R (j, N) ret[i] += d[i][j] * vec[j];
+        return ret;
+    }
+    M operator^(ll p) const {
+        assert(p >= 0);
+        M a, b(*this);
+        F0R (i, N) a.d[i][i] = 1;
+        while (p) {
+            if (p & 1) a = a * b;
+            b = b * b;
+            p >>= 1;
+        }
+        return a;
+    }
 };

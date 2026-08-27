@@ -9,14 +9,14 @@
 #pragma once
 
 vi Z(const string& S) {
-	vi z(size(S));
-	int l = -1, r = -1;
-	FOR (i, 1, size(S)) {
-		z[i] = i >= r ? 0 : min(r - i, z[i - l]);
-		while (i + z[i] < size(S) && S[i + z[i]] == S[z[i]])
-			z[i]++;
-		if (i + z[i] > r)
-			l = i, r = i + z[i];
-	}
-	return z;
+    vi z(size(S));
+    int l = -1, r = -1;
+    FOR (i, 1, size(S)) {
+        z[i] = i >= r ? 0 : min(r - i, z[i - l]);
+        while (i + z[i] < size(S) && S[i + z[i]] == S[z[i]])
+            z[i]++;
+        if (i + z[i] > r)
+            l = i, r = i + z[i];
+    }
+    return z;
 }

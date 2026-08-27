@@ -24,7 +24,7 @@ bool is_anc(int a, int b) { // a ancestor of b (inclusive)
 int main() {
 	srand(999);
 	F0R (it, 5000) {
-		int n = rand() % 50 + 1;
+		int n = rand() % 50 + 2; // n == 1: LCA special case
 		vt<vi> adj(n);
 		if (n > 1) for (auto [a, b] : genRandomTree(n)) adj[a].pb(b), adj[b].pb(a);
 		par_ = dep_ = vi(n);

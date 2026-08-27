@@ -9,10 +9,10 @@
  */
 #pragma once
 
-#include "BigMod.h" 
+#include "BigMod.h"
 
 struct HashInterval {
-    vt<H> ha, pw, rha; 
+    vt<H> ha, pw, rha;
     template<class T>
     HashInterval(T& str) : ha(size(str) + 1), pw(ha), rha(ha) {
         pw[0] = 1;
@@ -38,7 +38,7 @@ vt<H> get_hashes(T& str, int length) {
     F0R (i, length) h = h * C + str[i] + 1, pw = pw * C;
     vt<H> ret = {h};
     FOR (i, length, size(str)) {
-        ret.pb(h = h * C + str[i] + 1 
+        ret.pb(h = h * C + str[i] + 1
             - pw * (str[i - length] + 1));
     }
     return ret;
@@ -46,7 +46,7 @@ vt<H> get_hashes(T& str, int length) {
 
 template<class T>
 H hash_string(T& s) {
-    H h = 0; 
-    for (auto c : s) h = h * C + c + 1; 
-    return h; 
+    H h = 0;
+    for (auto c : s) h = h * C + c + 1;
+    return h;
 }

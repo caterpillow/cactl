@@ -24,7 +24,7 @@ struct Node {
         if (lo >= r || hi <= l) return ID;
         if (lo <= l && r <= hi) return val;
         int m = (l + r) / 2;
-        return func(get(lc)->query(lo, hi, l, m), 
+        return func(get(lc)->query(lo, hi, l, m),
             get(rc)->query(lo, hi, m, r));
     }
 

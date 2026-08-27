@@ -30,7 +30,7 @@ struct Blossom {
         vis = q = mate = col = fa = pre = he = vi(n + 1);
     }
     int lca(int u, int v) {
-        for (cnt++;; u = pre[mate[u]]) {
+        for (cnt++; ; u = pre[mate[u]]) {
             if (v) swap(u, v);
             if (vis[u = get(u)] == cnt) return u;
             vis[u] = cnt;
@@ -51,12 +51,12 @@ struct Blossom {
                 int y = edges[i].s;
                 if (!col[y]) {
                     if (!mate[y]) { aug(y, x); return 1; }
-                    pre[y] = x; 
-                    col[y] = 2; 
+                    pre[y] = x;
+                    col[y] = 2;
                     col[q[++t] = mate[y]] = 1;
                 } else if (col[y] == 1 && get(x) != get(y)) {
-                    int p = lca(x, y); 
-                    blo(x, y, p); 
+                    int p = lca(x, y);
+                    blo(x, y, p);
                     blo(y, x, p);
                 }
             }

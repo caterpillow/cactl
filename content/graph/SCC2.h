@@ -20,13 +20,13 @@ struct SCC {
         reverse(all(comps));
     }
     int dfs(int u) {
-        int low = disc[u] = ++ti; 
+        int low = disc[u] = ++ti;
         stk.pb(u);
         for (int v : adj[u]) if (comp[v] == -1)
-            low = min(low, disc[v] ?: dfs(v)); 
+            low = min(low, disc[v] ?: dfs(v));
         if (low == disc[u]) {
             comps.pb(u);
-            for (int y = -1; y != u;) 
+            for (int y = -1; y != u;)
                 comp[y = stk.back()] = u, stk.pop_back();
         }
         return low;

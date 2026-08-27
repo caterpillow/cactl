@@ -18,12 +18,12 @@
 
 using ull = unsigned long long;
 ull mmul(ull a, ull b, ull M) {
-	ll ret = a * b - M * ull(1.L / M * a * b);
-	return ret + M * (ret < 0) - M * (ret >= (ll) M);
+    ll ret = a * b - M * ull(1.L / M * a * b);
+    return ret + M * (ret < 0) - M * (ret >= (ll) M);
 }
 ull mpow(ull b, ull e, ull mod) {
-	ull ans = 1;
-	for (; e; b = mmul(b, b, mod), e /= 2)
-		if (e & 1) ans = mmul(ans, b, mod);
-	return ans;
+    ull ans = 1;
+    for (; e; b = mmul(b, b, mod), e /= 2)
+        if (e & 1) ans = mmul(ans, b, mod);
+    return ans;
 }
