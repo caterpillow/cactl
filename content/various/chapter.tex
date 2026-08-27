@@ -64,8 +64,8 @@
 \section{Bigger types}
 	\begin{itemize}[noitemsep]
 		\item \texttt{\_\_int128} / \texttt{unsigned \_\_int128}: 128-bit ints, up to $\pm 1.7\times10^{38}$. No \texttt{cin/cout}: cast to \texttt{ll} or print digit by digit. Multiply is a few instructions, divide is slow (\tilde{}100 cycles). Use for exact $64\times64$-bit products, mulmod, sums up to $10^{36}$.
-		\item \texttt{long double}: 80-bit x87 on Linux (64-bit mantissa, \tilde{}19 digits). Use \texttt{sqrtl}, \texttt{powl}, \texttt{fabsl}, \texttt{\%Lf}.
-		\item \texttt{\_\_float128}: 113-bit mantissa (\tilde{}34 digits), software emulated (libgcc calls, \tilde{}25$\times$ slower than \texttt{double}, \tilde{}8$\times$ slower than \texttt{long double}). Arithmetic and casts just work; \texttt{sqrtq}, \texttt{expq} and printing need \texttt{<quadmath.h>} + \texttt{-lquadmath}, so print via \texttt{(long double)} or peel digits manually.
+		\item \texttt{long double}: 80-bit x87 on Linux (64-bit mantissa, \tilde{}19 digits), \tilde{}3$\times$ slower than \texttt{double}. Use \texttt{sqrtl}, \texttt{powl}, \texttt{fabsl}, \texttt{\%Lf}.
+		\item \texttt{\_\_float128}: 113-bit mantissa (\tilde{}34 digits), software emulated (libgcc calls, \tilde{}25$\times$ slower than \texttt{double}). Arithmetic and casts just work; \texttt{sqrtq}, \texttt{expq} and printing need \texttt{<quadmath.h>} + \texttt{-lquadmath}, so print via \texttt{(long double)} or peel digits manually.
 	\end{itemize}
 
 \section{Other}
