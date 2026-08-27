@@ -67,7 +67,7 @@ template<class V>
 vt<V> min_plus_concave_one(const vt<V>& a, const vt<V>& b) {
     int n = size(a), m = size(b), z = n+m-1;
     if (!n || !m) return n ? a : b;
-    vt<V> c(z, numeric_limits<V>::max());
+    vt<V> c(z, INF); // V = ll
     auto solve = [&](int l, int r, bool rev) {
         auto val = [&](int j, int k) {
             if (rev) j = n-1-j, k = z-1-k;
@@ -82,17 +82,16 @@ vt<V> min_plus_concave_one(const vt<V>& a, const vt<V>& b) {
             return l;
         };
         vt<array<int,2>> stk;
-        for (int i = l, k = l, s = -1; k < r; i++, k++) {
-            while (s >= 0 && i < n && better(i, stk[s][0], stk[s][1])) {
-                stk.pop_back(), s--;
-            }
+        for (int i = l, k = l; k < r; i++, k++) {
+            while (size(stk) && i < n && better(i, stk.back()[0], stk.back()[1]))
+                stk.pop_back();
             if (i < n) {
-                int t = s < 0 ? r-1 : improve(stk[s][0],i,k-1,stk[s][1]);
-                if (t >= k) stk.pb({i,t}), s++;
+                int t = stk.empty() ? r-1 : improve(stk.back()[0],i,k-1,stk.back()[1]);
+                if (t >= k) stk.pb({i,t});
             }
             int out = rev ? z-1-k : k;
-            c[out] = min(c[out],val(stk[s][0],k));
-            if (stk[s][1] == k) stk.pop_back(), s--;
+            c[out] = min(c[out],val(stk.back()[0],k));
+            if (stk.back()[1] == k) stk.pop_back();
         }
     };
 

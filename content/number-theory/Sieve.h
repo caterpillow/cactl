@@ -5,7 +5,7 @@
  * Source: https://cp-algorithms.com/algebra/prime-sieve-linear.html
  * Description: Linear sieve implementation. Around 0.5s for 1e8. Also computes
  * smallest prime divisor for each number in lp. Memory: 4(mx+1) bytes
- * (mx=1e8 \ensuremath{\to} \tilde{}400MB; use mx=5e7 under 256MB limits).
+ * (mx=1e8 \ensuremath{\to} \tilde{}400MB;).
  * Status: Tested
  */
 #pragma once

@@ -12,8 +12,8 @@
 
 template<class T> struct RMQ {
     vt<vt<T>> dp;
-    T query(int l, int r) { // [l, r); width-1 hits __lg(0): UB before gcc 12
-        int d = max(0, __lg(r - l - 1));
+    T query(int l, int r) { // [l, r)
+        int d = __lg(r - l - 1 | 1);
         return min(dp[d][l], dp[d][r - (1 << d)]); 
     }
     void init(const vt<T>& v) {

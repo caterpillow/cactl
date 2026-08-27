@@ -22,12 +22,6 @@ struct Node {
     ll dist2(P &p) {
 		#define _loc(i) (p[i] < lo[i] ? lo[i] : (p[i] > hi[i] ? hi[i] : p[i]))
 		return dist2(p, {_loc(0), _loc(1)});
-        // ll res = 0;
-        // F0R (i, 2) {
-        //     ll tmp = (p[i] < lo[i] ? lo[i] - p[i] : 0) + (hi[i] < p[i] ? p[i] - hi[i] : 0);
-        //     res += tmp * tmp;
-        // }
-        // return res;
     }
 
     template<class ptr>
@@ -44,6 +38,7 @@ struct Node {
         rc = new Node(m, r, d ^ 1);
     }
 
+    // nearest neighbour: init best = INF (ok for |coords| <= 7e8); 0 if p in set
     void search(P p, ll &best) {
         if (lc) { // rc will also exist
             ll dl = lc->dist2(p), dr = rc->dist2(p);
@@ -51,7 +46,7 @@ struct Node {
             lc->search(p, best);
             if (dr < best) rc->search(p, best);
         } else best = min(best, dist2(p, lo));
-    } // nearest neighbour: init best = INF (ok for |coords| <= 7e8); 0 if p in set
+    } 
 
     // fill pq with k infinities for nearest k points
     void search(P p, priority_queue<ll> &pq) {

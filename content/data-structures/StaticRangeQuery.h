@@ -38,9 +38,9 @@ template<class T> struct RangeQuery {
         fill(0, n, lg - 1);
     }
     T query(int l, int r) { // [l, r)
-        if (r - l == 1) return a[l];
-        int t = __lg(l ^ (r - 1));
-        return comb(stor[l][t], stor[r - 1][t]);
+        if (r-- - l == 1) return a[l];
+        int t = __lg(l ^ r);
+        return comb(stor[l][t], stor[r][t]);
     }
     #undef id
     #undef comb

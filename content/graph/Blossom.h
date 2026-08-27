@@ -26,7 +26,7 @@ struct Blossom {
     }
     void init(int _n) {
         n = _n, cnt = 0;
-        edges.assign(1, {}); // index 0 terminates adjacency lists
+        edges.assign(1, {});
         vis = q = mate = col = fa = pre = he = vi(n + 1);
     }
     int lca(int u, int v) {

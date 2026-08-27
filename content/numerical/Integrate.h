@@ -4,9 +4,12 @@
  * License: CC0
  * Source: Wikipedia
  * Description: Simple integration of a function over an interval using
- *  Simpson's rule. The error should be proportional to $h^4$, although in
- *  practice you will want to verify that the result is stable to desired
- *  precision when epsilon changes.
+ *  Simpson's rule with $2n$ slices ($2n+1$ evaluations). Error is
+ *  $O(h^4 f^{(4)})$, so double n until the result stops changing. Exact
+ *  for cubics; useless across kinks or singularities -- split the
+ *  interval there, and substitute $x = a + t^2$ near an endpoint
+ *  singularity.
+ * Usage: quad(a, b, f, n) // n = number of double-slices
  * Status: mostly untested
  */
 #pragma once

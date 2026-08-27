@@ -18,6 +18,7 @@ struct LCA {
 	vi time, path, ret;
 	RMQ<int> rmq;
 
+	// n == 1: ret is empty and RMQ asserts; special-case it
 	LCA(vt<vi>& adj) : time(size(adj)) { dfs(0, -1, adj); rmq.init(ret); }
 	void dfs(int u, int p, vt<vi> &adj) {
 		time[u] = t++;

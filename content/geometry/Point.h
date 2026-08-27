@@ -39,11 +39,10 @@ struct Point {
     P rotate(db a) const {
         return P{x * cos(a) - y * sin(a), x * sin(a) + y * cos(a)}; 
     }
-    // angle at *this between a and b, in [-pi, pi]; more precise
-    // than going through unit()/angle()
-    // db angle(P a, P b) const {
-    //     return atan2l((db) cross(a, b), (db) dot(a, b));
-    // }
+    // angle at *this between a and b, in [-pi, pi]
+    db angle(P a, P b) const {
+        return atan2l((db) cross(a, b), (db) dot(a, b));
+    }
     friend ostream& operator<<(ostream& os, P p) {
         return os << "(" << p.x << ", " << p.y << ") "; 
     }

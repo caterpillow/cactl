@@ -4,7 +4,12 @@
  * License: CC0
  * Source: Wikipedia
  * Description: Fast integration using an adaptive Simpson's rule.
- * Usage:
+ *  eps is the absolute error budget for the whole interval (halves get
+ *  eps/2); recursion also stops below width 1e-10, so rescale tiny
+ *  domains. Split at kinks and discontinuities; for endpoint
+ *  singularities substitute $x = a + t^2$ ($dx = 2t\,dt$), for infinite
+ *  ranges $x = \tan t$ or $x = t/(1-t)$. Nested quads cost eps$^{-d}$.
+ * Usage: quad(a, b, f, eps = 1e-8) // e.g.
 	db sphereVolume = quad(-1, 1, [](db x) {
 	return quad(-1, 1, [\&](db y) {
 	return quad(-1, 1, [\&](db z) {
