@@ -9,7 +9,7 @@
  * $\pm i!\,(n-i)!$ and the numerators are prefix/suffix products of
  * $(x - j)$. Typical use: $\sum_{k \le N} k^m$ is a polynomial of degree
  * $m+1$ in $N$, so sample $m+2$ values. General points: PolyInterpolate.
- * Time: O(n)
+ * Time: O(n) per call; factorials are cached (O(\log p) per new index)
  * Status: stress-tested
  */
 #pragma once
@@ -18,14 +18,14 @@
 
 ll lagrange(vl &y, ll x) { // y[i] = f(i), i in [0, n]
 	int n = size(y) - 1; x = (x % mod + mod) % mod;
-	vl pre(n + 2, 1), suf(n + 2, 1), fac(n + 1, 1), ifac(n + 1);
+	static vl fac{1}, ifac{1}; // cached across calls
+	while (size(fac) <= n)
+		fac.pb(fac.back() * size(fac) % mod), ifac.pb(mpow(fac.back()));
+	vl pre(n + 2, 1), suf(n + 2, 1);
 	F0R (i, n + 1)
 		pre[i + 1] = pre[i] * ((x - i + mod) % mod) % mod;
 	ROF (i, 0, n + 1)
 		suf[i] = suf[i + 1] * ((x - i + mod) % mod) % mod;
-	FOR (i, 1, n + 1) fac[i] = fac[i - 1] * i % mod;
-	ifac[n] = mpow(fac[n]);
-	ROF (i, 0, n) ifac[i] = ifac[i + 1] * (i + 1) % mod;
 	ll res = 0;
 	F0R (i, n + 1) {
 		ll t = y[i] % mod * pre[i] % mod * suf[i + 1] % mod
