@@ -26,11 +26,13 @@ pair<ll, ll> run_snippet(const string& input) {
 int main() {
     mt19937 rng(2024);
     F0R (it, 200000) {
-        int n = 3 + rng() % 6, lim = 1 + rng() % 12;
+        int n = 3 + rng() % 6, lim = 4 + rng() % 12;
         vt<P> pts(n);
         string in = to_string(n);
+        set<pair<ll, ll>> seen; // points must be distinct
         for (P& p : pts) {
-            p = {(ll) (rng() % lim) - lim / 2, (ll) (rng() % lim) - lim / 2};
+            do p = {(ll) (rng() % lim) - lim / 2, (ll) (rng() % lim) - lim / 2};
+            while (!seen.insert({p.x, p.y}).second);
             in += " " + to_string(p.x) + " " + to_string(p.y);
         }
         auto [mn, mx] = run_snippet(in);

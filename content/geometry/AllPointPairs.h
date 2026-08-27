@@ -7,7 +7,8 @@
  * Pairs whose direction is the same are handled as a group: every maximal
  * block of points on one line (equal projection onto the direction) is
  * reversed, which keeps \texttt{ord} exactly sorted even with collinear
- * points. Example use: min and max triangle area (twice) over all triples.
+ * points. Points must be distinct (a duplicate pair has direction 0 and
+ * breaks the sort). Example use: min/max triangle area over all triples.
  * Status: stress-tested (collinear-heavy, vs brute force)
  */
 
@@ -40,19 +41,19 @@ for (int l = 0, r = 0; l < size(evs); l = r) {
     }
     sort(all(pos)), pos.erase(unique(all(pos)), end(pos));
     for (int s = 0, t; s < size(pos); s = t) { // block = one line
+        auto proj = [&] (int k) { return pts[ord[pos[k]]].dot(d0); };
         for (t = s; t + 1 < size(pos) && pos[t + 1] == pos[t] + 1
-            && pts[ord[pos[t + 1]]].dot(d0)
-                == pts[ord[pos[t]]].dot(d0); t++);
+            && proj(t + 1) == proj(t); t++);
         int lo = pos[s], hi = pos[t++] + 1;
         reverse(ord.begin() + lo, ord.begin() + hi);
         FOR (i, lo, hi) loc[ord[i]] = i;
-        // ord[lo - 1], ord[hi]: nearest points on either side of
-        // the line; ord[0], ord[n - 1]: the farthest
+        // ord[lo - 1], ord[hi]: nearest points on either side
+        // of the line; ord[0], ord[n - 1]: the farthest
         if (hi - lo > 2) mn = 0; // three collinear points
         P a = pts[ord[lo]], b = pts[ord[hi - 1]];
-        if (hi < n) mn = min(mn, abs(a.cross(b, pts[ord[hi]])));
-        if (lo > 0) mn = min(mn, abs(a.cross(b, pts[ord[lo - 1]])));
-        mx = max(mx, abs(a.cross(b, pts[ord[0]])));
-        mx = max(mx, abs(a.cross(b, pts[ord[n - 1]])));
+        auto area = [&] (int k) { return abs(a.cross(b, pts[ord[k]])); };
+        if (hi < n) mn = min(mn, area(hi));
+        if (lo > 0) mn = min(mn, area(lo - 1));
+        mx = max({mx, area(0), area(n - 1)});
     }
 }
