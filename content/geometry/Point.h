@@ -27,7 +27,7 @@ struct Point {
     int half() const { return y < 0 || (y == 0 && x < 0); }
     // radial
     // bool operator<(P p) const { 
-    //     return make_pair(half(), 0ll) < make_pair(p.half(), cross(p)); 
+    //     return make_pair(half(), (T) 0) < make_pair(p.half(), cross(p)); 
     // }
     T dist2() const { return x * x + y * y; }
     db dist() const { return sqrtl((db) dist2()); }
