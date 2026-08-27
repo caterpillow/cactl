@@ -8,4 +8,4 @@
 auto cmp = [] (T a, T b) { return a < b; };
 set<T, decltype(cmp)> s(cmp);
 map<T, int, decltype(cmp)> m(cmp);
-priority_queue<T, vt<T>, decltype(cmp)> pq(cmp); // max
+priority_queue<T, vt<T>, decltype(cmp)> pq(cmp); // a<b: max-heap, a>b: min

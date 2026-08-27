@@ -3,7 +3,8 @@
  * Date: 2015-03-19
  * License: CC0
  * Source: me
- * Description:
+ * Description: Paste inside a function with \texttt{from}, \texttt{to} in scope; body in F
+ * must be straight-line (no break/continue, do not touch i). \texttt{\#undef F} after.
  */
 #pragma once
 

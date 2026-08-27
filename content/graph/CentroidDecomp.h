@@ -3,7 +3,9 @@
  * Date: 2025-09-13
  * License: CC0
  * Source: some cf blog
- * Description: Give order to call dfs on.
+ * Description: Order to process vertices in: dfs from each, stopping
+ * at already processed ones. Paste into main; needs \texttt{adj}, root 0.
+ * Not true centroids, but depth $\le \log_2 N + 1$, total $O(N \log N)$.
  * Time: O(N)
  * Status: true
  */

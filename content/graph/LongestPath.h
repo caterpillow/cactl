@@ -1,6 +1,7 @@
 /** 
  * Author: caterpillow
- * Description: maximum distance to another node for every node in a tree
+ * Description: Standalone program (needs the template): reads $n$ and $n-1$ edges
+ * (1-indexed), prints for every node its maximum distance to another node.
  */
 
 #include <bits/stdc++.h>
