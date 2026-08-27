@@ -24,6 +24,11 @@
 \usepackage[dvipsnames]{xcolor}
 \usepackage[normalem]{ulem}
 \usepackage[hidelinks]{hyperref}        % For clickable table of contents
+\usepackage{textcomp,pmboxdraw}         % degree sign, box-drawing (team name)
+\DeclareUnicodeCharacter{00B0}{\textdegree}
+\DeclareUnicodeCharacter{25A1}{\ensuremath{\square}}
+\DeclareUnicodeCharacter{FE35}{\raisebox{-.15ex}{\ensuremath{\frown}}}
+\DeclareUnicodeCharacter{256F}{\raisebox{.2ex}{\rotatebox[origin=c]{-90}{\textsf{J}}}}
 
 % Config commands
 \newcommand{\subtitle}[1]{
