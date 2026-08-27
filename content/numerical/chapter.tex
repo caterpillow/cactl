@@ -4,11 +4,15 @@
   \kactlimport{QuadRoots.h}
   \kactlimport{Polynomial.h}
   \kactlimport{PolyRoots.h}
+  \kactlimport{DurandKerner.h}
   \kactlimport{PolyInterpolate.h}
   \kactlimport{BerlekampMassey.h}
   \kactlimport{LinearRecurrence.h}
 
 \section{Optimization}
+  \subsection{Newton vs ternary search}
+	Newton ($x \gets x - f/f'$) converges quadratically near a simple root: \tilde{}6 iterations for $10^{-12}$ from a decent start, versus $\log_{1.5}(\text{range}/\epsilon) \approx 70$ evaluations for ternary search. It needs $f'$ (finite differences lose half the digits), and a bracket or a good start -- raw Newton diverges or cycles otherwise (the template falls back to bisection). At a root of multiplicity $m$ it is only linear: use $x \gets x - m f/f'$, or Newton on $f/f'$. To minimise a smooth convex $g$, run Newton on $g'$ (needs $g''$): better than ternary/golden-section search when evaluations are expensive or high precision is needed; prefer ternary search when $g$ is merely unimodal, non-smooth, or has flat regions. Integer Newton: $x \gets (x + n/x)/2$ from any $x \ge \sqrt n$ decreases monotonically to $\lfloor\sqrt n\rfloor$ (same idea for $k$-th roots).
+  \kactlimport{Newton.h}
   \kactlimport{GoldenSectionSearch.h}
   \kactlimport{HillClimbing.h}
   \subsection{Numerical integration}
