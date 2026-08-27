@@ -84,5 +84,7 @@ multicol had to stretch a short column to the flush bottom, every heading in
 that column moved *backwards* by the stretch ratio and overprinted the text
 above it — which only happened for certain selections of content (hence
 "different text regions"). Fixed by making the skip `-1ex plus -1ex minus
--.3ex` (negative overall = |values| + no indent). `\myneedspace` was also
-raised to 5 lines (7 for chapter heads) so headings travel with their code.
+-.3ex` (negative overall = |values| + no indent). Chapter heads got a
+`\myneedspace{7\baselineskip}`; the per-template needspace stays at 3 lines —
+raising it to 5 made multicol stretch the columns into large gaps between
+templates, which is worse than an occasional stranded heading.
