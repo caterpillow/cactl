@@ -19,8 +19,10 @@
 ll lagrange(vl &y, ll x) { // y[i] = f(i), i in [0, n]
 	int n = size(y) - 1; x = (x % mod + mod) % mod;
 	static vl fac{1}, ifac{1}; // cached across calls
-	while (size(fac) <= n)
-		fac.pb(fac.back() * size(fac) % mod), ifac.pb(mpow(fac.back()));
+	while (size(fac) <= n) {
+		fac.pb(fac.back() * size(fac) % mod);
+		ifac.pb(mpow(fac.back()));
+	}
 	vl pre(n + 2, 1), suf(n + 2, 1);
 	F0R (i, n + 1)
 		pre[i + 1] = pre[i] * ((x - i + mod) % mod) % mod;
