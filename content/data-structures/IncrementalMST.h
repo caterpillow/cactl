@@ -23,12 +23,12 @@ struct DSU {
     vi par, pri;
     vt<pi> weight;
 
-    DSU(int n): par(n), weight(n), pri(n) {
+    DSU(int n): par(n), pri(n), weight(n) {
         for (int i = 0; i < n; ++i) {
             par[i] = pri[i] = i;
             weight[i] = pi{inf, -1};
         }
-        shuffle(pri.begin(), pri.end(), mt19937(random_device{}()));
+        shuffle(all(pri), mt19937(random_device{}()));
     }
 
     int parent(int u) {
@@ -83,7 +83,7 @@ struct DSU {
         }
     }
 
-    // delete edge (u, v) of weight w; w must be the current max
+    // delete edge (u, v) of weight w; w must be the global max
     void delete_max_edge(int u, int v, int w) {
         delete_edge(u, w);
         delete_edge(v, w);
