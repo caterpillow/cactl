@@ -1,5 +1,5 @@
 // Tests AllPointPairs.h: mn/mx vs brute min/max |cross| over all ordered
-// triples (collinear cases must give mn = 0 via the final clamp). The snippet
+// triples, collinear-heavy (small grids, many parallel pairs). The snippet
 // needs Point.h's radial operator< uncommented; P here replicates exactly
 // that (x, y, perp, cross, half, radial <). written by Claude (audit)
 #include "../utilities/template.h"
@@ -9,6 +9,7 @@ struct P {
     P operator-(P p) const { return {x - p.x, y - p.y}; }
     P perp() const { return {-y, x}; }
     ll cross(P p) const { return x * p.y - y * p.x; }
+    ll dot(P p) const { return x * p.x + y * p.y; }
     ll cross(P a, P b) const { return (a - *this).cross(b - *this); }
     int half() const { return y < 0 || (y == 0 && x < 0); }
     bool operator<(P p) const { // the radial comparator from Point.h

@@ -4,8 +4,7 @@
  * License: CC0
  * Source: some cf blog
  * Description: Order to process vertices in: dfs from each, stopping
- * at already processed ones. Paste into main; needs \texttt{adj}, root 0.
- * Not true centroids, but depth $\le \log_2 N + 1$, total $O(N \log N)$.
+ * at already processed ones.
  * Time: O(N)
  * Status: true
  */
