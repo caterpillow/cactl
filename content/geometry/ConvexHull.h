@@ -23,7 +23,7 @@ Points on the edge of the hull between two other points are not considered part 
 vt<P> convex_hull(vt<P> pts) {
     if (size(pts) <= 1) return pts;
     sort(all(pts));
-    vector<P> h(size(pts)+1);
+    vt<P> h(size(pts)+1);
     int s = 0, t = 0;
     for (int it = 2; it--; s = --t, reverse(all(pts)))
         for (P p : pts) {

@@ -5,15 +5,15 @@
  * Source: Wikipedia
  * Description: Fast integration using an adaptive Simpson's rule.
  * Usage:
-	double sphereVolume = quad(-1, 1, [](double x) {
-	return quad(-1, 1, [\&](double y) {
-	return quad(-1, 1, [\&](double z) {
+	db sphereVolume = quad(-1, 1, [](db x) {
+	return quad(-1, 1, [\&](db y) {
+	return quad(-1, 1, [\&](db z) {
 	return x*x + y*y + z*z < 1; });});});
  * Status: mostly untested
  */
 #pragma once
 
-typedef double d;
+using d = db;
 #define S(a,b) (f(a) + 4*f((a+b) / 2) + f(b)) * (b-a) / 6
 
 template <class F>

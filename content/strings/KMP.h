@@ -23,6 +23,6 @@ vi pfun(const string& s) { // renamed: pi is a template alias
 vi match(const string &s, const string &pat) {
 	vi p = pfun(pat + '\0' + s), res;
 	FOR (i, size(p) - size(s), size(p))
-		if (p[i] == size(pat)) res.push_back(i - 2 * size(pat));
+		if (p[i] == size(pat)) res.pb(i - 2 * size(pat));
 	return res;
 }

@@ -33,11 +33,11 @@ the algorithm is numerically stable and neither \texttt{tr} nor the check for \t
  */
 #pragma once
 
-typedef double T;
-vector<T> tridiagonal(vector<T> diag, const vector<T>& super,
-		const vector<T>& sub, vector<T> b) {
-	int n = sz(b); vi tr(n);
-	rep(i,0,n-1) {
+using T = db;
+vt<T> tridiagonal(vt<T> diag, const vt<T>& super,
+		const vt<T>& sub, vt<T> b) {
+	int n = size(b); vi tr(n);
+	F0R (i, n-1) {
 		if (abs(diag[i]) < 1e-9 * abs(super[i])) { // diag[i] == 0
 			b[i+1] -= b[i] * diag[i+1] / super[i];
 			if (i+2 < n) b[i+2] -= b[i] * sub[i+1] / super[i];

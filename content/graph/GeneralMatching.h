@@ -12,10 +12,10 @@
 
 #include "../numerical/MatrixInverse-mod.h"
 
-vector<pii> generalMatching(int N, vector<pii>& ed) {
-	vector<vector<ll>> mat(N, vector<ll>(N)), A;
-	for (pii pa : ed) {
-		int a = pa.first, b = pa.second, r = rand() % mod;
+vt<pi> generalMatching(int N, vt<pi>& ed) {
+	vt<vl> mat(N, vl(N)), A;
+	for (pi pa : ed) {
+		int a = pa.f, b = pa.s, r = rand() % mod;
 		mat[a][b] = r, mat[b][a] = (mod - r) % mod;
 	}
 
@@ -23,29 +23,29 @@ vector<pii> generalMatching(int N, vector<pii>& ed) {
 	assert(r % 2 == 0);
 
 	if (M != N) do {
-		mat.resize(M, vector<ll>(M));
-		rep(i,0,N) {
+		mat.resize(M, vl(M));
+		F0R (i, N) {
 			mat[i].resize(M);
-			rep(j,N,M) {
+			FOR (j, N, M) {
 				int r = rand() % mod;
 				mat[i][j] = r, mat[j][i] = (mod - r) % mod;
 			}
 		}
 	} while (matInv(A = mat) != M);
 
-	vi has(M, 1); vector<pii> ret;
-	rep(it,0,M/2) {
-		rep(i,0,M) if (has[i])
-			rep(j,i+1,M) if (A[i][j] && mat[i][j]) {
+	vi has(M, 1); vt<pi> ret;
+	F0R (it, M/2) {
+		F0R (i, M) if (has[i])
+			FOR (j, i+1, M) if (A[i][j] && mat[i][j]) {
 				fi = i; fj = j; goto done;
 		} assert(0); done:
-		if (fj < N) ret.emplace_back(fi, fj);
+		if (fj < N) ret.pb({fi, fj});
 		has[fi] = has[fj] = 0;
-		rep(sw,0,2) {
+		F0R (sw, 2) {
 			ll a = mpow(A[fi][fj]);
-			rep(i,0,M) if (has[i] && A[i][fj]) {
+			F0R (i, M) if (has[i] && A[i][fj]) {
 				ll b = A[i][fj] * a % mod;
-				rep(j,0,M) A[i][j] = (A[i][j] - A[fi][j] * b) % mod;
+				F0R (j, M) A[i][j] = (A[i][j] - A[fi][j] * b) % mod;
 			}
 			swap(fi,fj);
 		}

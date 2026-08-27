@@ -9,9 +9,9 @@
  */
 #pragma once
 
-vt<pair<int, int>> factor(int x) {
+vt<pi> factor(int x) {
 	if (x == 1) return {};
-	vt<pair<int, int>> res;
+	vt<pi> res;
 	for (ll i = 2; i * i <= x; i++) { // ll: i * i overflows near INT_MAX
 		if (x % i == 0) {
 			res.pb({(int) i, 0});

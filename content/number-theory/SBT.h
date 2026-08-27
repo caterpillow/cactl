@@ -14,7 +14,7 @@
 vi cont_frac(int p, int q) {
     vi a;
     while (q) {
-        a.push_back(p / q);
+        a.pb(p / q);
         tie(p, q) = make_pair(q, p % q);
     }
     return a;

@@ -23,7 +23,7 @@ FOR (i, 2, mx + 1) {
 } 
 
 auto factor = [&] (int x) {
-	vt<pair<int, int>> res;
+	vt<pi> res;
 	while (x > 1) {
 		if (!size(res) || res.back().first != lp[x]) 
 			res.pb({lp[x], 0});

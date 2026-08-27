@@ -23,5 +23,5 @@ struct StableSum {
         v.pb(a);
         pref.pb(pref.back() + a);
     }
-    double val() { return pref.back(); }
+    db val() { return pref.back(); }
 };

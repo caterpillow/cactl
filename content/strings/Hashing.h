@@ -36,9 +36,9 @@ vt<H> get_hashes(T& str, int length) {
     if (size(str) < length) return {};
     H h = 0, pw = 1;
     F0R (i, length) h = h * C + str[i] + 1, pw = pw * C;
-    vector<H> ret = {h};
+    vt<H> ret = {h};
     FOR (i, length, size(str)) {
-        ret.push_back(h = h * C + str[i] + 1 
+        ret.pb(h = h * C + str[i] + 1 
             - pw * (str[i - length] + 1));
     }
     return ret;

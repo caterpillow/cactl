@@ -15,7 +15,7 @@ Products of three coordinates are used in intermediate steps so watch out for ov
 \includegraphics[width=\textwidth]{content/geometry/SegmentIntersection}
 \end{minipage}
  * Usage:
- * vector<P> inter = seg_inter(s1,e1,s2,e2);
+ * vt<P> inter = seg_inter(s1,e1,s2,e2);
  * if (size(inter) == 1)
  *   cout << "segments intersect at " << inter[0] << endl;
  * Status: stress-tested, tested on kattis:intersection

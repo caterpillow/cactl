@@ -88,11 +88,11 @@ void count_sort(vector<pli> &b, int bits) { // (optional)
 	int mask = (1 << bits) - 1;
 	for (int it = 0; it < 2; it++) {
 		int move = it * bits;
-		vector<int> q(1 << bits), w((q).size() + 1);
+		vector<int> q(1 << bits), w(size(q) + 1);
 		for (int i = 0; i < sz(b); i++)
 			q[(b[i].first >> move) & mask]++;
 		partial_sum(q.begin(), q.end(), w.begin() + 1);
-		vector<pli> res(b.size());
+		vector<pli> res(size(b));
 		for (int i = 0; i < sz(b); i++)
 			res[w[(b[i].first >> move) & mask]++] = b[i];
 		swap(b, res);

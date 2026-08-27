@@ -12,18 +12,18 @@
 
 struct Fast_Mo {
   int N, Q, width;
-  vector<int> L, R, order;
+  vi L, R, order;
   bool is_build;
   int nl, nr;
 
   Fast_Mo(int _n, int _q) : N(_n), Q(_q), order(Q), is_build(false) {
-    width = max<int>(1, 1.0 * N / max<double>(1.0, sqrt(Q / 2.0)));
+    width = max<int>(1, 1.0 * N / max<db>(1.0, sqrt(Q / 2.0)));
     iota(begin(order), end(order), 0);
   }
   // [l, r)
   void insert(int l, int r) {
     assert(0 <= l and l <= r and r <= N);
-    L.push_back(l), R.push_back(r);
+    L.pb(l), R.pb(r);
   }
 
   void build() { sort(), climb(), is_build = true; }
@@ -45,11 +45,11 @@ struct Fast_Mo {
  private:
   void sort() {
     assert(size(order) == Q);
-    vector<int> cnt(N + 1), buf(Q);
+    vi cnt(N + 1), buf(Q);
     for (int i = 0; i < Q; i++) cnt[R[i]]++;
     for (int i = 1; i < size(cnt); i++) cnt[i] += cnt[i - 1];
     for (int i = 0; i < Q; i++) buf[--cnt[R[i]]] = i;
-    vector<int> b(Q);
+    vi b(Q);
     for (int i = 0; i < Q; i++) b[i] = L[i] / width;
     cnt.resize(N / width + 1);
     fill(begin(cnt), end(cnt), 0);
@@ -68,7 +68,7 @@ struct Fast_Mo {
 
   void climb(int iter = 3, int interval = 5) {
     if (Q == 0) return;
-    vector<int> d(Q - 1);
+    vi d(Q - 1);
     for (int i = 0; i < Q - 1; i++) d[i] = dist(order[i], order[i + 1]);
     while (iter--) {
       for (int i = 1; i < Q; i++) {

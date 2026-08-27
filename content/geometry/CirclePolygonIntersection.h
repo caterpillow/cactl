@@ -12,9 +12,9 @@
 
 #include "../../content/geometry/Point.h"
 
-typedef Point<double> P;
+using P = Point<db>;
 #define arg(p, q) atan2(p.cross(q), p.dot(q))
-double circlePoly(P c, double r, vector<P> ps) {
+db circlePoly(P c, db r, vt<P> ps) {
 	auto tri = [&](P p, P q) {
 		auto r2 = r * r / 2;
 		P d = q - p;

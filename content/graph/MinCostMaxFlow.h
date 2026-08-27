@@ -19,17 +19,17 @@ struct MCMF {
     };
     int n;
     vt<vt<edge>> ed;
-    vt<int> seen;
-    vt<ll> dist, pi;
+    vi seen;
+    vl dist, pi;
     vt<edge*> par;
 
     MCMF(int n) : n(n), ed(n), seen(n), dist(n), pi(n), par(n) {}
 
     void ae(int from, int to, ll cap, ll cost) {
         if (from == to) return;
-        ed[from].push_back({from, to, size(ed[to]), 
+        ed[from].pb({from, to, size(ed[to]), 
             cap, cost, 0});
-        ed[to].push_back({ to,  from, size(ed[from]) - 1,  
+        ed[to].pb({ to,  from, size(ed[from]) - 1,  
             0, -cost, 0});
     }
 
@@ -60,7 +60,7 @@ struct MCMF {
         F0R (i, n) pi[i] = min(pi[i] + dist[i], INF);
     }
 
-    pair<ll, ll> maxflow(int s, int t) {
+    pl maxflow(int s, int t) {
         ll totflow = 0, totcost = 0;
         while (path(s), seen[t]) {
             ll fl = INF;

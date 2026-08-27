@@ -11,13 +11,13 @@
 
 #include "DFSMatching.h"
 
-vi cover(vector<vi>& g, int n, int m) {
+vi cover(vt<vi>& g, int n, int m) {
 	vi match(m, -1);
 	int res = dfsMatching(g, match);
 	vt<bool> lfound(n, true), seen(m);
 	for (int it : match) if (it != -1) lfound[it] = false;
 	vi q, cover;
-	F0R (i, n) if (lfound[i]) q.push_back(i);
+	F0R (i, n) if (lfound[i]) q.pb(i);
 	while (!q.empty()) {
 		int i = q.back(); q.pop_back();
 		lfound[i] = 1;
@@ -26,8 +26,8 @@ vi cover(vector<vi>& g, int n, int m) {
 			q.pb(match[e]);
 		}
 	}
-	F0R (i, n) if (!lfound[i]) cover.push_back(i);
-	F0R (i, m) if (seen[i]) cover.push_back(n+i);
+	F0R (i, n) if (!lfound[i]) cover.pb(i);
+	F0R (i, m) if (seen[i]) cover.pb(n+i);
 	assert(size(cover) == res);
 	return cover;
 }

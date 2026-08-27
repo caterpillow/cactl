@@ -10,7 +10,7 @@
  */
 #pragma once
 
-template<typename flow_t = long long>
+template<typename flow_t = ll>
 struct PushRelabel {
     struct Edge {
         int to, rev;
@@ -19,8 +19,8 @@ struct PushRelabel {
     vt<vt<Edge>> g;
     vt<flow_t> ec;
     vt<Edge*> cur;
-    vt<vt<int>> hs;
-    vt<int> h;
+    vt<vi> hs;
+    vi h;
 
     void init(int n) {
         g.resize(n);
@@ -32,13 +32,13 @@ struct PushRelabel {
 
     void ae(int s, int t, flow_t cap, flow_t rcap = 0) {
         if (s == t) return;
-        g[s].push_back({t, size(g[t]), 0, cap});
-        g[t].push_back({s, size(g[s]) - 1, 0, rcap});
+        g[s].pb({t, size(g[t]), 0, cap});
+        g[t].pb({s, size(g[s]) - 1, 0, rcap});
     }
     void add_flow(Edge& e, flow_t f) {
         Edge &back = g[e.to][e.rev];
         if (!ec[e.to] && f)
-            hs[h[e.to]].push_back(e.to);
+            hs[h[e.to]].pb(e.to);
         e.f += f; e.c -= f;
         ec[e.to] += f;
         back.f -= f; back.c += f;
@@ -48,7 +48,7 @@ struct PushRelabel {
         int v = size(g);
         h[s] = v;
         ec[t] = 1;
-        vt<int> co(2 * v);
+        vi co(2 * v);
         co[0] = v - 1;
 		F0R (i, v) cur[i] = g[i].data();
         for(auto &e : g[s]) add_flow(e, e.c);

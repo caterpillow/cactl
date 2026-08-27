@@ -36,7 +36,7 @@ void test(const string& s) {
 		ord.clear();
 		rep(j,0,sz(pats)) {
 			string& pat = pats[j];
-			if (hay.substr(i, pat.size()) == pat) {
+			if (hay.substr(i, size(pat)) == pat) {
 				ord.push_back(j);
 			}
 		}

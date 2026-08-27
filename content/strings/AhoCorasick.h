@@ -24,30 +24,30 @@ struct AhoCorasick {
 		int back, next[alpha], start = -1, end = -1, nmatches = 0;
 		Node(int v) { memset(next, v, sizeof(next)); }
 	};
-	vector<Node> N;
+	vt<Node> N;
 	vi backp;
 	void insert(string& s, int j) {
 		assert(!s.empty());
 		int n = 0;
 		for (char c : s) {
 			int& m = N[n].next[c - first];
-			if (m == -1) { n = m = sz(N); N.emplace_back(-1); }
+			if (m == -1) { n = m = size(N); N.emplace_back(-1); }
 			else n = m;
 		}
 		if (N[n].end == -1) N[n].start = j;
-		backp.push_back(N[n].end);
+		backp.pb(N[n].end);
 		N[n].end = j;
 		N[n].nmatches++;
 	}
-	AhoCorasick(vector<string>& pat) : N(1, -1) {
-		rep(i,0,sz(pat)) insert(pat[i], i);
-		N[0].back = sz(N);
+	AhoCorasick(vt<string>& pat) : N(1, -1) {
+		F0R (i, size(pat)) insert(pat[i], i);
+		N[0].back = size(N);
 		N.emplace_back(0);
 
 		queue<int> q;
 		for (q.push(0); !q.empty(); q.pop()) {
 			int n = q.front(), prev = N[n].back;
-			rep(i,0,alpha) {
+			F0R (i, alpha) {
 				int &ed = N[n].next[i], y = N[prev].next[i];
 				if (ed == -1) ed = y;
 				else {
@@ -65,18 +65,18 @@ struct AhoCorasick {
 		vi res; // ll count = 0;
 		for (char c : word) {
 			n = N[n].next[c - first];
-			res.push_back(N[n].end);
+			res.pb(N[n].end);
 			// count += N[n].nmatches;
 		}
 		return res;
 	}
-	vector<vi> findAll(vector<string>& pat, string word) {
+	vt<vi> findAll(vt<string>& pat, string word) {
 		vi r = find(word);
-		vector<vi> res(sz(word));
-		rep(i,0,sz(word)) {
+		vt<vi> res(size(word));
+		F0R (i, size(word)) {
 			int ind = r[i];
 			while (ind != -1) {
-				res[i - sz(pat[ind]) + 1].push_back(ind);
+				res[i - size(pat[ind]) + 1].pb(ind);
 				ind = backp[ind];
 			}
 		}

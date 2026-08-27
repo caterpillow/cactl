@@ -17,7 +17,7 @@
 #include "OnSegment.h"
 
 using P = Point<ll>;
-bool in_hull(const vector<P>& l, P p, bool strict = true) {
+bool in_hull(const vt<P>& l, P p, bool strict = true) {
     int a = 1, b = size(l) - 1, r = !strict;
     if (size(l) < 3) return r && on_segment(l[0], l.back(), p);
     if (side_of(l[0], l[a], l[b]) > 0) swap(a, b);

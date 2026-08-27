@@ -11,7 +11,7 @@
 
 #include "Point.h"
 
-pair<P, P> closest(vector<P> v) {
+pair<P, P> closest(vt<P> v) {
     assert(size(v) > 1);
     set<P> S;
     sort(all(v), [](P a, P b) { return a.y < b.y; });

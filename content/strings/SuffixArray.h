@@ -21,8 +21,8 @@
 
 struct SuffixArray {
 	vi sa, lcp;
-	SuffixArray(string s, int lim = 256) { // or vector<int>
-		s.push_back(0); int n = size(s), k = 0, a, b;
+	SuffixArray(string s, int lim = 256) { // or vi
+		s.pb(0); int n = size(s), k = 0, a, b;
 		vi x(all(s)), y(n), ws(max(n, lim));
 		sa = lcp = y, iota(all(sa), 0);
 		for (int j = 0, p = 0; p < n; j = max(1, j * 2), lim = p) {

@@ -8,8 +8,8 @@
  	* https://en.wikipedia.org/wiki/Leftist_tree
  */
 
-typedef pair<ll,int> T;
-typedef struct heap* ph;
+using T = pair<ll,int>;
+using ph = struct heap*;
 struct heap { // min heap
 	ph l = NULL, r = NULL;
 	int s = 0; T v; // s: path to leaf

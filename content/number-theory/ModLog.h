@@ -40,7 +40,7 @@ ll modLog(ll a, ll b, ll m) {
 		A[e * b % m] = j++;
 	if (e == b % m) return j;
 	if (__gcd(m, e) == __gcd(m, b)) 
-		rep(i,2,n+2) if (A.count(e = e * f % m))
+		FOR (i, 2, n+2) if (A.count(e = e * f % m))
 			return n * i - A[e];
 	return -1;
 }

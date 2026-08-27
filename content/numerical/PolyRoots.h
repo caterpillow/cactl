@@ -25,12 +25,12 @@ vt<db> poly_roots(Poly p, db xmin, db xmax) {
 	auto dr = poly_roots(der, xmin, xmax);
 	sort(all(dr));
 	vt<db> xs{xmin};
-	for (db x : dr) if (xmin < x && x < xmax) xs.push_back(x);
-	if (xmin < xmax) xs.push_back(xmax);
+	for (db x : dr) if (xmin < x && x < xmax) xs.pb(x);
+	if (xmin < xmax) xs.pb(xmax);
 	vt<db> ret;
 	F0R (i, size(xs)) {
 		db fl = p(xs[i]);
-		if (fl == 0) ret.push_back(xs[i]);
+		if (fl == 0) ret.pb(xs[i]);
 		if (i + 1 == size(xs)) break;
 		db fh = p(xs[i + 1]);
 		if (fl == 0 || fh == 0 || (fl < 0) == (fh < 0))
@@ -44,7 +44,7 @@ vt<db> poly_roots(Poly p, db xmin, db xmax) {
 			if ((fm < 0) == (fl < 0)) l = m, fl = fm;
 			else h = m;
 		}
-		ret.push_back(l / 2 + h / 2);
+		ret.pb(l / 2 + h / 2);
 	}
 	return ret;
 }

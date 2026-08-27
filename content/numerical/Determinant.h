@@ -18,7 +18,7 @@ db det(vt<vt<db>>& a) {
 		res *= a[i][i];
 		if (res == 0) return 0;
 		FOR (j, i + 1, n) {
-			double v = a[j][i] / a[i][i];
+			db v = a[j][i] / a[i][i];
 			if (v != 0) FOR (k, i + 1, n) a[j][k] -= v * a[i][k];
 		}
 	}

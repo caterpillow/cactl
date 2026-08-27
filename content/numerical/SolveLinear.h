@@ -10,7 +10,7 @@
 #pragma once
 
 using vd = vt<db>;
-const double eps = 1e-12;
+const db eps = 1e-12;
 
 int solveLinear(vt<vd>& A, vd& b, vd& x) {
 	int n = size(A), m = size(x), rank = 0, br, bc;
@@ -18,7 +18,7 @@ int solveLinear(vt<vd>& A, vd& b, vd& x) {
 	vi col(m); iota(all(col), 0);
 
 	F0R (i, n) {
-		double v, bv = 0;
+		db v, bv = 0;
 		FOR (r, i, n) FOR (c, i, m)
 			if ((v = fabs(A[r][c])) > bv)
 				br = r, bc = c, bv = v;
@@ -32,7 +32,7 @@ int solveLinear(vt<vd>& A, vd& b, vd& x) {
 		F0R (j, n) swap(A[j][i], A[j][bc]);
 		bv = 1 / A[i][i];
 		FOR (j, i + 1, n) {
-			double fac = A[j][i] * bv;
+			db fac = A[j][i] * bv;
 			b[j] -= fac * b[i];
 			FOR (k, i + 1, m) A[j][k] -= fac * A[i][k];
 		}

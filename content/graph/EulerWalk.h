@@ -15,8 +15,8 @@
 #pragma once
 
 int n, m;
-vt<vt<pair<int, int>>> adj;
-vt<int> ret, used;
+vt<vt<pi>> adj;
+vi ret, used;
 
 // 
 void dfs(int u) {
@@ -26,5 +26,5 @@ void dfs(int u) {
         if (used[ei]++) continue;
         dfs(v);
     }
-    ret.push_back(u);
+    ret.pb(u);
 }

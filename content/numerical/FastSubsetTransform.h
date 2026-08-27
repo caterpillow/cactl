@@ -13,7 +13,6 @@
 #pragma once
 
 // don't forget MOD!
-using pi = pair<int, int>;
 void FST(vi &a, bool inv) {
 	for (int n = size(a), step = 1; step < n; step *= 2) {
 		for (int i = 0; i < n; i += 2 * step) FOR (j, i, i + step) {

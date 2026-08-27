@@ -11,8 +11,8 @@
 
 #include "Point.h"
 
-typedef Point<db> P;
-P polygon_center(const vector<P>& v) {
+using P = Point<db>;
+P polygon_center(const vt<P>& v) {
 	P res{}; db a = 0;
 	for (int i = 0, j = size(v) - 1; i < size(v); j = i++) {
 		res = res + (v[i] + v[j]) * v[j].cross(v[i]);

@@ -8,7 +8,7 @@
  * products in intermediate steps so watch out for overflow.
  * Time: O(n)
  * Usage:
- * vector<P> v = {P{4,4}, P{1,2}, P{2,1}};
+ * vt<P> v = {P{4,4}, P{1,2}, P{2,1}};
  * bool in = in_polygon(v, P{3, 3}, false);
  * Status: stress-tested and tested on kattis:pointinpolygon
  */
@@ -19,7 +19,7 @@
 #include "SegmentDistance.h"
 
 template<class P>
-bool in_polygon(vector<P> &p, P a, bool strict = true) {
+bool in_polygon(vt<P> &p, P a, bool strict = true) {
 	int cnt = 0, n = size(p);
 	F0R (i, n) {
 		P q = p[(i + 1) % n];

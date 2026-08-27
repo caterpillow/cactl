@@ -12,14 +12,14 @@ int main() {
  
     int n;
     cin >> n;
-    vector<vector<int>> adj(n);
+    vt<vi> adj(n);
     for (int i = n - 1; i--;) {
         int u, v;
         cin >> u >> v;
-        adj[--u].push_back(--v);
-        adj[v].push_back(u);
+        adj[--u].pb(--v);
+        adj[v].pb(u);
     }
-    vector<int> dp1(n, 0), dp2(n);
+    vi dp1(n, 0), dp2(n);
     auto dfs1 = [&] (auto &&self, int u, int p) -> void {
         for (int v : adj[u]) if (v != p) {
             self(self, v, u);

@@ -4,7 +4,7 @@
  * License: CC0
  * Source: me
  * Description: BumpAllocator for STL containers.
- * Usage: vector<vector<int, small<int>>> ed(N);
+ * Usage: vt<vt<int, small<int>>> ed(N);
  * Status: tested
  */
 #pragma once
@@ -13,7 +13,7 @@ char buf[450 << 20] alignas(16);
 size_t buf_ind = sizeof buf;
 
 template<class T> struct small {
-	typedef T value_type;
+	using value_type = T;
 	small() {}
 	template<class U> small(const U&) {}
 	T* allocate(size_t n) {

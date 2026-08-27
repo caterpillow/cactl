@@ -15,11 +15,11 @@
 #pragma once
 #include "Point.h"
 
-typedef Point<int> P;
+using P = Point<int>;
 vt<array<int, 3>> manhattanMST(vt<P> ps) {
 	vi id(size(ps));
 	iota(all(id), 0);
-	vector<array<int, 3>> edges;
+	vt<array<int, 3>> edges;
 	F0R (k, 4) {
 		sort(all(id), [&](int i, int j) {
 		     return (ps[i]-ps[j]).x < (ps[j]-ps[i]).y;});
@@ -30,7 +30,7 @@ vt<array<int, 3>> manhattanMST(vt<P> ps) {
 				int j = it->second;
 				P d = ps[i] - ps[j];
 				if (d.y > d.x) break;
-				edges.push_back({d.y + d.x, i, j});
+				edges.pb({d.y + d.x, i, j});
 			}
 			sweep[-ps[i].y] = i;
 		}

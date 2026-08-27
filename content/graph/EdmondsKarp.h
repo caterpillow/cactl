@@ -9,11 +9,11 @@
  */
 #pragma once
 
-template<class T> T edmondsKarp(vector<unordered_map<int, T>>&
+template<class T> T edmondsKarp(vt<unordered_map<int, T>>&
 		adj, int s, int t) {
 	assert(s != t);
 	T flow = 0;
-	vt<int> par(size(adj)), q = par;
+	vi par(size(adj)), q = par;
     while (1) {
 		fill(all(par), -1);
 		int ptr = 1;

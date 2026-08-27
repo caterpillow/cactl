@@ -10,7 +10,7 @@
 
 #pragma once
 
-vector<pair<int, int>> ord;
+vt<pi> ord;
 auto dfs1 = [&] (auto &&self, int u, int p) -> int {
     int msk1 = 0, msk2 = 0;
     for (int v : adj[u]) if (v - p) {
@@ -19,7 +19,7 @@ auto dfs1 = [&] (auto &&self, int u, int p) -> int {
         msk1 |= res;
     }
     int res = (msk1 | ((1 << __lg(2 * msk2 + 1)) - 1)) + 1;
-    ord.push_back({-__builtin_ctz(res), u});
+    ord.pb({-__builtin_ctz(res), u});
     return res;
 };
 dfs1(dfs1, 0, -1);

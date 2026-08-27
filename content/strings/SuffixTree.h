@@ -41,24 +41,24 @@ struct SuffixTree {
 	SuffixTree(string a, int alpha = 27) : a(a), A(alpha),
 		t(max(2, 2*size(a)+1), vi(A, -1)), l(size(t)), r(size(t), size(a)),
 		p(size(t)), suf(size(t)) {
-		F0R(c,A) t[1][c] = 0;
+		F0R (c,A) t[1][c] = 0;
 		suf[0] = 1; l[0] = l[1] = -1;
 		r[0] = r[1] = p[0] = p[1] = 0;
-		F0R(i,size(a)) ukkadd(i, toi(a[i]));
+		F0R (i,size(a)) ukkadd(i, toi(a[i]));
 	}
 
 	// Example: longest common substring as {length, start in s}; assumes a-z.
-	pair<int, int> best;
+	pi best;
 	int lcs(int node, int i1, int i2, int olen) {
 		if (l[node] <= i1 && i1 < r[node]) return 1;
 		if (l[node] <= i2 && i2 < r[node]) return 2;
 		int mask = 0, len = node ? olen + r[node]-l[node] : 0;
-		F0R(c,A) if (t[node][c] != -1)
+		F0R (c,A) if (t[node][c] != -1)
 			mask |= lcs(t[node][c], i1, i2, len);
-		if (mask == 3) best = max(best, pair<int, int>{len, r[node]-len});
+		if (mask == 3) best = max(best, pi{len, r[node]-len});
 		return mask;
 	}
-	static pair<int, int> LCS(string s, string t) {
+	static pi LCS(string s, string t) {
 		SuffixTree st(s + char('z'+1) + t + char('z'+2), 28);
 		st.lcs(0, size(s), size(s)+1+size(t), 0);
 		return st.best;

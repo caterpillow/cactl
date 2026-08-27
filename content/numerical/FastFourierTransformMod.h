@@ -15,7 +15,6 @@
 
 #include "FastFourierTransform.h"
 
-using vl = vt<ll>;
 template<int M> vl convMod(const vl &a, const vl &b) {
 	if (a.empty() || b.empty()) return {};
 	vl res(size(a) + size(b) - 1);

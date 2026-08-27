@@ -24,23 +24,23 @@ struct NetworkSimplex {
         Flow cap;
         Cost cost;
     };
-    vector<Edge> edges;
-    vector<int> head, fa, fe, mark, cyc;
-    vector<Cost> dual;
+    vt<Edge> edges;
+    vi head, fa, fe, mark, cyc;
+    vt<Cost> dual;
     int ti;
 
     NetworkSimplex(int n)
             : head(n, 0), fa(n), fe(n), mark(n), cyc(n + 1), dual(n), ti(0) {
-        edges.push_back({0, 0, 0, 0});
-        edges.push_back({0, 0, 0, 0});
+        edges.pb({0, 0, 0, 0});
+        edges.pb({0, 0, 0, 0});
     }
 
     int ae(int u, int v, Flow cap, Cost cost) {
         assert(size(edges) % 2 == 0);
         int e = size(edges);
-        edges.push_back({head[u], v, cap, cost});
+        edges.pb({head[u], v, cap, cost});
         head[u] = e;
-        edges.push_back({head[v], u, 0, -cost});
+        edges.pb({head[v], u, 0, -cost});
         head[v] = e + 1;
         return e;
     }

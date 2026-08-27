@@ -22,7 +22,7 @@ struct LCA {
 	void dfs(int u, int p, vt<vi> &adj) {
 		time[u] = t++;
 		for (int v : adj[u]) if (v != p) {
-			path.push_back(u), ret.push_back(time[u]);
+			path.pb(u), ret.pb(time[u]);
 			dfs(v, u, adj);
 		}
 	}

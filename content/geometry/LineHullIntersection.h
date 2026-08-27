@@ -23,7 +23,7 @@
 
 #define cmp(i,j) sgn(dir.perp().cross(poly[(i) % n] - poly[(j) % n]))
 #define extr(i) cmp(i + 1, i) >= 0 && cmp(i, i - 1 + n) < 0
-template <class P> int extrVertex(vector<P>& poly, P dir) {
+template <class P> int extrVertex(vt<P>& poly, P dir) {
 	int n = size(poly), lo = 0, hi = n;
 	if (extr(0)) return 0;
 	while (lo + 1 < hi) {
@@ -37,7 +37,7 @@ template <class P> int extrVertex(vector<P>& poly, P dir) {
 
 #define cmpL(i) sgn(a.cross(poly[i], b))
 template <class P>
-array<int, 2> lineHull(P a, P b, vector<P>& poly) {
+array<int, 2> lineHull(P a, P b, vt<P>& poly) {
 	int endA = extrVertex(poly, (a - b).perp());
 	int endB = extrVertex(poly, (b - a).perp());
 	if (cmpL(endA) < 0 || cmpL(endB) > 0)

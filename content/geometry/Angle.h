@@ -7,8 +7,8 @@
  *  a number of rotations around the origin). Useful for rotational sweeping.
  *  Sometimes also represents points or vectors.
  * Usage:
- *  vector<Angle> v = {w[0], w[0].t360() ...}; // sorted
- *  int j = 0; rep(i,0,n) { while (v[j] < v[i].t180()) ++j; }
+ *  vt<Angle> v = {w[0], w[0].t360() ...}; // sorted
+ *  int j = 0; F0R (i, n) { while (v[j] < v[i].t180()) ++j; }
  *  // sweeps j such that (j-i) represents the number of positively oriented triangles with vertices at 0 and i
  * Status: Used, works well
  */

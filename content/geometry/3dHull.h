@@ -12,7 +12,7 @@
 
 #include "Point3D.h"
 
-typedef Point3D<double> P3;
+using P3 = Point3D<db>;
 
 struct PR {
 	void ins(int x) { (a == -1 ? a : b) = x; }
@@ -23,24 +23,24 @@ struct PR {
 
 struct F { P3 q; int a, b, c; };
 
-vector<F> hull3d(const vector<P3>& A) {
-	assert(sz(A) >= 4);
-	vector<vector<PR>> E(sz(A), vector<PR>(sz(A), {-1, -1}));
+vt<F> hull3d(const vt<P3>& A) {
+	assert(size(A) >= 4);
+	vt<vt<PR>> E(size(A), vt<PR>(size(A), {-1, -1}));
 #define E(x,y) E[f.x][f.y]
-	vector<F> FS;
+	vt<F> FS;
 	auto mf = [&](int i, int j, int k, int l) {
 		P3 q = (A[j] - A[i]).cross((A[k] - A[i]));
 		if (q.dot(A[l]) > q.dot(A[i]))
 			q = q * -1;
 		F f{q, i, j, k};
 		E(a,b).ins(k); E(a,c).ins(j); E(b,c).ins(i);
-		FS.push_back(f);
+		FS.pb(f);
 	};
-	rep(i,0,4) rep(j,i+1,4) rep(k,j+1,4)
+	F0R (i, 4) FOR (j, i+1, 4) FOR (k, j+1, 4)
 		mf(i, j, k, 6 - i - j - k);
 
-	rep(i,4,sz(A)) {
-		rep(j,0,sz(FS)) {
+	FOR (i, 4, size(A)) {
+		F0R (j, size(FS)) {
 			F f = FS[j];
 			if(f.q.dot(A[i]) > f.q.dot(A[f.a])) {
 				E(a,b).rem(f.c);
@@ -50,8 +50,8 @@ vector<F> hull3d(const vector<P3>& A) {
 				FS.pop_back();
 			}
 		}
-		int nw = sz(FS);
-		rep(j,0,nw) {
+		int nw = size(FS);
+		F0R (j, nw) {
 			F f = FS[j];
 #define C(a, b, c) if (E(a,b).cnt() != 2) mf(f.a, f.b, i, f.c);
 			C(a, b, c); C(a, c, b); C(b, c, a);

@@ -14,21 +14,16 @@
 #pragma GCC target("avx2")
 
 using namespace std;
-using ll = long long;
 
 // include standard macros
-const int inf = 1e9;
-const ll INF = 1e18;
-using vi = vt<int>;
-using db = double;
 
 __gnu_cxx::sfmt19937 mt(random_device{}());
 int gen(int l, int r) { return uniform_int_distribution<int>(l, r)(mt); }
 db next_double() { return uniform_real_distribution<db>(0, 1)(mt); }
 
-double get_time() {timeval tv; gettimeofday(&tv, NULL); return tv.tv_sec + tv.tv_usec * 1e-6;}
-double start_time = get_time();
-double elapsed() {return get_time() - start_time;}
+db get_time() {timeval tv; gettimeofday(&tv, NULL); return tv.tv_sec + tv.tv_usec * 1e-6;}
+db start_time = get_time();
+db elapsed() {return get_time() - start_time;}
 
 const db TIME_LIMIT = 0.95;
 db t0 = 1e9, tn = 0.1, time_passed = 1e-9;
@@ -36,7 +31,7 @@ const db maximise_score = -1; // -1 if minimise
 
 // data
 int n;
-vector<int> a;
+vi a;
 // end data
 
 using T = int;

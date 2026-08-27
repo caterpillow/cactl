@@ -10,14 +10,14 @@ ll count_primes(ll N) { // count_primes(1e13) == 346065536839
 	if (N <= 1) return 0;
 	int sq = (int)sqrt(N);
 	vl big_ans((sq+1)/2), small_ans(sq+1);
-	FOR(i,1,sq+1) small_ans[i] = (i-1)/2;
-	F0R(i,sz(big_ans)) big_ans[i] = (N/(2*i+1)-1)/2;
-	vb skip(sq+1); int prime_cnt = 0;
+	FOR (i, 1, sq+1) small_ans[i] = (i-1)/2;
+	F0R (i, size(big_ans)) big_ans[i] = (N/(2*i+1)-1)/2;
+	vt<bool> skip(sq+1); int prime_cnt = 0;
 	for (int p = 3; p <= sq; p += 2) if (!skip[p]) { // primes
 		for (int j = p; j <= sq; j += 2*p) skip[j] = 1;
-		F0R(j,min((ll)sz(big_ans),(N/p/p+1)/2)) {
+		F0R (j, min((ll)size(big_ans),(N/p/p+1)/2)) {
 			ll prod = (ll)(2*j+1)*p;
-			big_ans[j] -= (prod > sq ? small_ans[(double)N/prod]
+			big_ans[j] -= (prod > sq ? small_ans[(db)N/prod]
 						 : big_ans[prod/2])-prime_cnt;
 		}
 		for (int j = sq, q = sq/p; q >= p; --q) for (;j >= q*p;--j) 

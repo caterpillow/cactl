@@ -13,7 +13,7 @@
 \vspace{-6mm}
 \end{minipage}
  * Usage:
- * 	vector<P> p = ...;
+ * 	vt<P> p = ...;
  * 	p = polygonCut(p, P(0,0), P(1,0));
  * Status: tested but not extensively
  */
@@ -21,16 +21,16 @@
 
 #include "Point.h"
 
-typedef Point<db> P;
-vector<P> polygonCut(const vector<P>& poly, P s, P e) {
-	vector<P> res;
+using P = Point<db>;
+vt<P> polygonCut(const vt<P>& poly, P s, P e) {
+	vt<P> res;
 	F0R (i, size(poly)) {
 		P cur = poly[i], prev = i ? poly[i - 1] : poly.back();
 		auto a = s.cross(e, cur), b = s.cross(e, prev);
 		if ((a < 0) != (b < 0))
-			res.push_back(cur + (prev - cur) * (a / (a - b)));
+			res.pb(cur + (prev - cur) * (a / (a - b)));
 		if (a < 0)
-			res.push_back(cur);
+			res.pb(cur);
 	}
 	return res;
 }

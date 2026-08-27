@@ -17,9 +17,9 @@ struct Timer {
   Timer() { reset(); }
   void reset() { st = chrono::high_resolution_clock::now(); }
 
-  long long elapsed() {
+  ll elapsed() {
     auto ed = chrono::high_resolution_clock::now();
     return chrono::duration_cast<chrono::milliseconds>(ed - st).count();
   }
-  long long operator()() { return elapsed(); }
+  ll operator()() { return elapsed(); }
 };

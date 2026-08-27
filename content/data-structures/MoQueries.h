@@ -15,7 +15,7 @@ void add(int ind, int end) { ... } // add a[ind] (end = 0 or 1)
 void del(int ind, int end) { ... } // remove a[ind]
 int calc() { ... } // compute current answer
 
-vi mo(vector<pi> Q) {
+vi mo(vt<pi> Q) {
 	int L = 0, R = 0, blk = 350; // ~N/sqrt(Q)
 	vi s(size(Q)), res = s;
 #define K(x) pi(x.first/blk, x.second ^ -(x.first/blk & 1))
@@ -48,7 +48,7 @@ vi moTree(vt<array<int, 2>> Q, vt<vi>& ed, int root=0){
 #define K(x) pi(I[x[0]] / blk, I[x[1]] ^ -(I[x[0]] / blk & 1))
 	iota(all(s), 0);
 	sort(all(s), [&](int s, int t){ return K(Q[s]) < K(Q[t]); });
-	for (int qi : s) rep(end,0,2) {
+	for (int qi : s) F0R (end, 2) {
 		int &a = pos[end], b = Q[qi][end], i = 0;
 #define step(c) { if (in[c]) { del(a, end); in[a] = 0; } \
                   else { add(c, end); in[c] = 1; } a = c; }

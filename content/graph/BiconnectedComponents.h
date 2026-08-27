@@ -52,7 +52,7 @@ struct BCC {
                     stk.pb(ei);
                     comps.pb({si + all(stk)});
                     stk.resize(si);
-                } else if (up < me) stk.push_back(ei); // bcc
+                } else if (up < me) stk.pb(ei); // bcc
                 if (up > me) is_bridge[ei] = 1; // bridges
             }
         }

@@ -26,9 +26,9 @@ int matInv(vt<vt<db>>& A) {
         F0R (j, n)
             swap(A[j][i], A[j][c]), swap(tmp[j][i], tmp[j][c]);
         swap(col[i], col[c]);
-        double v = A[i][i];
+        db v = A[i][i];
         FOR (j, i + 1, n) {
-            double f = A[j][i] / v; // replace with mod inv
+            db f = A[j][i] / v; // replace with mod inv
             A[j][i] = 0;
             FOR (k, i + 1, n) A[j][k] -= f * A[i][k];
             F0R (k, n) tmp[j][k] -= f * tmp[i][k];
@@ -40,7 +40,7 @@ int matInv(vt<vt<db>>& A) {
 
     /// forget A at this point, just eliminate tmp backward
     for (int i = n - 1; i > 0; --i) F0R (j, i) {
-        double v = A[j][i];
+        db v = A[j][i];
         F0R (k, n) tmp[j][k] -= v * tmp[i][k];
     }
 
