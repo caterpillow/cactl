@@ -41,9 +41,9 @@ for (int l = 0, r = 0; l < size(evs); l = r) {
     }
     sort(all(pos)), pos.erase(unique(all(pos)), end(pos));
     for (int s = 0, t; s < size(pos); s = t) { // block = one line
-        auto proj = [&] (int k) { return pts[ord[pos[k]]].dot(d0); };
+        auto pr = [&] (int k) { return pts[ord[pos[k]]].dot(d0); };
         for (t = s; t + 1 < size(pos) && pos[t + 1] == pos[t] + 1
-            && proj(t + 1) == proj(t); t++);
+            && pr(t + 1) == pr(t); t++);
         int lo = pos[s], hi = pos[t++] + 1;
         reverse(ord.begin() + lo, ord.begin() + hi);
         FOR (i, lo, hi) loc[ord[i]] = i;
@@ -51,7 +51,8 @@ for (int l = 0, r = 0; l < size(evs); l = r) {
         // of the line; ord[0], ord[n - 1]: the farthest
         if (hi - lo > 2) mn = 0; // three collinear points
         P a = pts[ord[lo]], b = pts[ord[hi - 1]];
-        auto area = [&] (int k) { return abs(a.cross(b, pts[ord[k]])); };
+        auto area = [&] (int k) {
+            return abs(a.cross(b, pts[ord[k]])); };
         if (hi < n) mn = min(mn, area(hi));
         if (lo > 0) mn = min(mn, area(lo - 1));
         mx = max({mx, area(0), area(n - 1)});
