@@ -3,8 +3,12 @@
  * Date: 2025-10-24
  * Source: wery0
  * Description: Wildcard pattern matching. wc is wildcard character.
- * res[i] = '1' iff pattern matches text starting at i.
- * Fails with probability \tilde{}N/mod per call.
+ * res[i] = '1' iff pattern matches text starting at i. Idea: give every
+ * character a random value $r$; over the non-wildcard pairs a match means
+ * $\sum_j r(p_j)(r(p_j) - r(t_{i+j})) = 0$, which two convolutions
+ * evaluate for all $i$. A mismatch survives with probability $\le 2/mod$
+ * per alignment, so \tilde{}$2N/mod$ overall; to square that, run again
+ * with fresh random values (re-seed rng) or another wpm\_mod and AND.
  * Time: $O(N \log N)$
  */
 

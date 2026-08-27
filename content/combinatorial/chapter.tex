@@ -87,6 +87,12 @@
 		\# on $k$ existing trees of size $n_i$: $n_1n_2\cdots n_k n^{k-2}$ \\
 		\# with degrees $d_i$: $(n-2)! / ((d_1-1)! \cdots (d_n-1)!)$
 
+	\subsection{Pr\"ufer codes}
+		Labeled trees on $n$ vertices $\leftrightarrow$ sequences in $\{1..n\}^{n-2}$ (a bijection, hence $n^{n-2}$ trees); vertex $v$ appears $\deg(v)-1$ times.
+		Encode: repeatedly remove the smallest leaf and append its neighbour. Decode: the leaf removed at step $i$ is the smallest label that is not yet removed and does not occur in $a_i, \dots, a_{n-2}$; join it to $a_i$; finally join the two survivors. Both $O(n)$ with a pointer walk (\texttt{PruferCode.h}).
+		Rooted forests with $k$ trees rooted at $1..k$: $k\,n^{n-k-1}$. Uniform random tree: random sequence, decode.
+		\kactlimport{PruferCode.h}
+
 	\subsection{Catalan numbers}
 		\[ C_n=\frac{1}{n+1}\binom{2n}{n}= \binom{2n}{n}-\binom{2n}{n+1} = \frac{(2n)!}{(n+1)!n!} \]
 		\[ C_0=1,\ C_{n+1} = \frac{2(2n+1)}{n+2}C_n,\ C_{n+1}=\sum C_iC_{n-i} \]

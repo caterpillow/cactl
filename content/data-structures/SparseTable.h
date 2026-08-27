@@ -14,7 +14,7 @@ template<class T> struct RMQ {
     #define func min
     vt<vt<T>> dp;
     void init(const vt<T>& v) {
-        assert(size(v)); // empty input: special-case it yourself
+        assert(size(v));
         dp.resize(__lg(size(v)) + 1, vt<T>(size(v)));
         copy(all(v), begin(dp[0]));
         for (int j = 1; 1 << j <= size(v); ++j) {

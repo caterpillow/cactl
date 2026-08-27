@@ -11,8 +11,14 @@
 \section{Optimization}
   \kactlimport{GoldenSectionSearch.h}
   \kactlimport{HillClimbing.h}
-  \kactlimport{Integrate.h} % ?
-  \kactlimport{IntegrateAdaptive.h} % ?
+  \subsection{Numerical integration}
+	Simpson (\texttt{Integrate.h}): fixed $2n$ slices, error $O(h^4 f^{(4)})$, exact for cubics; double $n$ until stable.
+	Adaptive Simpson (\texttt{IntegrateAdaptive.h}): \texttt{eps} is the absolute error budget of the whole interval (halves get \texttt{eps/2}); it stops splitting below width $10^{-10}$, so rescale tiny domains, and scale \texttt{eps} by the answer's magnitude for relative precision.
+	Gauss--Legendre (\texttt{GaussLegendre.h}): $n$ nodes at the roots of $P_n$, weights $2/((1-x_i^2)P_n'(x_i)^2)$, exact for polynomials of degree $< 2n$; far more accurate per evaluation on smooth integrands, useless across kinks. \\
+	Tips: split at kinks, discontinuities and (oscillatory) periods so each piece is smooth. Endpoint singularity at $a$: substitute $x = a + t^2$, $dx = 2t\,dt$. Infinite range: $x = \tan t$ on $(-\pi/2,\pi/2)$, or $x = t/(1-t)$ on $[0,1)$. Flatten an integrand with very different scales by a change of variable (e.g. $x = e^u$ for $\int f(x)\,dx/x$). Nested integrals cost $\texttt{eps}^{-d}$: loosen the inner \texttt{eps}. Use \texttt{long double}.
+  \kactlimport{Integrate.h}
+  \kactlimport{IntegrateAdaptive.h}
+  \kactlimport{GaussLegendre.h}
   \kactlimport{Simplex.h}
 
 \section{Matrices}
@@ -32,5 +38,5 @@
 	\kactlimport{FastSubsetTransform.h}
 	\kactlimport{MinPlusConvolution.h}
 
-\section{Other}
-  \kactlimport{BigFloat.h}
+% \section{Other}
+  % \kactlimport{BigFloat.h}

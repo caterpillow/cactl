@@ -3,10 +3,17 @@
  * Date: 2025-09-13
  * License: CC0
  * Source: some yosupo submission
- * Description: Fast incremental MST (minimum by weight.f) where you can
- * also delete edges, but only ever the one with the current maximum
- * weight. Weights (weight.f) must be globally distinct. Offline dynacon:
- * weight = -deletion time, then deletions happen in max-weight order.
+ * Description: Incremental minimum spanning forest keyed by weight.f
+ * (globally distinct). Interface: \texttt{merge(u, v, w)} inserts edge
+ * (u, v) and returns the edge that is now NOT in the forest ({inf, -1}
+ * if none was displaced); \texttt{find(u, w)} = representative of u's
+ * component using only edges of weight $\le w$ (default: all), so
+ * connectivity ``as of'' any threshold is a query, no deletions needed;
+ * \texttt{max\_edge(u, v)} = vertex whose parent edge is the heaviest on
+ * the u--v path (-1 if disconnected); \texttt{delete\_max\_edge(u, v, w)}
+ * removes the edge of weight w, valid only if w is the current maximum
+ * weight in the whole structure. Offline dynacon: weight = -deletion
+ * time, answer queries at time t with find(u, -t-1) == find(v, -t-1).
  * Time: O(\log n) expected
  * Status: stress-tested
  */
@@ -37,11 +44,6 @@ struct DSU {
         return u;
     }
 
-    void disconnect(int v) {
-        if (par[v] == v) return;
-        disconnect(par[v]);
-    }
-
     int connect(int v, int w = inf - 1) {
         while (weight[v].f <= w) {
             v = par[v];
@@ -49,9 +51,7 @@ struct DSU {
         return v;
     }
 
-    void add_edge(int u, int v, pi w) {
-        disconnect(u);
-        disconnect(v);
+    void add_edge(int u, int v, pi w) { // link two components
         while (u != v) {
             u = connect(u, w.f);
             v = connect(v, w.f);
@@ -75,10 +75,6 @@ struct DSU {
     void delete_edge(int v, int w) {
         while (par[v] != v) {
             if (weight[v].f == w) {
-                int u = v;
-                while (par[u] != u) {
-                    u = par[u];
-                }
                 par[v] = v;
                 weight[v] = {inf, -1};
                 return;
@@ -87,7 +83,7 @@ struct DSU {
         }
     }
 
-    // delete edge (u, v) of weight w; w must be the current max weight
+    // delete edge (u, v) of weight w; w must be the current max
     void delete_max_edge(int u, int v, int w) {
         delete_edge(u, w);
         delete_edge(v, w);
