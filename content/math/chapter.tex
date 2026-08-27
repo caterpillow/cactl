@@ -86,6 +86,7 @@ Integration by parts:
 \[\int_a^bf(x)g(x)dx = [F(x)g(x)]_a^b-\int_a^bF(x)g'(x)dx\]
 
 \section{Vector calculus}
+	Notation: $\mathbf{F} = (P, Q[, R])$ is a vector field (a vector at every point). $d\mathbf{r} = (dx, dy)$ is a step along the curve, so $\mathbf{F}\cdot d\mathbf{r} = P\,dx + Q\,dy$ and $\oint \mathbf{F}\cdot d\mathbf{r}$ is the circulation (work) around it. $\mathbf{n}$ is the outward unit normal and $ds$ / $dS$ the length / area element of the boundary, so $\oint \mathbf{F}\cdot\mathbf{n}\,ds$ is the outward flux; for a CCW curve $\mathbf{n}\,ds = (dy, -dx)$, i.e. flux $= \oint P\,dy - Q\,dx$, computed edge by edge on a polygon. $\nabla\cdot\mathbf{F} = P_x + Q_y\,(+R_z)$ is the divergence (net outflow per unit area) and $\nabla\times\mathbf{F}$ the curl ($= Q_x - P_y$ in 2D). Both theorems say ``what crosses the boundary equals what is generated inside''; the trick is choosing $\mathbf{F}$ so that one side is trivial, e.g. $\mathbf{F} = (x, 0)$ turns area into $\oint x\,dy$, and a region integral of a divergence/curl turns into a walk around the edges.
 	\subsection{Change of variables}
 		For $\mathbf{x} = \mathbf{g}(\mathbf{u})$ the Jacobian is $J = \dfrac{\partial(x_1,\dots,x_n)}{\partial(u_1,\dots,u_n)} = \left(\dfrac{\partial x_i}{\partial u_j}\right)_{ij}$ and
 		\[ \int_{g(U)} f(\mathbf{x})\,d\mathbf{x} = \int_U f(\mathbf{g}(\mathbf{u}))\,|\det J|\,d\mathbf{u}. \]
