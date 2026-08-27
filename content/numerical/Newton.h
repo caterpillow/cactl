@@ -7,8 +7,8 @@
  * stays inside the bracket and bisects otherwise, so it cannot diverge;
  * quadratic convergence near simple roots (\tilde{}6 iterations), linear
  * at multiple roots. To minimise a convex $g$, pass $g'$ and $g''$.
- * Usage: newton(0, 2, [](db x) { return x*x - 2; },
- *               [](db x) { return 2*x; })
+ * Usage: newton(0, 2, f, df) with f = [](db x) { return x*x - 2; }
+ *  and df = [](db x) { return 2*x; }
  * Status: stress-tested
  */
 #pragma once
