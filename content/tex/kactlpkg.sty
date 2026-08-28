@@ -5,14 +5,13 @@
 \usepackage[utf8]{inputenc}             % Encoding UTF-8
 \usepackage{listings}                   % Source code listings
 \usepackage{etoolbox}                   % \patchcmd
-\usepackage{framed}                     % Source code listings
 % Header dimensions are given here so geometry computes \topmargin from them
 % (setting \headheight/\headsep afterwards would leave the layout stale
 % until the next \geometry call; test-session.tex makes none).
 \usepackage[a4paper,landscape,hmargin={0.5cm,0.5cm},vmargin={1.1cm,0.4cm},headheight=25pt,headsep=2pt]{geometry}
 \usepackage{multicol}                   % Split page in multiple columns
 \usepackage{fancyhdr}                   % Fancy headers
-\usepackage{amsbsy, amssymb, amsmath}   % Enable math symbols
+\usepackage{amssymb, amsmath}           % Enable math symbols (amsmath loads amsbsy)
 \usepackage{tocloft}                    % Custom Table of Contents
 \tocloftpagestyle{fancy}                % tocloft would otherwise force `plain` on the TOC page
 \usepackage{titletoc}                   % Design control over Table of Contents
@@ -23,11 +22,9 @@
 
 \usepackage{graphicx}                   % To rotate page numbers
 \usepackage{fix-cm}                     % Large font sizes
-\usepackage{paralist}                   % For compact enumerations
 \usepackage[inline]{enumitem}           % For horizontal lists
 \usepackage[parfill]{parskip}           % For compact enumerations
-\usepackage[dvipsnames]{xcolor}
-\usepackage[normalem]{ulem}
+\usepackage{xcolor}
 \usepackage[hidelinks]{hyperref}        % For clickable table of contents
 \usepackage{textcomp,pmboxdraw}         % degree sign, box-drawing (team name)
 \DeclareUnicodeCharacter{00B0}{\textdegree}
@@ -36,9 +33,6 @@
 \DeclareUnicodeCharacter{256F}{\raisebox{.2ex}{\rotatebox[origin=c]{-90}{\textsf{J}}}}
 
 % Config commands
-\newcommand{\subtitle}[1]{
-	\def\@subtitle{#1}
-}
 \newcommand{\team}[2]{
 	\def\@teamname{#1}
 	\def\@teammembers{#2}
@@ -61,21 +55,10 @@
 }
 
 % Some default config
-\subtitle{{\tiny new}KACTL}
 \university{}{}{}\team{}{}\contest{}{} % overridden by the document
-\title{KTH Algorithm Competition Template Library}
-\newcommand{\PDFColor}{0}
 \def\@builddir{build}
 
 \def\today{\number\year-\ifthenelse{\number\month<10}{0}{}\number\month-\ifthenelse{\number\day<10}{0}{}\number\day} % Defines \today as YYYY-MM-DD
-
-\renewcommand{\maketitle}[2]{
-	\begin{center}
-		{\Huge \@title}\\
-		{\huge \@subtitle{} version #2}\\[0.1cm]
-		{\Huge \textsc{#1}}
-	\end{center}
-}
 
 % Remove temp files from old failed runs
 \AtBeginDocument{\immediate\write18{rm -f header.tmp}}
@@ -243,57 +226,14 @@
 	{\small}{\titlerule*[0.8em]{.}\contentspage}
 
 % Styles for main toc
-\renewcommand{\chaptermark}[1]{\markboth{\emph{ #1}}{}}
 \renewcommand{\cftbeforetoctitleskip}{0pt} % -45pt (KTH) pulled "Contents" off the paper
 \renewcommand{\cftaftertoctitleskip}{10pt}
 \renewcommand{\cftbeforechapskip}{11pt}
 \renewcommand\cftchapfont{\large\bfseries}
 \renewcommand{\cftdotsep}{4.5}
 
-% Proper carets and tildes
-\newcommand*{\caret}{%
-  \begingroup
-    \fontencoding{T1}%
-	\fontfamily{pcr}
-    \selectfont
-    \string^%
-  \endgroup
-}
+% \tilde{}: a text tilde in descriptions (25 uses in content/).
 \renewcommand*{\tilde}{\raise.17ex\hbox{$\scriptstyle\mathtt{\sim}$}}
-
-% Fatter {} which are more distinguishable from ()
-% Makes pdf compile time 5-10% slower, but probably worth it still?
-\newcommand*{\nicelbrace}{%
-  \begingroup
-    \fontencoding{T1}%
-    \fontfamily{pcr}% Courier
-    \selectfont
-	\scalebox{1.0}[1]{\color{black!80}{\{}}%
-  \endgroup
-}
-\newcommand*{\nicerbrace}{%
-  \begingroup
-    \fontencoding{T1}%
-    \fontfamily{pcr}% Courier
-    \selectfont
-	\scalebox{1.0}[1]{\color{black!80}{\}}}%
-  \endgroup
-}
-
-\usepackage{graphicx}
-
-\newcommand*{\nicezero}{%
-  \begingroup
-    \ttfamily
-    \sbox0{0}%
-    \makebox[\wd0][c]{%
-      \copy0%
-      \kern-0.875\wd0
-      \raisebox{0.25ex}{\scalebox{0.75}[0.7]{\textbf{/}}}% 0.7 = shrink vertically
-    }%
-  \endgroup
-}
-
 
 \definecolor{mygreen}{HTML}{007000}
 \definecolor{myblue}{HTML}{0000dd}
@@ -309,8 +249,6 @@
 \lstset{basicstyle=\footnotesize\ttfamily}
 \lstset{commentstyle=\normalfont\itshape}
 % \lstset{columns=fullflexible}
-% \lstset{literate={^}{\caret}{1} {~}{\tilde}{1} {\{}{\nicelbrace}{1} {\}}{\nicerbrace}{1}}
-% \lstset{literate={0}{\nicezero}{1}}
 \lstset{emptylines=*1}
 \lstset{inputencoding=utf8}
 \lstset{upquote=true} % straight ' in code, not a curly quoteright
@@ -424,10 +362,6 @@
 	\PackageError{kactlpkg}{#1}{}
 }
 
-\newcommand{\kactlwarning}[1]{
-	\PackageWarning{kactlpkg}{#1}
-}
-
 \newboolean{hasleftcaption}
 \newcommand{\leftcaption}[1]{
 	\def\@leftcaption{#1}
@@ -473,10 +407,6 @@
 \defmemory{}
 \setboolean{hasmemory}{false}
 
-
-\newcommand{\codeheader}[2]{
-	{\par\noindent\footnotesize{\textbf{#1:} #2\par}}
-}
 
 % The tiny hash caption shares the last header line when it fits and
 % wraps to its own right-aligned line when it doesn't (no more overlap).
