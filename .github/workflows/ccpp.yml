@@ -13,9 +13,14 @@ jobs:
     timeout-minutes: 20
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Install pdflatex
-      run: sudo apt-get install texlive-latex-base texlive-latex-recommended texlive-latex-extra
+      # texlive-fonts-extra: DejaVuSansMono (the code font).
+      # cm-super: Type1 T1-encoded Computer Modern for the prose.
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y texlive-latex-base texlive-latex-recommended \
+          texlive-latex-extra texlive-fonts-extra cm-super
     - name: Build pdf
       run: make kactl
     - name: Run compiles

@@ -1,6 +1,18 @@
+# There is no compile_commands.json, so clangd builds a fallback command whose
+# working directory is the directory of the file being edited -- paths in
+# CompileFlags.Add are relative to that, not to this file. -I../.. and
+# -I../../.. therefore put the repo root on the include path from either depth
+# (content/<chapter>/, stress-tests/<chapter>/, stress-tests/<chapter>/<name>/),
+# and -include falls back to that search path, so one relative path works
+# everywhere. (Paths in If: conditions, unlike these flags, are relative to
+# this file.) -std=c++17 is what doc/scripts/*.sh and CI compile with.
+If:
+  PathExclude: content/contest/template\.cpp
 CompileFlags:
   Add:
     - -xc++
-    - -std=gnu++20
+    - -std=c++17
+    - -I../..
+    - -I../../..
     - -include
-    - /home/ubuntu/cactl/old-unit-tests/global.h
+    - stress-tests/utilities/template.h

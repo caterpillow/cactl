@@ -1,73 +1,115 @@
 **************************************************
 * Introduction                                   *
 **************************************************
-This file should contain a general introduction to modifying the KACTL:
+This notebook is a fork of KACTL. kactl.pdf is built from the LaTeX in
+content/ plus the source files themselves: every chapter is a directory with a
+chapter.tex that \kactlimports its sources, and a Python preprocessor turns
+each source file into the LaTeX fragment that gets typeset (name line,
+Description/Usage/Time block, hash + line count, code listing).
 
-The general file structure, where to find/place code, tests and documentation.
+Worth knowing where things are:
+	content/kactl.tex		cover data, margins, list of chapters
+	content/tex/kactlpkg.sty	every layout macro
+	content/tex/preprocessor.py	source file -> LaTeX, and the page headers
+	content/contest/hash.sh		the hash printed with each template
+	doc/scripts/			test/CI scripts (see doc/scripts/README)
+	stress-tests/			the tests that 'make test' runs
+	doc/audit-notes.md		how the pipeline works and what bites
 
-How to build the KACTL, including prerequisites.
-
-How to modify the .tex files to add new chapters, new files, change title etc.
-
-How the code annotation works.
-
-How the test framework works.
-
-And probably a lot more.
-Unfortunately it doesn't contain that much at the moment, but good luck anyway :-)
+doc/example.h shows how a source file is annotated.
 
 
 **************************************************
 * System requirements                            *
 **************************************************
-The build process uses the following tools:
-	LaTeX (pdflatex together with some common packages such as 'listings')
-	Python
-	make
+	pdflatex, run with -shell-escape (the Makefile does). Beyond
+	texlive-latex-base and texlive-latex-recommended it needs
+		texlive-latex-extra	tocloft, enumitem, pmboxdraw
+		texlive-fonts-extra	DejaVuSansMono, the code font
+		cm-super		the Type1 T1-encoded Computer Modern the
+					prose is set in; without it pdflatex
+					falls back to bitmap fonts
+	python3			runs the preprocessor via \write18
+	gcc			hash.sh pipes through gcc's 'cpp'
+	coreutils, bash		rm, tr, md5sum, cut; hash.sh needs bash
+	GNU make
 
-It has been tested with the following versions:
-	pdfTeX 3.141592-1.40.3-2.2 (Web2C 7.5.6), part of TeXLive-2007
-	pdfeTeX 3.141592-1.21a-2.2 (Web2C 7.5.4)
-	Python 2.5.1
-	Python 2.4.4
-	GNU Make 3.81
-	GNU Make version 3.79.1
-but should (could?) work with other versions too.
+Built here with pdfTeX 3.141592653-2.6-1.40.25 (TeX Live 2023), Python 3.12,
+GCC 13. Everything goes through \write18 and Unix tools, so on Windows build
+inside WSL.
+
+
+**************************************************
+* Building                                       *
+**************************************************
+Run make from the repo root: TEXINPUTS, the preprocessor and hash.sh all use
+relative paths, and the page-header state file header.tmp is written to the
+current directory.
+
+	make fast	one pdflatex pass, ~7 s. The table of contents and the
+			page numbers come from the previous run's
+			build/kactl.toc and build/kactl.aux, so they can lag
+			one run behind.
+	make kactl	two passes, ~14 s, plus test-session.pdf. Use this for
+			anything you print or commit.
+
+Both leave the result in build/ and copy it to kactl.pdf. 'make help' lists
+the other targets (test, test-compiles, showexcluded, widelines, clean,
+veryclean).
 
 
 **************************************************
-* Building the KACTL                             *
+* When the build fails                           *
 **************************************************
-To build the KACTL should be a simple step. Just navigate to the root folder for this project and type 'make kactl' (and do your normal Voodoo dance that you do to get an accepted submission). If the build process fails, then it's time to start improving your Voodoo dance, but in the meantime, have a look the debug section below.
+pdflatex runs with -halt-on-error, so it stops at the first error instead of
+asking questions; the message is the line starting with '!', in the terminal
+or in build/kactl.log.
 
-**************************************************
-* Debug the build process                        *
-**************************************************
-If the results does not turn out as you had expected, or in particularly if the build process fails, then there are a couple of things you can start by checking.
-First, did the build process give any error messages? If so, then try to correct the problems that it has found.
-Second, you can run the code processor outside of the build process, and check the result if it contains any obvious errors. The code processor is the python program build/kactlprocessor.py.
-Ex. python kactlprocessor.py -i my_non_working_source_file.h will run the code processor in the same way as the build process does.
+Anything the preprocessor rejects comes back as \kactlerror{...}, which fails
+the build with the file name in the message. To see what one file turns into,
+run the preprocessor by hand from the repo root:
+
+	python3 content/tex/preprocessor.py -i content/graph/Dinic.h
+	python3 content/tex/preprocessor.py -i content/contest/template.cpp -l rawcpp
+
+The fragment goes to stdout (-o writes a file). The language comes from the
+extension unless -l overrides it, exactly like the [-l ...] option of
+\kactlimport in a chapter.tex. Running it by hand also appends the template
+name to ./header.tmp; the next build deletes that file at \begin{document}.
+
+If a run dies with '! Undefined control sequence' while reading
+(build/kactl.aux), the stale .aux is calling something a package you removed
+used to define:
+
+	(build//kactl.aux
+	! Undefined control sequence.
+	l.8 \ttl@writefile
+	                  {ptc}{\ttl@starttoc{chapters@1}}
+
+'make clean' and rebuild.
+
 
 **************************************************
 * Adding new chapters                            *
 **************************************************
-Create a folder for the chapter inside the 'content' folder. Then create (or copy) a chapter.tex file inside this new folder, which will be the main file for the chapter. You can then place source files in this folder and include them by modifying the chapter.tex file.
-Finally, you'll need to modify the file build/kactl.tex to add the new chapter folder. Notice that if you've followed the instructions above, all you need is to specify the name of the new chapter folder with the 'kactlchapter' command.
+Create a folder for the chapter inside the 'content' folder. Then create (or
+copy) a chapter.tex file inside this new folder, which will be the main file
+for the chapter. You can then place source files in this folder and include
+them by modifying the chapter.tex file.
+Finally, add the chapter to content/kactl.tex with the 'kactlchapter' command.
 Ex. \kactlchapter{geometry} will include the file content/geometry/chapter.tex
 
 
 **************************************************
 * Adding new source files                        *
 **************************************************
-First, locate the folder for the chapter where you want to add the new source file, or follow the instructions for creating a new chapter above. The chapter folder should be directly below the 'content' folder.
-The source files should be placed inside this chapter folder, and the file has to included by the 'chapter.tex' file in the same folder.
-Ex. \kactlimport{example.h} will include the file example.h from the same folder.
+First, locate the folder for the chapter where you want to add the new source
+file, or follow the instructions for creating a new chapter above. The source
+files go inside this chapter folder, and have to be included by the
+chapter.tex in the same folder.
+Ex. \kactlimport{example.h} will include the file example.h from the same
+folder; \kactlimport[-l raw]{notes.txt} passes extra options to the
+preprocessor.
 
-Remember to annotate the file correctly before including it!
-Also, don't forget to write tests for the code before including it!
-
-
-**************************************************
-* Modifying the KACTL edition                    *
-**************************************************
-The edition name and date can be modified from the file build/kactl.tex, and are set with the commands \date{2009-04-11} respectively \edition{Edition name}.
+Remember to annotate the file correctly before including it (doc/example.h),
+and don't forget to write a stress test for the code!

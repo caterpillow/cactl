@@ -1,1 +1,33 @@
-Just a bunch of miscellaneous scripts I don't want to throw away. You may safely ignore them.
+Scripts in this directory. "Load-bearing" means the Makefile or CI calls it.
+
+run-all.sh          load-bearing  'make test' and CI. Compiles and runs every
+                                  stress-tests/**/*.cpp (skipping helpers/,
+                                  gen.cpp and *brute.cpp) with g++ -std=c++17
+                                  -O2 and stdin closed, using a precompiled
+                                  stress-tests/utilities/template.h. Any
+                                  nonzero exit is a failed test.
+compile-all.sh      load-bearing  'make test-compiles' and CI. Syntax-checks
+                                  every content/**/*.h except the ones listed
+                                  in skip_headers.
+test-compiles.sh    load-bearing  one header, called by compile-all.sh: writes
+                                  build/temp.cpp = template.cpp + the header
+                                  and compiles that. Run from the repo root.
+skip_headers        load-bearing  data, not a script: the headers that cannot
+                                  compile on their own, one path per line,
+                                  matched as a fixed substring (grep -F), '#'
+                                  comments allowed. Each entry says why.
+spacing.py          occasional    formatter for the spacing conventions
+                                  (spaces around operators, after commas,
+                                  ') {', casts). Dry run by default, --apply
+                                  writes; it asserts the whitespace-stripped
+                                  md5 is unchanged, so it can never alter code.
+find-unreferenced-files.py
+                    report        prints content/**/*.h that the chapter.tex
+                                  next to them does not name. 'make
+                                  showexcluded' is the better version -- it
+                                  covers .py/.java too and understands
+                                  \kactlimport[opts]{file}.
+add-cc0-license.py  historical    one-off: inserted "License: CC0" into the
+                                  files listed in a './todo' file.
+fix-newlines.py     historical    one-off: normalised the blank lines around
+                                  '#pragma once'.

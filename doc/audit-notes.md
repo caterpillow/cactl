@@ -25,76 +25,155 @@ because none of this is obvious from the code alone.
   using the hash.sh pipeline (comments and whitespace never affect hashes, so
   the marker line itself is neutral and the printed value is reproducible:
   type up to the marker, select, `:Hash`).
-- Multiple markers per file are fine. Currently used in
-  NumberTheoreticTransform.h.
+- Multiple markers per file are fine. 27 headers carry 81 of them:
+  `grep -rln '<hash>' content/`.
 
 ## Rendering pipeline
 
-- `header.tmp` (the page-header state file) lives in the **repo root** (cwd of
-  pdflatex), not `build/`. The cleanup hooks now remove the right file; if
-  headers ever look wrong again, delete a stale `header.tmp` and rebuild.
-- Page-header file lists longer than ~110 chars wrap onto two centred lines
-  (`\small`, `\footnotesize` beyond 240 chars) in a `\parbox` narrower than
-  `\headwidth`, so they neither shrink to nothing nor collide with the team
-  name / page number. Separator must be `\hspace`, not `\enspace` (a kern
-  never breaks). Margins: `\kactlmargins{l}{r}{t}{b}` in kactl.tex
-  (defaults 0.5cm 0.5cm 1.0cm 0.4cm; the 25pt+5pt header lives in the top
-  margin, keep top >= 1cm).
-- The tiny "hash, N lines" caption shares the Description/Time line only when
-  it fits, else wraps to its own line (`\@makecaption` in kactlpkg.sty).
-- Preprocessor rules worth remembering: comment blocks must contain `Author:`
-  and `Description:`; any other `Capitalized:` word at the start of a `* ` line
-  is an *unknown command* → **build error** (this bit us with "Bounds:").
-  Bare math like `\log` in a Description needs `$...$` (only Time/Memory get
-  auto-`\bigo`).
-- Escaping differs per field. **Usage** is code, set in `\texttt`: `_ { } ^ < >`
-  are escaped for you, so never use a macro with a braced argument there
-  (`\texttt{x}` printed as `{x}` in hopcroftKarp.h); hand-escape `& % # $` as
-  `\&` etc. (an unescaped `& % #` is a fatal build error, `~`/`$` silently
-  become a space / math) and write `\tilde` for `~`. **Description/Time/Memory**
-  are LaTeX: only `<`/`>` are escaped for you, `O(...)` in Time/Memory becomes
-  `\bigo{...}`.
-- **Big blank gaps inside a column / template names orphaned at a column
-  bottom** (fixed 2026-08-28). Three independent causes, all in kactlpkg.sty:
-  1. multicol's default `\flushcolumns` stretches every column to full height.
-     Our vertical list has almost no stretchable glue (listings zero
-     `\parskip` in an Init hook, lstmisc.sty:1296; captions run after
-     `\@parboxrestore`; `\myneedspace` is a fixed `\vskip`), so a column's
-     slack was dumped into the *one* glue that had any stretch: the `parskip` (plus 2pt) before a template name → a
-     third-of-a-column hole between two templates (p13 BerlekampMassey →
-     LinearRecurrence). Now `\raggedcolumns`: slack sits at column bottoms.
-  2. `\@makechapterhead` was copied from report.cls without the enclosing
-     braces, so `\interlinepenalty\@M` leaked into the whole document and no
-     paragraph could ever break across columns (17-line chapter prose +
-     section heading = 21 unbreakable lines → 17 lines of slack). The leak is
-     removed; descriptions stay atomic via `\interlinepenalty\@M` inside
-     `\@makecaption`, and wrapped code lines via an lst `Init` hook.
-  3. listings' `\lst@Init` emits `\par\penalty-50 \vspace{aboveskip}` and
-     `\lst@MakeCaption t` starts with `\allowbreak` — two legal breakpoints
-     between the name line and its caption (in a stretch-free column every
-     fitting break costs the same, TeX takes the *last* one that fits);
-     `\myneedspace{3\baselineskip}` only reserves name + 2 lines, so a tall
-     (atomic) description pushed the caption to the next column and left
-     the name behind (p30 lineIntersection.h; also IntegrateAdaptive, 2sat,
-     AhoCorasick). Both are `\patchcmd`'ed to `\nobreak`, and
-     `\kactlimport` skips its own needspace/`\penalty-100` when `\if@nobreak`
-     (directly after a heading) so a section title can't be orphaned either.
-  Follow-up (same day): a heading's `\penalty-300` (and listings' -50, our
-  -100) could still beat "fill the column" whenever the page had stretch
-  (Absorption pushed to a new page above a gap), so all vertical stretch is
-  stripped (parskip, display and heading skips) — with none, TeX takes the
-  last break that fits — and club/widow penalties are 10000. A caption is
-  glued to its first three code lines (`\lst@frameInit` patch + `Init` and
-  `EveryLine` hooks), and a chapter head to its first template (`\nobreak`
-  after `\startcontents`, `\kactlimport` emits `\nobreak` when `@nobreak`).
-  Diagnostics that worked: `pdftoppm -r 80 -f N -l N -png`, then vary one
-  thing per scratch copy (`make fast` is ~6 s). **Caveat:** the TOC is
-  typeset inside the multicols, so a scratch copy built in an empty `build/`
-  (no `kactl.toc`) has a different layout from the real PDF — copy
-  `build/kactl.{aux,toc,ptc,out}` first or use `make kactl`. `\showbox` of
-  each column inside `\multi@column@out` shows exactly which glue absorbed
-  the slack (multicol sets `\vbadness=10001`, so there are no Underfull
-  warnings to grep for).
+### One template
+
+The preprocessor (`content/tex/preprocessor.py`) turns a source file into four
+plain-LaTeX lines, all defined in `kactlpkg.sty`:
+
+    \kactlname{Foo.h} \kactlref{Foo.h} \kactlheader{block}{includes}{hash, N lines}
+    \begin{lstlisting}[language=C++] ... \end{lstlisting}
+
+- `\kactlname` is the large name line (its `\par` sits *outside* the group, or
+  `\large` would set the line's leading).
+- `\kactlref` records the name for the page header, see below.
+- `\kactlheader` sets the `\textbf{Description:} ... \\ \textbf{Time:} ...`
+  block — already escaped by the preprocessor — and ends it with the tiny
+  `includes  hash, N lines` caption, which shares the block's last line when
+  it fits and takes its own right-aligned line when it does not. The block is
+  set inside `\@parboxrestore`, i.e. justified with `\\` breaking a line,
+  which is the one place in the document that is *not* ragged-right. A raw
+  listing (`-l raw`, no doc comment) passes an empty block and only gets the
+  caption.
+- **`emit_listing()` is the seam.** Everything above it is renderer-agnostic
+  LaTeX; only that one function decides how the code itself is typeset, so
+  swapping listings for something else (minted, a custom box) is a
+  one-function change. Nothing rides on listings' caption machinery any more —
+  the old design fed our block through `caption=`, which is why the `.sty`
+  still patches `\lst@Init`/`\lst@MakeCaption`/`\lst@frameInit` (see the
+  column-filling invariants below).
+
+### Page headers
+
+- `\kactlref` places `\marks\hdrmark{name}` after each name line. TeX ships
+  pages asynchronously (very much so under multicol) and `\botmarks` can
+  already point into material pushed to the *next* page, so `kactlpkg.sty`
+  hooks multicol's `\set@keptmarks` (run right after every column `\vsplit`)
+  and keeps the last `\hdrmark` any column of the current page contained;
+  `\@outputpage` clears it once the header is typeset.
+- `\chead` then shells out to `preprocessor.py --print-header "<mark>"`, which
+  prints every not-yet-printed name up to that one and drops them from its
+  state file. That state file is `header.tmp` in the **repo root** (the cwd of
+  pdflatex), not `build/`; it is removed at `\begin{document}` and
+  `\end{document}`. Running the preprocessor by hand appends to it.
+- A list longer than 110 characters is set in a `\parbox` of
+  `\headwidth-10cm`, centred, `\footnotesize`, names joined with
+  `\hspace{.5em}`; shorter ones are a single line joined with `\enspace`. The
+  separator must be breakable (`\enspace` is a kern and never breaks), and the
+  parbox must stay narrower than `\headwidth` so it cannot collide with the
+  team name or the page number. The header box is 25pt high and
+  bottom-aligned, so the second line grows *upward*, towards the paper edge.
+
+### Geometry
+
+- `geometry` is loaded *with* `headheight=25pt,headsep=2pt`, so it computes
+  `\topmargin` from them. Setting `\headheight`/`\headsep` afterwards leaves
+  the layout stale until the next `\geometry` call, and `test-session.tex`
+  makes none.
+- `\kactlmargins{l}{r}{t}{b}` (defaults 0.5cm 0.5cm 1.1cm 0.4cm) re-runs
+  `\geometry` and re-syncs `\headwidth`. Keep top >= 1.1cm: the header hangs
+  from the top margin, at 1.1cm its text stays ~4mm from the paper edge, and
+  below 27pt the header box itself leaves the paper.
+- `\kactlbinding{len}` switches to `twoside` with a binding offset. The cover
+  is logical page 0, so LaTeX's odd/even parity is the reverse of the physical
+  sheet sides; the two side margins are therefore swapped at
+  `\begin{document}`, after every `\geometry` call.
+
+### Whole document
+
+- The contents page keeps its running header only because of
+  `\tocloftpagestyle{fancy}` — tocloft otherwise forces `plain` there. It has
+  no "Contents" title (`\contentsname` is empty).
+- The notebook is **ragged-right on purpose** (`\AtBeginDocument{\raggedright}`):
+  the body is three ~180pt columns, about 35 characters of prose, and
+  justifying those opens gaps that read as rivers. It used to happen by
+  accident, via `\@makechapterhead`'s `\raggedright` leaking out of an
+  unbraced group. Side effect the content relies on: under `\raggedright`,
+  `\\` ends the paragraph (`\@centercr`), so a paragraph ending in `\\` costs
+  nothing.
+- **Gone:** the per-chapter local table of contents (titletoc,
+  `\startcontents`/`\printcontents`) and the appendix machinery.
+  `content/appendix/` still exists but no `\kactlchapter` includes it. A
+  `build/kactl.aux` left over from before the removal still calls
+  `\ttl@writefile` and kills the next run with `! Undefined control
+  sequence` — `make clean`.
+
+### Column-filling invariants (do not break these)
+
+Columns are ragged (`\raggedcolumns`) and the vertical list has *no*
+stretchable glue: `parskip`, display skips, `\smallskipamount` and friends,
+and the list skips (`\@listI`/`i`/`ii`/`iii` plus the `\@listi` that
+`\small`/`\footnotesize` redefine) are all coerced to their natural width.
+With no stretch every feasible break costs the same and TeX takes the last one
+that fits, i.e. columns fill maximally; with stretch, a heading's
+`\penalty-300` (or listings' -50, or our -100) beats "fill the column" and
+opens third-of-a-column holes. `\@secpenalty` is zero and club/widow penalties
+are 10000 for the same reason.
+
+Things must also not come apart:
+
+- `\interlinepenalty\@M` inside `\kactlheader` keeps a description atomic, and
+  an lst `Init` hook does the same for wrapped code lines.
+- listings' `\lst@Init` emits `\par\penalty-50` and `\lst@MakeCaption` starts
+  with `\allowbreak`; both are `\patchcmd`'ed to `\nobreak` so a name line is
+  never orphaned at a column bottom. The patches fail loudly
+  (`\PackageError`) if listings changes under us.
+- A caption keeps its first three code lines (`\lst@frameInit` patch plus the
+  `Init`/`EveryLine` hooks), and a chapter head keeps its first template (the
+  `\nobreak` at the end of `\@makechapterhead`, and `\kactlimport` emitting
+  `\nobreak` instead of its own `\myneedspace`/`\penalty-100` when
+  `\if@nobreak`, i.e. directly after a heading).
+- `\myneedspace{3\baselineskip}` before a template reserves the name plus two
+  lines. Raising it to 5 makes multicol open large gaps between templates,
+  which is worse than an occasional stranded heading.
+
+Diagnostics that worked: `pdftoppm -r 80 -f N -l N -png`, then vary one thing
+per scratch copy (`make fast` is ~7 s). **Caveat:** the TOC is typeset inside
+the multicols, so a scratch copy built in an empty `build/` (no `kactl.toc`)
+has a different layout from the real PDF — copy `build/kactl.{aux,toc,out}`
+first, or use `make kactl`. `\showbox` of each column inside
+`\multi@column@out` shows which glue absorbed the slack (multicol sets
+`\vbadness=10001`, so there are no Underfull warnings to grep for).
+
+### Preprocessor rules
+
+- The doc comment must contain `Author:` and `Description:`. Recognised
+  commands are Author, Date, Description, Source, Time, Memory, License,
+  Status, Usage, Details; only **Description, Usage, Time and Memory** are
+  printed. Any other capitalised word followed by `:` at the start of a `* `
+  line is an *unknown command* → **build error** (this bit us with "Bounds:").
+  A `Word::` continuation line — C++ scope syntax, e.g. `LCT::link` — is not
+  taken as a command.
+- **Usage** is typeset as you write it: the preprocessor escapes it as code
+  and wraps it in `\texttt` itself, so never add your own `\texttt{...}` (the
+  braces are escaped and print literally). `_ { } ^ < >` are handled for you;
+  hand-escape `& % # $` as `\&` etc. — an unescaped `& % #` is a fatal build
+  error, `~`/`$` silently become a space / math — and write `\tilde` for `~`.
+- **Description/Time/Memory** are LaTeX: only `<`/`>` are escaped for you,
+  and `O(...)` in Time/Memory becomes `\bigo{...}`. Bare math like `\log` in a
+  Description still needs `$...$`.
+- `<hash>` markers work only in C++/Java listings, and only on lines that are
+  actually printed: a marker on an `exclude-line`, or behind `///`, is a build
+  error rather than a silently missing hash.
+- Only *leading* indentation is tabified (each 4 spaces → one tab, also right
+  after a leading `//` on commented-out code). Interior runs of spaces —
+  alignment — are left alone.
+- Every failure after option parsing is written into the output file as
+  `\kactlerror{...}`, which stops pdflatex with the file name in the message.
 
 ## Known landmines left in place (deliberate)
 
