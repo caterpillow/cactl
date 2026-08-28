@@ -13,7 +13,8 @@
 \usepackage{fancyhdr}                   % Fancy headers
 \usepackage{amssymb, amsmath}           % Enable math symbols (amsmath loads amsbsy)
 \usepackage{tocloft}                    % Custom Table of Contents
-\tocloftpagestyle{fancy}                % tocloft would otherwise force `plain` on the TOC page
+\tocloftpagestyle{fancy}                % tocloft would otherwise force `plain'
+                                        % on the contents page, losing its header
 \usepackage{ifthen}                     % To enable some conditional programming in LaTeX
 \usepackage[T1]{fontenc}
 \usepackage[scaled=0.9]{DejaVuSansMono} % optional scale
@@ -196,8 +197,12 @@
 \bigskipamount=1\bigskipamount
 
 % Styles for main toc
-\renewcommand{\cftbeforetoctitleskip}{0pt} % -45pt (KTH) pulled "Contents" off the paper
-\renewcommand{\cftaftertoctitleskip}{10pt}
+% No "Contents" title: the chapter list speaks for itself and the title was
+% being pulled off the top of the page by the old -45pt skip.
+\renewcommand{\contentsname}{}
+\renewcommand{\cfttoctitlefont}{}
+\renewcommand{\cftbeforetoctitleskip}{-\baselineskip}
+\renewcommand{\cftaftertoctitleskip}{0pt}
 \renewcommand{\cftbeforechapskip}{11pt}
 \renewcommand\cftchapfont{\large\bfseries}
 \renewcommand{\cftdotsep}{4.5}
