@@ -235,13 +235,14 @@ def print_header(data, outstream):
         return name if name.startswith('.') else name.split('.')[0]
     names = list(map(adjust, lines[:ind]))
     if header_length > 110:
-        # Long lists wrap onto two centred lines (the header box is 25pt
-        # high) instead of being shrunk to an unreadable size; the box is
-        # narrower than \headwidth so it never reaches the side headers.
-        # (\enspace is a kern and never breaks, hence the \hspace.)
-        size = r"\small" if header_length <= 240 else r"\footnotesize"
+        # Long lists wrap onto two centred \footnotesize lines (the header
+        # box is 25pt high and bottom-aligned, so the second line grows
+        # upward, towards the paper edge) instead of being shrunk to an
+        # unreadable size; the box is narrower than \headwidth so it never
+        # reaches the side headers. (\enspace is a kern and never breaks,
+        # hence the \hspace.)
         output = (r"\parbox[b]{\dimexpr\headwidth-10cm\relax}{\centering"
-                  + size + r"\textbf{" + r"\hspace{.5em}".join(names) + "}}")
+                  r"\footnotesize\textbf{" + r"\hspace{.5em}".join(names) + "}}")
     else:
         output = r"\hspace{3mm}\textbf{" + r"\enspace{}".join(names) + "}"
     print(output, file=outstream)

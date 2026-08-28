@@ -6,7 +6,10 @@
 \usepackage{listings}                   % Source code listings
 \usepackage{etoolbox}                   % \patchcmd
 \usepackage{framed}                     % Source code listings
-\usepackage[a4paper,landscape,hmargin={0.5cm,0.5cm},vmargin={1.0cm,0.4cm}]{geometry}
+% Header dimensions are given here so geometry computes \topmargin from them
+% (setting \headheight/\headsep afterwards would leave the layout stale
+% until the next \geometry call; test-session.tex makes none).
+\usepackage[a4paper,landscape,hmargin={0.5cm,0.5cm},vmargin={1.1cm,0.4cm},headheight=25pt,headsep=2pt]{geometry}
 \usepackage{multicol}                   % Split page in multiple columns
 \usepackage{fancyhdr}                   % Fancy headers
 \usepackage{amsbsy, amssymb, amsmath}   % Enable math symbols
@@ -96,7 +99,6 @@
 \g@addto@macro\@outputpage{\global\let\kactl@hdrlast\@empty}
 \pagestyle{fancy}
 \renewcommand{\headrulewidth}{0pt}
-\headheight 25pt
 \newcommand{\@leftheadertext}{
 	\ifthenelse{\equal{\@unishort}{ }\OR\equal{\@unishort}{}}{\@teamname}{\@unishort\ \textbar\ \@teamname}
 }
@@ -107,11 +109,13 @@
 \lfoot{}\cfoot{}\rfoot{}
 \fancyheadoffset{0pt}
 \fancyfootoffset{0pt}
-\setlength\headsep{5pt}
 
 % \kactlmargins{left}{right}{top}{bottom}: page margins for the A4 landscape
-% output (defaults 0.5cm 0.5cm 1.0cm 0.4cm). The page header (25pt + 5pt)
-% lives inside the top margin, so keep top >= 1cm.
+% output (defaults 0.5cm 0.5cm 1.1cm 0.4cm). The page header (a 25pt box plus
+% a 2pt gap, text bottom-aligned, a long file list wraps upward onto two
+% \footnotesize lines) hangs from the top margin: with top = 1.1cm the header
+% text stays >= 4mm from the paper edge, which is about what printers need;
+% top < 27pt puts the header box itself above the paper.
 \newcommand{\kactlmargins}[4]{
 	\geometry{left=#1,right=#2,top=#3,bottom=#4}
 	\fancyheadoffset{0pt}\fancyfootoffset{0pt} % re-sync \headwidth
