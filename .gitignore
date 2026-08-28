@@ -5,3 +5,10 @@
 a.out
 header.tmp
 .vscode
+__pycache__/
+*.out
+# stress-test helper binaries / inputs
+stress-tests/data-structures/Trie/Trie
+stress-tests/data-structures/Trie/Triebrute
+stress-tests/data-structures/Trie/gen
+stress-tests/data-structures/Trie/in
