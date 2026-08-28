@@ -139,22 +139,44 @@
 		{\huge\bfseries (\thechapter) \par\nobreak }
 	\fi
 	\startcontents[chapters]
+	\nobreak % its \write whatsits would make the next glue breakable
 }
 
 \renewcommand\section{\@startsection {section}{1}{\z@}%
-                                   {-0.5ex \@plus -1ex \@minus -.2ex}%
+                                   {-0.5ex}%
                                    {.4ex}%
                                    {\normalfont\LARGE\bfseries}}
 
 \renewcommand\subsection{\@startsection{subsection}{2}{\z@}
-	{-1ex\@plus -1ex \@minus -.3ex}
+	{-1ex}
 	{.2ex}
 	{\normalfont\large\bfseries}}
 
 \renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}
-	{-1ex\@plus -1ex \@minus -.3ex}
-	{1ex \@plus .2ex}
+	{-1ex}
+	{1ex}
 	{\normalfont\large\bfseries}}
+
+% Columns are ragged, so vertical stretch buys nothing -- but the page builder
+% still used it to compute a finite badness, and then LaTeX's \penalty-300
+% before headings (or listings' -50, our -100) could beat "fill the column"
+% (p3: Absorption pushed to a new page above a big gap). With no stretch every
+% feasible break costs the same and TeX takes the last one that fits, i.e.
+% columns are filled maximally. Club/widow penalties keep paragraph splits
+% clean (never a single line alone), headings keep their next two lines.
+\@secpenalty\z@
+\setlength{\parskip}{.5\baselineskip}
+\clubpenalty\@M \widowpenalty\@M \@clubpenalty\@M
+\def\kactl@nostretch{% "1\skip" coerces a glue to its natural width
+	\abovedisplayskip=1\abovedisplayskip \belowdisplayskip=1\belowdisplayskip
+	\abovedisplayshortskip=1\abovedisplayshortskip
+	\belowdisplayshortskip=1\belowdisplayshortskip}
+\g@addto@macro\normalsize{\kactl@nostretch}
+\g@addto@macro\small{\kactl@nostretch}
+\g@addto@macro\footnotesize{\kactl@nostretch}
+\normalsize
+\smallskipamount=1\smallskipamount \medskipamount=1\medskipamount
+\bigskipamount=1\bigskipamount
 
 % Styles for local toc
 \titlecontents{localsection}[1.5em]{\small}{}
@@ -241,6 +263,12 @@
 % its caption; remove it so a name is never orphaned at a column bottom.
 \patchcmd{\lst@Init}{\par\penalty-50\relax}{\par\nobreak}{\typeout{kactlpkg: patched lst@Init}}{\PackageError{kactlpkg}{lst@Init patch failed}{}}
 \patchcmd{\lst@MakeCaption}{\allowbreak}{\nobreak}{\typeout{kactlpkg: patched lst@MakeCaption}}{\PackageError{kactlpkg}{lst@MakeCaption patch failed}{}}
+% Keep a template's caption with its first three code lines: no break at the
+% frame glue after the colour whatsit, none after the top rule, none after
+% code lines 1 and 2. If that does not fit, the whole template moves.
+\patchcmd{\lst@frameInit}{\vskip\@tempdima\vskip\lineskip}{\nobreak\vskip\@tempdima\vskip\lineskip}{}{\PackageError{kactlpkg}{lst@frameInit patch failed}{}}
+\lst@AddToHook{Init}{\ifvmode\nobreak\fi}
+\lst@AddToHook{EveryLine}{\lst@ifdisplaystyle\ifnum\lst@lineno<3 \vadjust{\nobreak}\fi\fi}
 % Slack goes to the bottom of a column instead of being stretched into the
 % (single) parskip before a template name, which produced huge gaps.
 \raggedcolumns
@@ -303,7 +331,7 @@
 	\setboolean{hastime}{false}
 	\setboolean{hasmemory}{false}
 	\setboolean{hasleftcaption}{false}
-	\if@nobreak\else % directly after a heading: stay attached to it
+	\if@nobreak\nobreak\else % directly after a heading: stay attached to it
 		\myneedspace{3\baselineskip}
 		\penalty-100
 	\fi

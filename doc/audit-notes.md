@@ -68,9 +68,14 @@ because none of this is obvious from the code alone.
      AhoCorasick). Both are `\patchcmd`'ed to `\nobreak`, and
      `\kactlimport` skips its own needspace/`\penalty-100` when `\if@nobreak`
      (directly after a heading) so a section title can't be orphaned either.
-  Still allowed (rare, 3 cases): a column ending after name + description
-  with the code starting in the next column (listings' frame glue is a legal
-  break after a colour whatsit).
+  Follow-up (same day): a heading's `\penalty-300` (and listings' -50, our
+  -100) could still beat "fill the column" whenever the page had stretch
+  (Absorption pushed to a new page above a gap), so all vertical stretch is
+  stripped (parskip, display and heading skips) — with none, TeX takes the
+  last break that fits — and club/widow penalties are 10000. A caption is
+  glued to its first three code lines (`\lst@frameInit` patch + `Init` and
+  `EveryLine` hooks), and a chapter head to its first template (`\nobreak`
+  after `\startcontents`, `\kactlimport` emits `\nobreak` when `@nobreak`).
   Diagnostics that worked: `pdftoppm -r 80 -f N -l N -png`, then vary one
   thing per scratch copy (`make fast` is ~6 s). **Caveat:** the TOC is
   typeset inside the multicols, so a scratch copy built in an empty `build/`

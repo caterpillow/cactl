@@ -3,8 +3,11 @@
  * Date: 2025-09-13
  * License: CC0
  * Source: cp-geo
- * Description: Accumulates positive floating point numbers with better precision.
- * Status: probably good right
+ * Description: Accumulates non-negative floating point numbers with better
+ * precision than a running sum: a binary counter of partial sums, so only
+ * numbers of similar magnitude are ever added together.
+ * Time: O(\log N) amortised per +=
+ * Status: stress-tested
  */
 
 #pragma once
