@@ -33,7 +33,7 @@ struct LPSolver {
         F0R (i, m) B[i] = n + i, D[i][n] = -1, D[i][n + 1] = b[i];
         F0R (j, n) N[j] = j, D[m][j] = -c[j];
         N[n] = -1; D[m + 1][n] = 1;
-    }
+    } // <hash>
     void pivot(int r, int s) {
         T inv = 1 / D[r][s];
         F0R (i, m + 2) if (i != r && abs(D[i][s]) > eps) {
@@ -43,7 +43,7 @@ struct LPSolver {
         }
         D[r][s] = 1; F0R (j, n + 2) D[r][j] *= inv; // scale r-th row
         swap(B[r], N[s]);
-    }
+    } // <hash>
     bool simplex(int phase) {
         int x = m + phase - 1;
         while (1) {
@@ -58,7 +58,7 @@ struct LPSolver {
             if (r == -1) return 0;
             pivot(r, s);
         }
-    }
+    } // <hash>
     T solve(vd &x) {
         int r = 0; FOR (i, 1, m) if (D[i][n + 1] < D[r][n + 1]) r = i;
         if (D[r][n + 1] < -eps) {

@@ -24,7 +24,7 @@ struct Node { // Splay tree. Root's pp contains tree's parent.
         flip = 0; swap(c[0], c[1]);
         if (c[0]) c[0]->flip ^= 1;
         if (c[1]) c[1]->flip ^= 1;
-    }
+    } // <hash>
     int up() { return p ? p->c[1] == this : -1; }
     void rot(int i, int b) {
         int h = i ^ b;
@@ -39,7 +39,7 @@ struct Node { // Splay tree. Root's pp contains tree's parent.
         fix(); x->fix(); y->fix();
         if (p) p->fix();
         swap(pp, y->pp);
-    }
+    } // <hash>
     void splay() { /// Splay this up to the root. Always finishes without flip set.
         for (pushFlip(); p; ) {
             if (p->p) p->p->pushFlip();
@@ -53,7 +53,7 @@ struct Node { // Splay tree. Root's pp contains tree's parent.
         pushFlip();
         return c[0] ? c[0]->first() : (splay(), this);
     }
-};
+}; // <hash>
 
 struct LinkCut {
     vt<Node> node;
@@ -63,7 +63,7 @@ struct LinkCut {
         assert(!connected(u, v));
         makeRoot(&node[u]);
         node[u].pp = &node[v];
-    }
+    } // <hash>
     void cut(int u, int v) { // remove an edge (u, v)
         Node *x = &node[u], *top = &node[v];
         makeRoot(top); x->splay();
@@ -77,7 +77,7 @@ struct LinkCut {
     bool connected(int u, int v) { // are u, v in the same tree?
         Node* nu = access(&node[u])->first();
         return nu == access(&node[v])->first();
-    }
+    } // <hash>
     void makeRoot(Node* u) { /// Move u to root of represented tree.
         access(u);
         u->splay();
@@ -88,7 +88,7 @@ struct LinkCut {
             u->c[0] = 0;
             u->fix();
         }
-    }
+    } // <hash>
     Node* access(Node* u) { /// Move u to root aux tree. Return the root of the root aux tree.
         u->splay();
         while (Node* pp = u->pp) {

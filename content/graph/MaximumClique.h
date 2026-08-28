@@ -25,7 +25,7 @@ struct Maxclique {
         sort(all(r), [] (auto a, auto b) { return a.d > b.d; });
         int mxD = r[0].d;
         F0R (i, size(r)) r[i].d = min(i, mxD) + 1;
-    }
+    } // <hash>
     void expand(vv& R, int lev = 1) {
         S[lev] += S[lev - 1] - old[lev];
         old[lev] = S[lev - 1];
@@ -38,7 +38,7 @@ struct Maxclique {
                 if (S[lev]++ / ++pk < limit) init(T);
                 int j = 0, mxk = 1;
         int mnk = max(size(qmax) - size(q) + 1, 1);
-                C[1].clear(), C[2].clear();
+                C[1].clear(), C[2].clear(); // <hash>
                 for (auto v : T) {
                     int k = 1;
                     auto f = [&] (int i) { return e[v.i][i]; };
@@ -46,7 +46,7 @@ struct Maxclique {
                     if (k > mxk) mxk = k, C[mxk + 1].clear();
                     if (k < mnk) T[j++].i = v.i;
                     C[k].pb(v.i);
-                }
+                } // <hash>
                 if (j > 0) T[j - 1].d = 0;
                 FOR (k, mnk, mxk + 1) for (int i : C[k])
                     T[j].i = i, T[j++].d = k;

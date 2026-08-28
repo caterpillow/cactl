@@ -19,7 +19,7 @@ vt<db> poly_roots(Poly p, db xmin, db xmax) {
     if (size(p.a) == 2) {
         db x = -p.a[0] / p.a[1];
         return xmin <= x && x <= xmax ? vt<db>{x} : vt<db>{};
-    }
+    } // <hash>
     Poly der = p;
     der.diff();
     auto dr = poly_roots(der, xmin, xmax);
@@ -34,7 +34,7 @@ vt<db> poly_roots(Poly p, db xmin, db xmax) {
         if (i + 1 == size(xs)) break;
         db fh = p(xs[i + 1]);
         if (fl == 0 || fh == 0 || (fl < 0) == (fh < 0))
-            continue;
+            continue; // <hash>
         db l = xs[i], h = xs[i + 1];
         F0R (it, 60) {
             db m = l / 2 + h / 2;

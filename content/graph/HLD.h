@@ -23,7 +23,7 @@ template<bool in_edges> struct HLD {
     HLD(vt<vi> &adj) : n(size(adj)), time(0), adj(adj), par(n), root(n), sz(n), pos(n) {
         dfs_sz(0);
         dfs_hld(0);
-    }
+    } // <hash>
     void dfs_sz(int u) {
         sz[u] = 1;
         for (int& v : adj[u]) {
@@ -33,7 +33,7 @@ template<bool in_edges> struct HLD {
             sz[u] += sz[v];
             if (sz[v] > sz[adj[u][0]]) swap(v, adj[u][0]);
         }
-    }
+    } // <hash>
     void dfs_hld(int u) {
         pos[u] = time++;
         for (int& v : adj[u]) {
@@ -45,7 +45,7 @@ template<bool in_edges> struct HLD {
         n = _n, time = 0;
         adj.resize(n);
         par = root = sz = pos = vi(n);
-    }
+    } // <hash>
     template <class Op>
     void process(int u, int v, Op op) {
         for (; ; v = par[root[v]]) {
