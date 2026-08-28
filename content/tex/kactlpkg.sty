@@ -346,21 +346,25 @@
   \endgroup
 }
 
-\newcommand{\kactlimport}[2][]{ % Using empty default parameter
-	\leftcaption{}\rightcaption{}
-	\setboolean{hasdescription}{false}
-	\setboolean{hasusage}{false}
-	\setboolean{hastime}{false}
-	\setboolean{hasmemory}{false}
-	\setboolean{hasleftcaption}{false}
+% Every line ends in % (or a control word): chapter prose may precede us
+% without a blank line, and stray end-of-line spaces would land in that
+% paragraph (or in the name line) as glue.
+\newcommand{\kactlimport}[2][]{% #1: extra preprocessor flags, #2: file name
+	\par
+	\leftcaption{}\rightcaption{}%
+	\setboolean{hasdescription}{false}%
+	\setboolean{hasusage}{false}%
+	\setboolean{hastime}{false}%
+	\setboolean{hasmemory}{false}%
+	\setboolean{hasleftcaption}{false}%
 	\if@nobreak\nobreak\else % directly after a heading: stay attached to it
-		\myneedspace{3\baselineskip}
+		\myneedspace{3\baselineskip}%
 		\penalty-100
 	\fi
-	{\large #2}
-	\immediate\write18{rm -f \@builddir/kactl.tmp} % Don't include old kactl.tmp on failure.
-	\immediate\write18{python3 content/tex/preprocessor.py -i "\@kactldir/#2" -o \@builddir/kactl.tmp #1}
-	\immediate\input{\@builddir/kactl.tmp}
+	{\large #2}%
+	\immediate\write18{rm -f \@builddir/kactl.tmp}% never \input a stale kactl.tmp
+	\immediate\write18{python3 content/tex/preprocessor.py -i "\@kactldir/#2" -o \@builddir/kactl.tmp #1}%
+	\input{\@builddir/kactl.tmp}%
 }
 
 \newcommand{\import}[1]{
