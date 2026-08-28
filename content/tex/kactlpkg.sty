@@ -123,10 +123,19 @@
 % \kactlbinding{len}: extra room on the binding edge for double-sided
 % printing (inner edge of every page, alternating). For single-sided stapling
 % just give \kactlmargins a bigger left margin.
+\newif\ifkactl@binding
 \newcommand{\kactlbinding}[1]{
 	\geometry{twoside,bindingoffset=#1}
 	\fancyheadoffset{0pt}\fancyfootoffset{0pt}
+	\kactl@bindingtrue
 }
+% The cover is logical page 0, so LaTeX's odd/even parity is the reverse of
+% the physical sheet sides: printed page 1 (odd) is the back of the cover, a
+% verso page whose binding edge is on the RIGHT. Swap the two side margins
+% geometry computed -- at \begin{document}, i.e. after every \geometry call.
+\AtBeginDocument{\ifkactl@binding
+	\@tempdima\oddsidemargin \oddsidemargin\evensidemargin \evensidemargin\@tempdima
+\fi}
 
 \renewcommand\chapter{
 	\global\@topnum\z@
