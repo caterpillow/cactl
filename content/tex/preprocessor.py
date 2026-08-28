@@ -217,8 +217,9 @@ def getfilename(input):
     return input.rsplit('/',1)[-1]
 
 def print_header(data, outstream):
-    parts = data.split('|')
-    until = parts[0].strip() or parts[1].strip()
+    # data: the last \hdrmark placed on the page (see kactlpkg.sty), i.e. the
+    # last template that starts on it; print every unprinted name up to it.
+    until = data.strip()
     if not until:
         # Nothing on this page, skip it.
         return
