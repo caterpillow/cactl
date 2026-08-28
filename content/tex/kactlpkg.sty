@@ -4,6 +4,7 @@
 
 \usepackage[utf8]{inputenc}             % Encoding UTF-8
 \usepackage{listings}                   % Source code listings
+\usepackage{etoolbox}                   % \patchcmd
 \usepackage{framed}                     % Source code listings
 \usepackage[a4paper,landscape,hmargin={0.5cm,0.5cm},vmargin={1.0cm,0.4cm}]{geometry}
 \usepackage{multicol}                   % Split page in multiple columns
@@ -133,7 +134,6 @@
 \def\@makechapterhead#1{
 	\myneedspace{7\baselineskip}
 	\parindent \z@ \raggedright \normalfont
-		\interlinepenalty\@M
 	{\underline{\huge \bfseries #1} }
 	\ifnum \c@secnumdepth >\m@ne
 		{\huge\bfseries (\thechapter) \par\nobreak }
@@ -235,6 +235,15 @@
 \lstset{inputencoding=utf8}
 \lstset{aboveskip=3pt}
 \lstset{belowskip=2pt}
+% Wrapped code lines never split across a column break.
+\lst@AddToHook{Init}{\interlinepenalty\@M}
+% listings inserts a breakpoint (\penalty-50) between the template name and
+% its caption; remove it so a name is never orphaned at a column bottom.
+\patchcmd{\lst@Init}{\par\penalty-50\relax}{\par\nobreak}{\typeout{kactlpkg: patched lst@Init}}{\PackageError{kactlpkg}{lst@Init patch failed}{}}
+\patchcmd{\lst@MakeCaption}{\allowbreak}{\nobreak}{\typeout{kactlpkg: patched lst@MakeCaption}}{\PackageError{kactlpkg}{lst@MakeCaption patch failed}{}}
+% Slack goes to the bottom of a column instead of being stretched into the
+% (single) parskip before a template name, which produced huge gaps.
+\raggedcolumns
 
 \lstdefinelanguage{raw}{} % Raw language, no keywords.
 
@@ -294,8 +303,10 @@
 	\setboolean{hastime}{false}
 	\setboolean{hasmemory}{false}
 	\setboolean{hasleftcaption}{false}
-	\myneedspace{3\baselineskip}
-	\penalty-100
+	\if@nobreak\else % directly after a heading: stay attached to it
+		\myneedspace{3\baselineskip}
+		\penalty-100
+	\fi
 	{\large #2}
 	\immediate\write18{rm -f \@builddir/kactl.tmp} % Don't include old kactl.tmp on failure.
 	\immediate\write18{python3 content/tex/preprocessor.py -i "\@kactldir/#2" -o \@builddir/kactl.tmp #1}
@@ -380,7 +391,7 @@
 % wraps to its own right-aligned line when it doesn't (no more overlap).
 \long\def\@makecaption#1#2{
 	\vspace{-3pt}
-	{\par\noindent\footnotesize
+	{\par\noindent\footnotesize\interlinepenalty\@M
 	\def\@chsep{}
 	\ifthenelse{\boolean{hasdescription}}{\@chsep\textbf{Description:} \@defdescription\def\@chsep{\\}}{}
 	\ifthenelse{\boolean{hasusage}}{\@chsep\textbf{Usage:} \@defusage\def\@chsep{\\}}{}

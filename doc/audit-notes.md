@@ -43,6 +43,42 @@ because none of this is obvious from the code alone.
   is an *unknown command* → **build error** (this bit us with "Bounds:").
   Bare math like `\log` in a Description needs `$...$` (only Time/Memory get
   auto-`\bigo`).
+- **Big blank gaps inside a column / template names orphaned at a column
+  bottom** (fixed 2026-08-28). Three independent causes, all in kactlpkg.sty:
+  1. multicol's default `\flushcolumns` stretches every column to full height.
+     Our vertical list has almost no stretchable glue (listings zero
+     `\parskip` in an Init hook, lstmisc.sty:1296; captions run after
+     `\@parboxrestore`; `\myneedspace` is a fixed `\vskip`), so a column's
+     slack was dumped into the *one* glue that had any stretch: the `parskip` (plus 2pt) before a template name → a
+     third-of-a-column hole between two templates (p13 BerlekampMassey →
+     LinearRecurrence). Now `\raggedcolumns`: slack sits at column bottoms.
+  2. `\@makechapterhead` was copied from report.cls without the enclosing
+     braces, so `\interlinepenalty\@M` leaked into the whole document and no
+     paragraph could ever break across columns (17-line chapter prose +
+     section heading = 21 unbreakable lines → 17 lines of slack). The leak is
+     removed; descriptions stay atomic via `\interlinepenalty\@M` inside
+     `\@makecaption`, and wrapped code lines via an lst `Init` hook.
+  3. listings' `\lst@Init` emits `\par\penalty-50 \vspace{aboveskip}` and
+     `\lst@MakeCaption t` starts with `\allowbreak` — two legal breakpoints
+     between the name line and its caption (in a stretch-free column every
+     fitting break costs the same, TeX takes the *last* one that fits);
+     `\myneedspace{3\baselineskip}` only reserves name + 2 lines, so a tall
+     (atomic) description pushed the caption to the next column and left
+     the name behind (p30 lineIntersection.h; also IntegrateAdaptive, 2sat,
+     AhoCorasick). Both are `\patchcmd`'ed to `\nobreak`, and
+     `\kactlimport` skips its own needspace/`\penalty-100` when `\if@nobreak`
+     (directly after a heading) so a section title can't be orphaned either.
+  Still allowed (rare, 3 cases): a column ending after name + description
+  with the code starting in the next column (listings' frame glue is a legal
+  break after a colour whatsit).
+  Diagnostics that worked: `pdftoppm -r 80 -f N -l N -png`, then vary one
+  thing per scratch copy (`make fast` is ~6 s). **Caveat:** the TOC is
+  typeset inside the multicols, so a scratch copy built in an empty `build/`
+  (no `kactl.toc`) has a different layout from the real PDF — copy
+  `build/kactl.{aux,toc,ptc,out}` first or use `make kactl`. `\showbox` of
+  each column inside `\multi@column@out` shows exactly which glue absorbed
+  the slack (multicol sets `\vbadness=10001`, so there are no Underfull
+  warnings to grep for).
 
 ## Known landmines left in place (deliberate)
 
