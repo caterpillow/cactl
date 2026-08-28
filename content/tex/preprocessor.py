@@ -1,56 +1,108 @@
 #!/usr/bin/env python3
-# encoding: utf-8
+# Source code preprocessor for the KACTL build process. License: CC0
+#
+# kactlpkg.sty runs it through \write18 from the repo root, once per template
+# (`-i <file> -o build/kactl.tmp [-l lang]`: the file becomes a LaTeX fragment
+# that \kactlimport \inputs) and once per page (`--print-header <mark>`: the
+# list of templates starting on that page, state kept in ./header.tmp).
+# Every failure must be loud: anything that goes wrong after option parsing
+# is written to the output file as \kactlerror{...}, which stops pdflatex.
 
-# Source code preprocessor for KACTL build process.
-# License: CC0
-
-import sys
 import getopt
+import os
+import re
+import shutil
 import subprocess
+import sys
+import traceback
+
+HASH_SCRIPT = 'content/contest/hash.sh'   # printed in the notebook; typed on the judge
+HEADER_STATE = 'header.tmp'
+
+KNOWN_COMMANDS = ['Author', 'Date', 'Description', 'Source', 'Time', 'Memory',
+                  'License', 'Status', 'Usage', 'Details']
+REQUIRED_COMMANDS = ['Author', 'Description']
 
 
-def escape(input):
-    input = input.replace('<', r'\ensuremath{<}')
-    input = input.replace('>', r'\ensuremath{>}')
-    return input
+class PreprocessorError(Exception):
+    pass
 
-def pathescape(input):
-    input = input.replace('\\', r'\\')
-    input = input.replace('_', r'\_')
-    input = escape(input)
-    return input
 
-def codeescape(input):
-    input = input.replace('_', r'\_')
-    input = input.replace('\n', '\\\\\n')
-    input = input.replace('{', r'\{')
-    input = input.replace('}', r'\}')
-    input = input.replace('^', r'\ensuremath{\hat{\;}}')
-    input = escape(input)
-    return input
+def escape(text):
+    text = text.replace('<', r'\ensuremath{<}')
+    text = text.replace('>', r'\ensuremath{>}')
+    return text
 
-def ordoescape(input, esc=True):
+def pathescape(text):
+    text = text.replace('\\', r'\\')
+    text = text.replace('_', r'\_')
+    return escape(text)
+
+def codeescape(text):
+    text = text.replace('_', r'\_')
+    text = text.replace('\n', '\\\\\n')
+    text = text.replace('{', r'\{')
+    text = text.replace('}', r'\}')
+    text = text.replace('^', r'\ensuremath{\hat{\;}}')
+    return escape(text)
+
+def ordoescape(text, esc=True):
     if esc:
-        input = escape(input)
-    start = input.find("O(")
+        text = escape(text)
+    start = text.find("O(")
     if start >= 0:
         bracketcount = 1
-        end = start+1
-        while end+1<len(input) and bracketcount>0:
+        end = start + 1
+        while end + 1 < len(text) and bracketcount > 0:
             end = end + 1
-            if input[end] == '(':
+            if text[end] == '(':
                 bracketcount = bracketcount + 1
-            elif input[end] == ')':
+            elif text[end] == ')':
                 bracketcount = bracketcount - 1
         if bracketcount == 0:
-            return r"%s\bigo{%s}%s" % (input[:start], input[start+2:end], ordoescape(input[end+1:], False))
-    return input
+            return r"%s\bigo{%s}%s" % (text[:start], text[start + 2:end], ordoescape(text[end + 1:], False))
+    return text
 
-def addref(caption, outstream):
-    caption = pathescape(caption).strip()
-    print(r"\kactlref{%s}" % caption, file=outstream)
-    with open('header.tmp', 'a') as f:
-        f.write(caption + "\n")
+def texsafe(text):
+    """Error-message text: nothing that could confuse TeX inside \\kactlerror{}."""
+    return re.sub(r'[\\{}#%$&_^~\n]', '?', text)
+
+
+def runhash(text):
+    """The 6-char hash hash.sh prints for `text`. cpp warnings are noise and are
+    dropped; a missing cpp (md5 of empty input, d41d8c) or a failing pipeline
+    is an error -- `sh` would return only the last command's status."""
+    if shutil.which('cpp') is None:
+        raise PreprocessorError("cpp not found (%s needs gcc's preprocessor)" % HASH_SCRIPT)
+    p = subprocess.run(['bash', '-o', 'pipefail', HASH_SCRIPT], input=text,
+                       capture_output=True, text=True)
+    hsh = p.stdout.strip()
+    if p.returncode != 0 or not re.fullmatch(r'[0-9a-f]{6}', hsh):
+        detail = p.stderr.strip().splitlines()
+        raise PreprocessorError("%s failed (exit %d)%s" % (
+            HASH_SCRIPT, p.returncode, ": " + detail[-1] if detail else ""))
+    return hsh
+
+def hashmarkers(source):
+    """Prefix-hash markers: a "<hash>" is replaced with the hash of the listing
+    up to and including its line (the marker line itself is a comment, so it
+    does not affect the hash)."""
+    if '<hash>' not in source:
+        return source
+    hlines = source.split('\n')
+    for i, hline in enumerate(hlines):
+        if '<hash>' in hline:
+            hlines[i] = hline.replace('<hash>', runhash('\n'.join(hlines[:i + 1])))
+    return '\n'.join(hlines)
+
+def tabify(source):
+    """Indentation only: every 4 spaces at the start of a line, or right after
+    a leading `//` (commented-out code), become one tab (tabsize=2 in the
+    PDF); interior runs of spaces (alignment) are left alone."""
+    return re.sub(r'^([\t ]*)(//)?([\t ]*)',
+                  lambda m: m.group(1).replace('    ', '\t') + (m.group(2) or '') + m.group(3).replace('    ', '\t'),
+                  source, flags=re.M)
+
 
 COMMENT_TYPES = [
     ('/**', '*/'),
@@ -64,31 +116,54 @@ def find_start_comment(source, start=None):
         i = source.find(s, start)
         if i != -1 and (i < first[0] or first[0] == -1):
             first = (i, i + len(s), e)
-
     return first
 
-def processwithcomments(caption, instream, outstream, listingslang):
-    knowncommands = ['Author', 'Date', 'Description', 'Source', 'Time', 'Memory', 'License', 'Status', 'Usage', 'Details']
-    requiredcommands = ['Author', 'Description']
+def parse_include(line):
+    line = line.strip()
+    if line.startswith("#include"):
+        return line[8:].strip()
+    return None
+
+def emit_template(caption, block, includes, hashcaption, listingslang, source):
+    """The LaTeX fragment for one template: the name line, the page-header
+    mark, the Description/Usage/Time/Memory block (which ends with the tiny
+    "included files -- hash, N lines" caption), then the code listing."""
+    with open(HEADER_STATE, 'a', encoding='utf-8') as f:
+        f.write(caption + "\n")          # page-header state, see print_header
+    return [
+        r"\kactlname{%s}" % pathescape(caption),
+        r"\kactlref{%s}" % caption,      # raw name: it is \detokenize'd into a mark
+        r"\kactlheader{%s}{%s}{%s}" % (
+            r"\\".join(r"\textbf{%s:} %s" % f for f in block),
+            pathescape(", ".join(includes)),
+            hashcaption),
+    ] + emit_listing(listingslang, source)
+
+# The one seam a different code renderer plugs into: everything above is
+# plain LaTeX, only this decides how the code itself is typeset.
+def emit_listing(listingslang, source):
+    return [r"\begin{lstlisting}[language=%s]" % listingslang, source,
+            r"\end{lstlisting}"]
+
+
+def processwithcomments(caption, text, listingslang):
     includelist = []
-    error = ""
-    warning = ""
-    # Read lines from source file
-    try:
-        lines = instream.readlines()
-    except:
-        error = "Could not read source."
-        lines = []
-    nlines = list()
-    for line in lines:
+    errors = []
+    nlines = []
+    for line in text.splitlines():
         if 'exclude-line' in line:
+            if '<hash>' in line:
+                errors.append("<hash> marker on an exclude-line (the line is not printed)")
             continue
         if 'include-line' in line:
             line = line.replace('// ', '', 1)
         had_comment = "///" in line
         keep_include = 'keep-include' in line
         # Remove /// comments
-        line = line.split("///")[0].rstrip()
+        stripped = line.split("///")[0].rstrip()
+        if had_comment and '<hash>' in line and '<hash>' not in stripped:
+            errors.append("<hash> marker inside a /// comment (it is not printed)")
+        line = stripped
         # Remove '#pragma once' lines
         if line == "#pragma once":
             continue
@@ -106,127 +181,110 @@ def processwithcomments(caption, instream, outstream, listingslang):
     start, start2, end_str = find_start_comment(source)
     end = 0
     commands = {}
-    while start >= 0 and not error:
+    while start >= 0:
         nsource = nsource.rstrip() + source[end:start]
         end = source.find(end_str, start2)
-        if end<start:
-            error = "Invalid %s %s comments." % (source[start:start2], end_str)
+        if end < start:
+            errors.append("Invalid %s %s comments" % (source[start:start2], end_str))
             break
         comment = source[start2:end].strip()
         end += len(end_str)
         start, start2, end_str = find_start_comment(source, end)
 
-        commentlines = comment.split('\n')
         command = None
         value = ""
-        for cline in commentlines:
+        for cline in comment.split('\n'):
             allow_command = False
             cline = cline.strip()
             if cline.startswith('*'):
                 cline = cline[1:].strip()
                 allow_command = True
             ind = cline.find(':')
-            if allow_command and ind != -1 and ' ' not in cline[:ind] and cline[0].isalpha() and cline[0].isupper():
+            # "Word: ..." at the start of a "* " line is a command; "Word::" (C++
+            # scope syntax in a continuation line, e.g. LCT::link) is not.
+            if (allow_command and ind > 0 and ' ' not in cline[:ind] and cline[0].isalpha()
+                    and cline[0].isupper() and not cline.startswith('::', ind)):
                 if command:
-                    if command not in knowncommands:
-                        error = error + "Unknown command: " + command + ". "
+                    if command not in KNOWN_COMMANDS:
+                        errors.append("Unknown command: " + command)
                     commands[command] = value.lstrip()
                 command = cline[:ind]
-                value = cline[ind+1:].strip()
+                value = cline[ind + 1:].strip()
             else:
                 value = value + '\n' + cline
         if command:
-            if command not in knowncommands:
-                error = error + "Unknown command: " + command + ". "
+            if command not in KNOWN_COMMANDS:
+                errors.append("Unknown command: " + command)
             commands[command] = value.lstrip()
-    for rcommand in sorted(set(requiredcommands) - set(commands)):
-        error = error + "Missing command: " + rcommand + ". "
+    for rcommand in sorted(set(REQUIRED_COMMANDS) - set(commands)):
+        errors.append("Missing command: " + rcommand)
     if end >= 0:
         nsource = nsource.rstrip() + source[end:]
     nsource = nsource.strip()
 
-    def runhash(text):
-        p = subprocess.Popen(['sh', 'content/contest/hash.sh'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, encoding="utf-8")
-        out, _ = p.communicate(text)
-        return out.split(None, 1)[0]
+    hashed = listingslang in ['C++', 'Java']
+    if not hashed and '<hash>' in nsource:
+        errors.append("<hash> markers are only supported in C++/Java listings")
+    if errors:
+        raise PreprocessorError("; ".join(errors))
 
-    if listingslang in ['C++', 'Java'] and '<hash>' in nsource:
-        # Prefix-hash markers: a "<hash>" is replaced with the hash of the
-        # listing up to and including its line (the marker line itself is a
-        # comment, so it does not affect the hash).
-        hlines = nsource.split('\n')
-        for i, hline in enumerate(hlines):
-            if '<hash>' in hline:
-                hlines[i] = hline.replace('<hash>', runhash('\n'.join(hlines[:i + 1])))
-        nsource = '\n'.join(hlines)
-
-    if listingslang in ['C++', 'Java']:
-        hsh = runhash(nsource) + ', '
+    if hashed:
+        nsource = hashmarkers(nsource)
+        hsh = runhash(nsource) + ', ' if nsource else ''
     else:
         hsh = ''
-    # Produce output
-    out = []
-    if warning:
-        out.append(r"\kactlwarning{%s: %s}" % (caption, warning))
-    if error:
-        out.append(r"\kactlerror{%s: %s}" % (caption, error))
-    else:
-        addref(caption, outstream)
-        if commands.get("Description"):
-            out.append(r"\defdescription{%s}" % escape(commands["Description"]))
-        if commands.get("Usage"):
-            out.append(r"\defusage{%s}" % codeescape(commands["Usage"]))
-        if commands.get("Time"):
-            out.append(r"\deftime{%s}" % ordoescape(commands["Time"]))
-        if commands.get("Memory"):
-            out.append(r"\defmemory{%s}" % ordoescape(commands["Memory"]))
-        if includelist:
-            out.append(r"\leftcaption{%s}" % pathescape(", ".join(includelist)))
-        if nsource:
-            out.append(r"\rightcaption{%s%d lines}" % (hsh, len(nsource.split("\n"))))
-        langstr = ", language="+listingslang
-        out.append(r"\begin{lstlisting}[caption={%s}%s]" % (pathescape(caption), langstr))
-        out.append(nsource.replace("    ", "\t"))
-        # out.append(nsource)
-        out.append(r"\end{lstlisting}")
 
-    for line in out:
-        print(line, file=outstream)
+    block = []
+    if commands.get("Description"):
+        block.append(("Description", escape(commands["Description"])))
+    if commands.get("Usage"):
+        block.append(("Usage", r"\texttt{%s}" % codeescape(commands["Usage"])))
+    if commands.get("Time"):
+        block.append(("Time", ordoescape(commands["Time"])))
+    if commands.get("Memory"):
+        block.append(("Memory", ordoescape(commands["Memory"])))
+    hashcaption = "%s%d lines" % (hsh, len(nsource.split("\n"))) if nsource else ""
+    return emit_template(caption, block, includelist, hashcaption, listingslang, tabify(nsource))
 
-def processraw(caption, instream, outstream, listingslang = 'raw'):
-    try:
-        source = instream.read().strip()
-        addref(caption, outstream)
-        print(r"\rightcaption{%d lines}" % len(source.split("\n")), file=outstream)
-        print(r"\begin{lstlisting}[language=%s,caption={%s}]" % (listingslang, pathescape(caption)), file=outstream)
-        print(source, file=outstream)
-        print(r"\end{lstlisting}", file=outstream)
-    except:
-        print(r"\kactlerror{Could not read source.}", file=outstream)
+def processraw(caption, text, listingslang):
+    source = text.strip()
+    if listingslang == 'C++':
+        # rawcpp (template.cpp): same prefix-hash markers and indentation as
+        # the headers, but no doc comment and no hash caption.
+        source = tabify(hashmarkers(source))
+    elif '<hash>' in source:
+        raise PreprocessorError("<hash> markers are only supported in C++/Java listings")
+    hashcaption = "%d lines" % len(source.split("\n")) if source else ""
+    return emit_template(caption, [], [], hashcaption, listingslang, source)
 
-def parse_include(line):
-    line = line.strip()
-    if line.startswith("#include"):
-        return line[8:].strip()
-    return None
+# -l value (or file extension): processor and listings language
+LANGUAGES = {
+    'cpp': (processwithcomments, 'C++'),
+    'cc': (processwithcomments, 'C++'),
+    'c': (processwithcomments, 'C++'),
+    'h': (processwithcomments, 'C++'),
+    'hpp': (processwithcomments, 'C++'),
+    'java': (processwithcomments, 'Java'),
+    'py': (processwithcomments, 'Python'),
+    'raw': (processraw, 'raw'),
+    'rawcpp': (processraw, 'C++'),
+    'sh': (processraw, 'bash'),
+}
 
-def getlang(input):
-    return input.rsplit('.',1)[-1]
 
-def getfilename(input):
-    return input.rsplit('/',1)[-1]
-
-def print_header(data, outstream):
-    parts = data.split('|')
-    until = parts[0].strip() or parts[1].strip()
-    if not until:
+def print_header(data):
+    """data: the last \\hdrmark placed on the page (see kactlpkg.sty), i.e. the
+    last template that starts on it. Returns the LaTeX for the centre header:
+    every not-yet-printed name up to that one, and drops them from the state."""
+    until = data.strip()
+    if not until or not os.path.exists(HEADER_STATE):
         # Nothing on this page, skip it.
-        return
-    with open('header.tmp') as f:
+        return ""
+    with open(HEADER_STATE, encoding='utf-8') as f:
         lines = [x.strip() for x in f.readlines()]
     if until not in lines:
         # Nothing new on the page.
-        return
+        return ""
 
     ind = lines.index(until) + 1
     header_length = len("".join(lines[:ind]))
@@ -234,79 +292,88 @@ def print_header(data, outstream):
         return name if name.startswith('.') else name.split('.')[0]
     names = list(map(adjust, lines[:ind]))
     if header_length > 110:
-        # Long lists wrap onto two centred lines (the header box is 25pt
-        # high) instead of being shrunk to an unreadable size; the box is
-        # narrower than \headwidth so it never reaches the side headers.
-        # (\enspace is a kern and never breaks, hence the \hspace.)
-        size = r"\small" if header_length <= 240 else r"\footnotesize"
+        # Long lists wrap onto two centred \footnotesize lines (the header
+        # box is 25pt high and bottom-aligned, so the second line grows
+        # upward, towards the paper edge) instead of being shrunk to an
+        # unreadable size; the box is narrower than \headwidth so it never
+        # reaches the side headers. (\enspace is a kern and never breaks,
+        # hence the \hspace.)
         output = (r"\parbox[b]{\dimexpr\headwidth-10cm\relax}{\centering"
-                  + size + r"\textbf{" + r"\hspace{.5em}".join(names) + "}}")
+                  r"\footnotesize\textbf{" + r"\hspace{.5em}".join(names) + "}}")
     else:
         output = r"\hspace{3mm}\textbf{" + r"\enspace{}".join(names) + "}"
-    print(output, file=outstream)
-    with open('header.tmp', 'w') as f:
+    with open(HEADER_STATE, 'w', encoding='utf-8') as f:
         for line in lines[ind:]:
             f.write(line + "\n")
+    return output + "\n"
+
+
+USAGE = """usage (from the repo root):
+  preprocessor.py -i <file> [-o <out.tex>] [-l <language>]
+  preprocessor.py --print-header <mark> [-o <out.tex>]
+languages: %s (default: the file extension)""" % ", ".join(sorted(LANGUAGES))
+
+def write_output(outpath, text):
+    if outpath:
+        with open(outpath, 'w', encoding='utf-8') as f:
+            f.write(text)
+    else:
+        sys.stdout.write(text)
 
 def main():
     language = None
     caption = None
-    instream = sys.stdin
-    outstream = sys.stdout
-    print_header_value = None
+    inpath = None
+    outpath = None
+    header = None
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ho:i:l:c:", ["help", "output=", "input=", "language=", "caption=", "print-header="])
-        for option, value in opts:
-            if option in ("-h", "--help"):
-                print("This is the help section for this program")
-                print()
-                print("Available commands are:")
-                print("\t -o --output")
-                print("\t -h --help")
-                print("\t -i --input")
-                print("\t -l --language")
-                print("\t --print-header")
-                return
-            if option in ("-o", "--output"):
-                outstream = open(value, "w")
-            if option in ("-i", "--input"):
-                instream = open(value)
-                if language == None:
-                    language = getlang(value)
-                if caption == None:
-                    caption = getfilename(value)
-            if option in ("-l", "--language"):
-                language = value
-            if option in ("-c", "--caption"):
-                caption = value
-            if option == "--print-header":
-                print_header_value = value
-        if print_header_value is not None:
-            print_header(print_header_value, outstream)
-            return
-        print(" * \x1b[1m{}\x1b[0m".format(caption))
-        if language in ["cpp", "cc", "c", "h", "hpp"]:
-            processwithcomments(caption, instream, outstream, 'C++')
-        elif language in ["java", "kt"]:
-            processwithcomments(caption, instream, outstream, 'Java')
-        elif language == "ps":
-            processraw(caption, instream, outstream) # PostScript was added in listings v1.4
-        elif language == "raw":
-            processraw(caption, instream, outstream)
-        elif language == "rawcpp":
-            processraw(caption, instream, outstream, 'C++')
-        elif language == "sh":
-            processraw(caption, instream, outstream, 'bash')
-        elif language == "py":
-            processwithcomments(caption, instream, outstream, 'Python')
-        elif language == "rawpy":
-            processraw(caption, instream, outstream, 'Python')
-        else:
-            raise ValueError("Unknown language: " + str(language))
-    except (ValueError, getopt.GetoptError, IOError) as err:
-        print(str(err), file=sys.stderr)
-        print("\t for help use --help", file=sys.stderr)
+        opts, args = getopt.getopt(sys.argv[1:], "ho:i:l:", ["help", "output=", "input=", "language=", "print-header="])
+    except getopt.GetoptError as err:
+        print(err, file=sys.stderr)
+        print(USAGE, file=sys.stderr)
+        return 2
+    for option, value in opts:
+        if option in ("-h", "--help"):
+            print(USAGE)
+            return 0
+        if option in ("-o", "--output"):
+            outpath = value
+        if option in ("-i", "--input"):
+            inpath = value
+            if language is None:
+                language = value.rsplit('.', 1)[-1]
+            if caption is None:
+                caption = value.rsplit('/', 1)[-1]
+        if option in ("-l", "--language"):
+            language = value
+        if option == "--print-header":
+            header = value
+
+    if header is not None:
+        # The page header is \input on every page, so the file must always exist.
+        write_output(outpath, print_header(header))
+        return 0
+    if inpath is None:
+        print(USAGE, file=sys.stderr)
         return 2
 
+    print(" * \x1b[1m{}\x1b[0m".format(caption))
+    caption = pathescape(caption).strip()
+    try:
+        if language not in LANGUAGES:
+            raise PreprocessorError("unknown language '%s' (use -l %s)" % (language, "|".join(sorted(LANGUAGES))))
+        with open(inpath, encoding='utf-8') as f:
+            text = f.read()
+        process, listingslang = LANGUAGES[language]
+        out = process(caption, text, listingslang)
+    except PreprocessorError as err:
+        print("%s: %s" % (caption, err), file=sys.stderr)
+        out = [r"\kactlerror{%s: %s}" % (caption, texsafe(str(err)))]
+    except Exception as err:
+        traceback.print_exc()
+        out = [r"\kactlerror{%s: %s: %s (see the terminal)}" % (caption, type(err).__name__, texsafe(str(err)))]
+    write_output(outpath, "\n".join(out) + "\n")
+    return 0
+
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

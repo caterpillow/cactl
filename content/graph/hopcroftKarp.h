@@ -4,7 +4,7 @@
  * License: CC0
  * Source: i forgot
  * Description: Fast incremental bipartite matching. Zero-indexed.
- * Usage: \texttt{operator[]} for the pair of right node i, \texttt{n} is the size of the rhs, \texttt{add(v)} to add adjacency list of node on lhs 
+ * Usage: operator[] for the pair of right node i, n is the size of the rhs, add(v) to add adjacency list of node on lhs
  * Time: O(\sqrt{V}E)
  * Status: tested i thinks
  */

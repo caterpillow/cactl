@@ -47,6 +47,13 @@ because none of this is obvious from the code alone.
   is an *unknown command* → **build error** (this bit us with "Bounds:").
   Bare math like `\log` in a Description needs `$...$` (only Time/Memory get
   auto-`\bigo`).
+- Escaping differs per field. **Usage** is code, set in `\texttt`: `_ { } ^ < >`
+  are escaped for you, so never use a macro with a braced argument there
+  (`\texttt{x}` printed as `{x}` in hopcroftKarp.h); hand-escape `& % # $` as
+  `\&` etc. (an unescaped `& % #` is a fatal build error, `~`/`$` silently
+  become a space / math) and write `\tilde` for `~`. **Description/Time/Memory**
+  are LaTeX: only `<`/`>` are escaped for you, `O(...)` in Time/Memory becomes
+  `\bigo{...}`.
 - **Big blank gaps inside a column / template names orphaned at a column
   bottom** (fixed 2026-08-28). Three independent causes, all in kactlpkg.sty:
   1. multicol's default `\flushcolumns` stretches every column to full height.

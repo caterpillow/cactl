@@ -5,15 +5,16 @@
 \usepackage[utf8]{inputenc}             % Encoding UTF-8
 \usepackage{listings}                   % Source code listings
 \usepackage{etoolbox}                   % \patchcmd
-\usepackage{framed}                     % Source code listings
-\usepackage[a4paper,landscape,hmargin={0.5cm,0.5cm},vmargin={1.0cm,0.4cm}]{geometry}
+% Header dimensions are given here so geometry computes \topmargin from them
+% (setting \headheight/\headsep afterwards would leave the layout stale
+% until the next \geometry call; test-session.tex makes none).
+\usepackage[a4paper,landscape,hmargin={0.5cm,0.5cm},vmargin={1.1cm,0.4cm},headheight=25pt,headsep=2pt]{geometry}
 \usepackage{multicol}                   % Split page in multiple columns
 \usepackage{fancyhdr}                   % Fancy headers
-\usepackage{amsbsy, amssymb, amsmath}   % Enable math symbols
+\usepackage{amssymb, amsmath}           % Enable math symbols (amsmath loads amsbsy)
 \usepackage{tocloft}                    % Custom Table of Contents
 \tocloftpagestyle{fancy}                % tocloft would otherwise force `plain'
                                         % on the contents page, losing its header
-\usepackage{titletoc}                   % Design control over Table of Contents
 \usepackage{ifthen}                     % To enable some conditional programming in LaTeX
 \usepackage[T1]{fontenc}
 \usepackage[scaled=0.9]{DejaVuSansMono} % optional scale
@@ -21,11 +22,9 @@
 
 \usepackage{graphicx}                   % To rotate page numbers
 \usepackage{fix-cm}                     % Large font sizes
-\usepackage{paralist}                   % For compact enumerations
 \usepackage[inline]{enumitem}           % For horizontal lists
 \usepackage[parfill]{parskip}           % For compact enumerations
-\usepackage[dvipsnames]{xcolor}
-\usepackage[normalem]{ulem}
+\usepackage{xcolor}
 \usepackage[hidelinks]{hyperref}        % For clickable table of contents
 \usepackage{textcomp,pmboxdraw}         % degree sign, box-drawing (team name)
 \DeclareUnicodeCharacter{00B0}{\textdegree}
@@ -34,9 +33,6 @@
 \DeclareUnicodeCharacter{256F}{\raisebox{.2ex}{\rotatebox[origin=c]{-90}{\textsf{J}}}}
 
 % Config commands
-\newcommand{\subtitle}[1]{
-	\def\@subtitle{#1}
-}
 \newcommand{\team}[2]{
 	\def\@teamname{#1}
 	\def\@teammembers{#2}
@@ -59,54 +55,51 @@
 }
 
 % Some default config
-\subtitle{{\tiny new}KACTL}
 \university{}{}{}\team{}{}\contest{}{} % overridden by the document
-\title{KTH Algorithm Competition Template Library}
-\newcommand{\PDFColor}{0}
 \def\@builddir{build}
 
 \def\today{\number\year-\ifthenelse{\number\month<10}{0}{}\number\month-\ifthenelse{\number\day<10}{0}{}\number\day} % Defines \today as YYYY-MM-DD
-
-\renewcommand{\maketitle}[2]{
-	\begin{center}
-		{\Huge \@title}\\
-		{\huge \@subtitle{} version #2}\\[0.1cm]
-		{\Huge \textsc{#1}}
-	\end{center}
-}
 
 % Remove temp files from old failed runs
 \AtBeginDocument{\immediate\write18{rm -f header.tmp}}
 \AtEndDocument{\immediate\write18{rm -f header.tmp}\immediate\write18{rm -f \@builddir/header2.tmp}\immediate\write18{rm -f \@builddir/kactl.tmp}}
 
-% Include a list of source files at the top of every page. For the purpose
-% of recording those, we use eTeX marks. (We can't just append data directly to
-% the header, because TeX outputs pages asynchronously, noticeably so when
-% multicol is in use.) There is no command for getting all marks set on a page,
-% so we take only the last one and include all non-included files up until that
-% one. Most of the time \splitbotmark will give us the right mark, but in rare
-% cases things fall down and we try to make the best of things by falling back
-% to \botmark. Also, since LaTeX is terrible at string manipulation, we do all
-% actual processing in Python, stashing global state in header.tmp.
+% Include a list of source files at the top of every page. TeX ships pages
+% asynchronously (noticeably so under multicol), so the names are recorded as
+% eTeX marks: \kactlref places \marks\hdrmark{name} right after each template
+% name line. multicol keeps only class-0 marks per column, and \botmarks can
+% already point into material that was pushed to the NEXT page, so we hook
+% multicol's \set@keptmarks (run right after every column \vsplit) and remember
+% the last \hdrmark any column of the current page contained; \@outputpage
+% resets it once the header has been typeset. Since LaTeX is terrible at
+% string manipulation, the Python side prints every not-yet-printed name up to
+% that one, keeping its state in header.tmp (repo root = cwd of pdflatex).
 \newmarks\hdrmark
+\let\kactl@hdrlast\@empty
+\g@addto@macro\set@keptmarks{%
+	\expandafter\def\expandafter\kactl@tmp\expandafter{\splitbotmarks\hdrmark}%
+	\ifx\kactl@tmp\@empty\else\global\let\kactl@hdrlast\kactl@tmp\fi}
+\g@addto@macro\@outputpage{\global\let\kactl@hdrlast\@empty}
 \pagestyle{fancy}
 \renewcommand{\headrulewidth}{0pt}
-\headheight 25pt
-\newcommand{\@leftheadertext}{
-	\ifthenelse{\equal{\@unishort}{ }\OR\equal{\@unishort}{}}{\@teamname}{\@unishort\ \textbar\ \@teamname}
+\newcommand{\@leftheadertext}{%
+	\ifthenelse{\equal{\@unishort}{ }\OR\equal{\@unishort}{}\OR\equal{\@teamname}{}}%
+		{\@unishort\@teamname}{\@unishort\ \textbar\ \@teamname}%
 }
 \lhead{\@leftheadertext}
-\chead{\immediate\write18{python3 content/tex/preprocessor.py --print-header "\splitbotmarks\hdrmark|\botmarks\hdrmark" -o \@builddir/header2.tmp}\immediate\input{\@builddir/header2.tmp}}
+\chead{\immediate\write18{rm -f \@builddir/header2.tmp}\immediate\write18{python3 content/tex/preprocessor.py --print-header "\kactl@hdrlast" -o \@builddir/header2.tmp}\input{\@builddir/header2.tmp}}
 \rhead{\thepage}
 %\lhead{}\chead{\thepage}\rhead{}
 \lfoot{}\cfoot{}\rfoot{}
 \fancyheadoffset{0pt}
 \fancyfootoffset{0pt}
-\setlength\headsep{5pt}
 
 % \kactlmargins{left}{right}{top}{bottom}: page margins for the A4 landscape
-% output (defaults 0.5cm 0.5cm 1.0cm 0.4cm). The page header (25pt + 5pt)
-% lives inside the top margin, so keep top >= 1cm.
+% output (defaults 0.5cm 0.5cm 1.1cm 0.4cm). The page header (a 25pt box plus
+% a 2pt gap, text bottom-aligned, a long file list wraps upward onto two
+% \footnotesize lines) hangs from the top margin: with top = 1.1cm the header
+% text stays >= 4mm from the paper edge, which is about what printers need;
+% top < 27pt puts the header box itself above the paper.
 \newcommand{\kactlmargins}[4]{
 	\geometry{left=#1,right=#2,top=#3,bottom=#4}
 	\fancyheadoffset{0pt}\fancyfootoffset{0pt} % re-sync \headwidth
@@ -114,10 +107,19 @@
 % \kactlbinding{len}: extra room on the binding edge for double-sided
 % printing (inner edge of every page, alternating). For single-sided stapling
 % just give \kactlmargins a bigger left margin.
+\newif\ifkactl@binding
 \newcommand{\kactlbinding}[1]{
 	\geometry{twoside,bindingoffset=#1}
 	\fancyheadoffset{0pt}\fancyfootoffset{0pt}
+	\kactl@bindingtrue
 }
+% The cover is logical page 0, so LaTeX's odd/even parity is the reverse of
+% the physical sheet sides: printed page 1 (odd) is the back of the cover, a
+% verso page whose binding edge is on the RIGHT. Swap the two side margins
+% geometry computed -- at \begin{document}, i.e. after every \geometry call.
+\AtBeginDocument{\ifkactl@binding
+	\@tempdima\oddsidemargin \oddsidemargin\evensidemargin \evensidemargin\@tempdima
+\fi}
 
 \renewcommand\chapter{
 	\global\@topnum\z@
@@ -126,37 +128,27 @@
 	\@schapter
 }
 
-% Don't add appendices to the Table of Contents
-% Currently, this disables parts of the local TOC for appendices chapters
-\newboolean{appendixmode}
-\setboolean{appendixmode}{false}
-\let\Oldaddtoc\addcontentsline
-\renewcommand{\addcontentsline}[3]{
-	\ifthenelse{
-		\boolean{appendixmode}\and\equal{#1}{toc}
-	}{}{\Oldaddtoc{#1}{#2}{#3}}
-}
+% The whole notebook is set ragged-right on purpose: the body is three
+% narrow columns (~180pt, ~35 characters of prose), and justifying those
+% opens word gaps big enough to read as rivers. This used to happen by
+% accident -- \@makechapterhead's \raggedright leaked out of the (unbraced)
+% chapter head into the rest of the document -- so it is stated here instead.
+% Side effect the content relies on: \raggedright makes \\ end the paragraph
+% (\@centercr), so a prose paragraph ending in \\ costs nothing.
+\AtBeginDocument{\raggedright}
 
-% Redefine appendix
-\renewcommand\appendix{
-	% Change chapter counter to A,B,C,...
-	\setcounter{tocdepth}{8}
-	\setcounter{chapter}{0}
-	\def\thechapter{\Alph{chapter}}
-	% Switch to appendixmode defined above (disables TOC entries)
-	\setboolean{appendixmode}{true}
-	\clearpage
-}
-
+% Braced like report.cls's: the head's own \raggedright/\parindent/\let\\\@centercr
+% must not leak into the body (they used to, which is how the whole notebook
+% became ragged-right by accident -- it is now set that way on purpose above).
 \def\@makechapterhead#1{
 	\myneedspace{7\baselineskip}
-	\parindent \z@ \raggedright \normalfont
-	{\underline{\huge \bfseries #1} }
-	\ifnum \c@secnumdepth >\m@ne
-		{\huge\bfseries (\thechapter) \par\nobreak }
-	\fi
-	\startcontents[chapters]
-	\nobreak % its \write whatsits would make the next glue breakable
+	{\parindent \z@ \raggedright \normalfont
+		{\underline{\huge \bfseries #1} }
+		\ifnum \c@secnumdepth >\m@ne
+			{\huge\bfseries (\thechapter) \par\nobreak }
+		\fi
+	}
+	\nobreak % the chapter head keeps the first template of the chapter
 }
 
 \renewcommand\section{\@startsection {section}{1}{\z@}%
@@ -191,18 +183,20 @@
 \g@addto@macro\normalsize{\kactl@nostretch}
 \g@addto@macro\small{\kactl@nostretch}
 \g@addto@macro\footnotesize{\kactl@nostretch}
+% Lists too: parskip.sty gives \parsep the stretch \parskip had at load time,
+% and size9.clo's \small/\footnotesize \@listi carry their own "plus".
+\def\kactl@listnostretch{\topsep=1\topsep \partopsep=1\partopsep
+	\parsep=1\parsep \itemsep=1\itemsep}
+\g@addto@macro\@listI{\kactl@listnostretch}\let\@listi\@listI
+\g@addto@macro\@listii{\kactl@listnostretch}
+\g@addto@macro\@listiii{\kactl@listnostretch}
+\g@addto@macro\kactl@nostretch{% the size commands \def\@listi afresh
+	\expandafter\def\expandafter\@listi\expandafter{\@listi\kactl@listnostretch}}
 \normalsize
 \smallskipamount=1\smallskipamount \medskipamount=1\medskipamount
 \bigskipamount=1\bigskipamount
 
-% Styles for local toc
-\titlecontents{localsection}[1.5em]{\small}{}
-	{\small}{\titlerule*[0.8em]{.}\contentspage}
-\titlecontents{localsubsection}[3.8em]{\small}{}
-	{\small}{\titlerule*[0.8em]{.}\contentspage}
-
 % Styles for main toc
-\renewcommand{\chaptermark}[1]{\markboth{\emph{ #1}}{}}
 % No "Contents" title: the chapter list speaks for itself and the title was
 % being pulled off the top of the page by the old -45pt skip.
 \renewcommand{\contentsname}{}
@@ -213,50 +207,8 @@
 \renewcommand\cftchapfont{\large\bfseries}
 \renewcommand{\cftdotsep}{4.5}
 
-% Proper carets and tildes
-\newcommand*{\caret}{%
-  \begingroup
-    \fontencoding{T1}%
-	\fontfamily{pcr}
-    \selectfont
-    \string^%
-  \endgroup
-}
+% \tilde{}: a text tilde in descriptions (25 uses in content/).
 \renewcommand*{\tilde}{\raise.17ex\hbox{$\scriptstyle\mathtt{\sim}$}}
-
-% Fatter {} which are more distinguishable from ()
-% Makes pdf compile time 5-10% slower, but probably worth it still?
-\newcommand*{\nicelbrace}{%
-  \begingroup
-    \fontencoding{T1}%
-    \fontfamily{pcr}% Courier
-    \selectfont
-	\scalebox{1.0}[1]{\color{black!80}{\{}}%
-  \endgroup
-}
-\newcommand*{\nicerbrace}{%
-  \begingroup
-    \fontencoding{T1}%
-    \fontfamily{pcr}% Courier
-    \selectfont
-	\scalebox{1.0}[1]{\color{black!80}{\}}}%
-  \endgroup
-}
-
-\usepackage{graphicx}
-
-\newcommand*{\nicezero}{%
-  \begingroup
-    \ttfamily
-    \sbox0{0}%
-    \makebox[\wd0][c]{%
-      \copy0%
-      \kern-0.875\wd0
-      \raisebox{0.25ex}{\scalebox{0.75}[0.7]{\textbf{/}}}% 0.7 = shrink vertically
-    }%
-  \endgroup
-}
-
 
 \definecolor{mygreen}{HTML}{007000}
 \definecolor{myblue}{HTML}{0000dd}
@@ -272,11 +224,10 @@
 \lstset{basicstyle=\footnotesize\ttfamily}
 \lstset{commentstyle=\normalfont\itshape}
 % \lstset{columns=fullflexible}
-% \lstset{literate={^}{\caret}{1} {~}{\tilde}{1} {\{}{\nicelbrace}{1} {\}}{\nicerbrace}{1}}
-% \lstset{literate={0}{\nicezero}{1}}
 \lstset{emptylines=*1}
 \lstset{inputencoding=utf8}
-\lstset{aboveskip=3pt}
+\lstset{upquote=true} % straight ' in code, not a curly quoteright
+\lstset{aboveskip=0pt}
 \lstset{belowskip=2pt}
 % Wrapped code lines never split across a column break.
 \lst@AddToHook{Init}{\interlinepenalty\@M}
@@ -323,16 +274,9 @@
 	\pagestyle{fancy}
 }
 
-\newcommand{\kactlref}[1]{
-	\ifthenelse{\boolean{appendixmode}}{}{
-		\ifnum \value{section} > 0
-			\addcontentsline{ptc}{subsection}{\texttt{#1}\hspace{0.2em}}
-		\else
-			\addcontentsline{ptc}{section}{\texttt{#1}\hspace{0.2em}}
-		\fi
-	}
-	\marks\hdrmark{#1}
-}
+% The name for this page's header list. \detokenize: literal text, so the
+% name survives the trip through \write18 and header.tmp unexpanded.
+\newcommand{\kactlref}[1]{\marks\hdrmark{\detokenize{#1}}}
 
 % Like \needspace, except with flush bottoms.
 \newcommand{\myneedspace}[1]{%
@@ -345,21 +289,18 @@
   \endgroup
 }
 
-\newcommand{\kactlimport}[2][]{ % Using empty default parameter
-	\leftcaption{}\rightcaption{}
-	\setboolean{hasdescription}{false}
-	\setboolean{hasusage}{false}
-	\setboolean{hastime}{false}
-	\setboolean{hasmemory}{false}
-	\setboolean{hasleftcaption}{false}
+% Every line ends in % (or a control word): chapter prose may precede us
+% without a blank line, and stray end-of-line spaces would land in that
+% paragraph (or in the name line) as glue.
+\newcommand{\kactlimport}[2][]{% #1: extra preprocessor flags, #2: file name
+	\par
 	\if@nobreak\nobreak\else % directly after a heading: stay attached to it
-		\myneedspace{3\baselineskip}
+		\myneedspace{3\baselineskip}%
 		\penalty-100
 	\fi
-	{\large #2}
-	\immediate\write18{rm -f \@builddir/kactl.tmp} % Don't include old kactl.tmp on failure.
-	\immediate\write18{python3 content/tex/preprocessor.py -i "\@kactldir/#2" -o \@builddir/kactl.tmp #1}
-	\immediate\input{\@builddir/kactl.tmp}
+	\immediate\write18{rm -f \@builddir/kactl.tmp}% never \input a stale kactl.tmp
+	\immediate\write18{python3 content/tex/preprocessor.py -i "\@kactldir/#2" -o \@builddir/kactl.tmp #1}%
+	\input{\@builddir/kactl.tmp}%
 }
 
 \newcommand{\import}[1]{
@@ -382,75 +323,24 @@
 	\PackageError{kactlpkg}{#1}{}
 }
 
-\newcommand{\kactlwarning}[1]{
-	\PackageWarning{kactlpkg}{#1}
-}
-
-\newboolean{hasleftcaption}
-\newcommand{\leftcaption}[1]{
-	\def\@leftcaption{#1}
-	\setboolean{hasleftcaption}{true}
-}
-\leftcaption{}
-\setboolean{hasleftcaption}{false}
-
-\newcommand{\rightcaption}[1]{
-	\def\@rightcaption{#1}
-}
-\rightcaption{}
-
-\newboolean{hasdescription}
-\newcommand{\defdescription}[1]{
-	\def\@defdescription{#1}
-	\setboolean{hasdescription}{true}
-}
-\defdescription{}
-\setboolean{hasdescription}{false}
-
-\newboolean{hasusage}
-\newcommand{\defusage}[1]{
-	\def\@defusage{\texttt{#1}}
-	\setboolean{hasusage}{true}
-}
-\defusage{}
-\setboolean{hasusage}{false}
-
-\newboolean{hastime}
-\newcommand{\deftime}[1]{
-	\def\@deftime{#1}
-	\setboolean{hastime}{true}
-}
-\deftime{}
-\setboolean{hastime}{false}
-
-\newboolean{hasmemory}
-\newcommand{\defmemory}[1]{
-	\def\@defmemory{#1}
-	\setboolean{hasmemory}{true}
-}
-\defmemory{}
-\setboolean{hasmemory}{false}
-
-
-\newcommand{\codeheader}[2]{
-	{\par\noindent\footnotesize{\textbf{#1:} #2\par}}
-}
-
-% The tiny hash caption shares the last header line when it fits and
-% wraps to its own right-aligned line when it doesn't (no more overlap).
-\long\def\@makecaption#1#2{
-	\vspace{-3pt}
-	{\par\noindent\footnotesize\interlinepenalty\@M
-	\def\@chsep{}
-	\ifthenelse{\boolean{hasdescription}}{\@chsep\textbf{Description:} \@defdescription\def\@chsep{\\}}{}
-	\ifthenelse{\boolean{hasusage}}{\@chsep\textbf{Usage:} \@defusage\def\@chsep{\\}}{}
-	\ifthenelse{\boolean{hasmemory}}{\@chsep\textbf{Memory:} \@defmemory\def\@chsep{\\}}{}
-	\ifthenelse{\boolean{hastime}}{\@chsep\textbf{Time:} \@deftime\def\@chsep{\\}}{}
-	\unskip\nobreak\hfil\penalty50\hskip1em\hbox{}\nobreak\hfil
-	{\tiny\texttt{\@leftcaption}\enspace\@rightcaption}%
-	\parfillskip=0pt \finalhyphendemerits=0 \par}
+% One template, as emitted by the preprocessor:
+%   \kactlname{Foo.h} \kactlref{Foo.h} \kactlheader{block}{includes}{hash}
+%   \begin{lstlisting}...\end{lstlisting}
+% The block is "\textbf{Description:} ... \\ \textbf{Time:} ...", already
+% escaped. The tiny caption shares the block's last line when it fits and
+% takes its own right-aligned line when it does not.
+\newcommand{\kactlname}[1]{{\large #1}\par\nobreak}% \par outside the group: \large must not set the line's leading
+\newcommand{\kactlheader}[3]{%
+	% \@parboxrestore: the block is justified and \\ breaks a line inside it,
+	% i.e. the document's \raggedright does not apply here (listings used to
+	% do exactly this when the block rode on its caption mechanism).
+	{\par\@parboxrestore\footnotesize\interlinepenalty\@M\noindent
+	\if\relax\detokenize{#1}\relax\else % raw listings have no block at all
+		#1\unskip\nobreak\hfil\penalty50\hskip1em\hbox{}\nobreak
+	\fi
+	\hfil{\tiny\texttt{#2}\enspace#3}%
+	\parfillskip=0pt \finalhyphendemerits=0 \par}\nobreak
 }
 
 \newcommand{\bigo}[1] {\ensuremath{\mathcal{O} \left( #1 \right)}}
 
-\newcommand{\hardcolumnbreak}{\vfill\null\columnbreak}

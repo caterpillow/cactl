@@ -9,16 +9,15 @@
 \contest{\ }{\today}
 \enablecolors
 % Page margins: left, right, top, bottom (these are the defaults). Each side
-% is independent: e.g. \kactlmargins{1cm}{0.5cm}{1.0cm}{0.4cm} leaves room
-% on the left for staples. Keep top >= 1cm (the page header lives there).
-\kactlmargins{0.5cm}{0.5cm}{1.0cm}{0.4cm}
+% is independent: e.g. \kactlmargins{1cm}{0.5cm}{1.1cm}{0.4cm} leaves room
+% on the left for staples. Keep top >= 1.1cm: the page header hangs from it
+% and printers rarely reach closer than 4mm to the paper edge.
+\kactlmargins{0.5cm}{0.5cm}{1.1cm}{0.4cm}
 % Double-sided printing: extra room on the inner edge of every page instead.
 % \kactlbinding{5mm}
 
 \begin{document}
 	\maketeampage
-	% Small KACTL header on the first page:
-	% \maketitle{``One Last Time'' Edition}{\today}
 	\begin{multicols*}{3}
 	% Table of contents, without subsections:
 	\setcounter{tocdepth}{0}
@@ -35,11 +34,6 @@
 	\kactlchapter{strings}
 	\kactlchapter{heuristics}
 	\kactlchapter{various}
-	% \end{multicols*}
-
-	% \begin{multicols*}{3}
-	% \kactlchapter{appendix}
-	% \kactlchapter{test-session}
 	\end{multicols*}
 
 \end{document}
