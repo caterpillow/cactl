@@ -30,7 +30,7 @@ void fft(vt<C> &a) {
         R.resize(n); rt.resize(n);
         auto x = polar(1.0L, acos(-1.0L) / k);
         FOR (i, k, 2 * k) rt[i] = R[i] = i & 1 ? R[i / 2] * x : R[i / 2];
-    }
+    } // <hash>
     vi rev(n);
     F0R (i, n) rev[i] = (rev[i / 2] | (i & 1) << L) / 2;
     F0R (i, n) if (i < rev[i]) swap(a[i], a[rev[i]]);
@@ -42,7 +42,7 @@ void fft(vt<C> &a) {
             a[i + j + k] = a[i + j] - z;
             a[i + j] += z;
         }
-}
+} // <hash>
 vd conv(const vd &a, const vd &b) {
     if (a.empty() || b.empty()) return {};
     vd res(size(a) + size(b) - 1);

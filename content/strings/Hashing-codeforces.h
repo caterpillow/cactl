@@ -26,7 +26,7 @@ struct A {
     explicit operator ull() { return x ^ (ull) b << 21; }
     bool operator==(A o) const { return (ull) *this == (ull) o; }
     bool operator<(A o) const { return (ull) *this < (ull) o; }
-};
+}; // <hash>
 using H = A<1000000007, A<1000000009, unsigned>>;
 
 struct HashInterval {
@@ -40,7 +40,7 @@ struct HashInterval {
     H hashInterval(int a, int b) { // hash [a, b)
         return ha[b] - ha[a] * pw[b - a];
     }
-};
+}; // <hash>
 
 vt<H> getHashes(string& str, int length) {
     if (size(str) < length) return {};
@@ -52,7 +52,7 @@ vt<H> getHashes(string& str, int length) {
         ret.pb(h = h * C + str[i] - pw * str[i - length]);
     }
     return ret;
-}
+} // <hash>
 
 H hashString(string& s) {
     H h{}; for (char c : s) h = h * C + c; return h; }

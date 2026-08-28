@@ -26,7 +26,7 @@ struct SuffixTree {
             if (t[v][c] == -1) { t[v][c] = m; l[m] = i;
                 p[m++] = v; v = suf[v]; q = r[v]; goto suff; }
             v = t[v][c]; q = l[v];
-        }
+        } // <hash>
         if (q == -1 || c == toi(a[q])) q++; else {
             l[m + 1] = i; p[m + 1] = m; l[m] = l[v]; r[m] = q;
             p[m] = p[v]; t[m][c] = m + 1; t[m][toi(a[q])] = v;
@@ -36,7 +36,7 @@ struct SuffixTree {
             suf[m] = q == r[m] ? v : m + 2;
             q = r[v] - (q - r[m]); m += 2; goto suff;
         }
-    }
+    } // <hash>
 
     SuffixTree(string a, int alpha = 27) : a(a), A(alpha),
         t(max(2, 2 * size(a) + 1), vi(A, -1)), l(size(t)), r(size(t), size(a)),
@@ -45,7 +45,7 @@ struct SuffixTree {
         suf[0] = 1; l[0] = l[1] = -1;
         r[0] = r[1] = p[0] = p[1] = 0;
         F0R (i, size(a)) ukkadd(i, toi(a[i]));
-    }
+    } // <hash>
 
 	// Example: longest common substring as {length, start in s}; assumes a-z.
     pi best;

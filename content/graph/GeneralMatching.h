@@ -31,7 +31,7 @@ vt<pi> generalMatching(int N, vt<pi>& ed) {
                 mat[i][j] = r, mat[j][i] = (mod - r) % mod;
             }
         }
-    } while (matInv(A = mat) != M);
+    } while (matInv(A = mat) != M); // <hash>
 
     vi has(M, 1); vt<pi> ret;
     F0R (it, M / 2) {
@@ -40,7 +40,7 @@ vt<pi> generalMatching(int N, vt<pi>& ed) {
                 fi = i; fj = j; goto done;
         } assert(0); done:
         if (fj < N) ret.pb({fi, fj});
-        has[fi] = has[fj] = 0;
+        has[fi] = has[fj] = 0; // <hash>
         F0R (sw, 2) {
             ll a = mpow(A[fi][fj]);
             F0R (i, M) if (has[i] && A[i][fj]) {

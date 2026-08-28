@@ -22,7 +22,7 @@ vi min_smawk_rec(Fn& f, const vi &row, vi col) {
             f(row[size(red) - 1], c) < f(row[size(red) - 1], red.back()))
             red.pop_back();
         if (size(red) < n) red.pb(c);
-    }
+    } // <hash>
     col = move(red);
 
     vi odd;
@@ -36,7 +36,7 @@ vi min_smawk_rec(Fn& f, const vi &row, vi col) {
             j++;
             if (f(row[i], col[j]) < f(row[i], ans[i])) ans[i] = col[j];
         }
-    }
+    } // <hash>
     return ans;
 }
 template<class Fn>
@@ -44,7 +44,7 @@ vi min_smawk(Fn f, int r, int c) {
     vi row(r), col(c);
     iota(all(row), 0), iota(all(col), 0);
     return min_smawk_rec(f, row, col);
-}
+} // <hash>
 
 // Compute min plus convolution c[k] = min{i+j=k}(a[i]+b[j]) for convex b. O(N + M)
 template<class V>
@@ -60,7 +60,7 @@ vt<V> min_plus_smawk(const vt<V>& a, const vt<V>& b) {
     vt<V> d(n + m - 1);
     F0R (r, n + m - 1) d[r] = a[cols[r]] + b[r - cols[r]];
     return d;
-}
+} // <hash>
 
 // Compute min plus convolution c[k] = min{i+j=k}(a[i]+b[j]) for concave b. O(N log M + M)
 template<class V>
@@ -72,7 +72,7 @@ vt<V> min_plus_concave_one(const vt<V>& a, const vt<V>& b) {
         auto val = [&] (int j, int k) {
             if (rev) j = n - 1 - j, k = z - 1 - k;
             return a[j] + b[k - j];
-        };
+        }; // <hash>
 #define better(i,j,k) val(i,k) <= val(j,k)
         auto improve = [&] (int u, int v, int l, int r) {
             while (r - l > 1) {
@@ -88,7 +88,7 @@ vt<V> min_plus_concave_one(const vt<V>& a, const vt<V>& b) {
             if (i < n) {
                 int t = stk.empty() ? r - 1 : improve(stk.back()[0], i, k - 1, stk.back()[1]);
                 if (t >= k) stk.pb({i, t});
-            }
+            } // <hash>
             int out = rev ? z - 1 - k : k;
             c[out] = min(c[out], val(stk.back()[0], k));
             if (stk.back()[1] == k) stk.pop_back();

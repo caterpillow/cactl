@@ -18,7 +18,7 @@ struct Matching : vi {
     Matching(int n) : vi(n, -1), rank(n) {}
     bool add(vi vec) {
         adj.pb(std::move(vec));
-        low.pb(0), pos.pb(0), vis.pb(0);
+        low.pb(0), pos.pb(0), vis.pb(0); // <hash>
         if (size(adj.back())) {
             int i = k;
         nxt:
@@ -33,7 +33,7 @@ struct Matching : vi {
             }
         }
         return 0;
-    }
+    } // <hash>
     bool dfs(int v, int g) {
         if (vis[v] < k) vis[v] = k, seen.pb(v);
         while (low[v] < g) {

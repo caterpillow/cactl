@@ -21,7 +21,7 @@ struct HashInterval {
             pw[i + 1] = pw[i] * C;
         }
         ROF (i, 0, size(str)) rha[i] = rha[i + 1] * C + str[i] + 1;
-    }
+    } // <hash>
     H hash_interval(int l, int r) { // hash [l, r)
         return ha[r] - ha[l] * pw[r - l];
     }

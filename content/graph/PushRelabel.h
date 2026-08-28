@@ -28,7 +28,7 @@ struct PushRelabel {
         cur.resize(n);
         hs.resize(2 * n);
         h.resize(n);
-    }
+    } // <hash>
 
     void ae(int s, int t, flow_t cap, flow_t rcap = 0) {
         if (s == t) return;
@@ -43,7 +43,7 @@ struct PushRelabel {
         ec[e.to] += f;
         back.f -= f; back.c += f;
         ec[back.to] -= f;
-    }
+    } // <hash>
     flow_t calc(int s, int t) {
         int v = size(g);
         h[s] = v;
@@ -51,7 +51,7 @@ struct PushRelabel {
         vi co(2 * v);
         co[0] = v - 1;
         F0R (i, v) cur[i] = g[i].data();
-        for (auto &e : g[s]) add_flow(e, e.c);
+        for (auto &e : g[s]) add_flow(e, e.c); // <hash>
         if (size(hs[0]))
         for (int hi = 0; hi >= 0;) {
             int u = hs[hi].back();
@@ -66,7 +66,7 @@ struct PushRelabel {
                         F0R (i, v)
                             if (hi < h[i] && h[i] < v)
                                 --co[h[i]], h[i] = v + 1;
-                    hi = h[u];
+                    hi = h[u]; // <hash>
                 } else if (cur[u]->c && h[u] == h[cur[u]->to] + 1)
                     add_flow(*cur[u], min(ec[u], cur[u]->c));
                 else ++cur[u];

@@ -56,7 +56,7 @@ struct TwoSAT {
             adj[e.f ^ 1].pb(e.s);
             adj[e.s ^ 1].pb(e.f);
         }
-        SCC scc(2 * n, adj);
+        SCC scc(2 * n, adj); // <hash>
         reverse(all(scc.comps)); // reverse topo order
         for (int i = 0; i < 2 * n; i += 2)
             if (scc.comp[i] == scc.comp[i ^ 1]) return {};

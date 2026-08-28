@@ -26,7 +26,7 @@ struct LineContainer : multiset<Line, less<>> {
         if (x->m == y->m) x->p = x->c > y->c ? inf : -inf;
         else x->p = div(y->c - x->c, x->m - y->m);
         return x->p >= y->p;
-    }
+    } // <hash>
     void add(ll m, ll c) {
         auto z = insert({m, c, 0}), y = z++, x = y;
         while (isect(y, z)) z = erase(z);

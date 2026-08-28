@@ -27,7 +27,7 @@ struct NetworkSimplex {
     vt<Edge> edges;
     vi head, fa, fe, mark, cyc;
     vt<Cost> dual;
-    int ti;
+    int ti; // <hash>
 
     NetworkSimplex(int n)
             : head(n, 0), fa(n), fe(n), mark(n), cyc(n + 1), dual(n), ti(0) {
@@ -43,7 +43,7 @@ struct NetworkSimplex {
         edges.pb({head[v], u, 0, -cost});
         head[v] = e + 1;
         return e;
-    }
+    } // <hash>
 
     void init_tree(int x) {
         mark[x] = 1;
@@ -59,7 +59,7 @@ struct NetworkSimplex {
     Cost phi(int x) {
         if (mark[x] == ti) return dual[x];
         return mark[x] = ti, dual[x] = phi(fa[x]) - edges[fe[x]].cost;
-    }
+    } // <hash>
 
     void push_flow(int e, Cost &cost) {
         int pen = edges[e ^ 1].to, lca = edges[e].to;
@@ -77,7 +77,7 @@ struct NetworkSimplex {
             cyc[++clen] = fe[i] ^ 1;
             if (edges[fe[i] ^ 1].cap <= f)
                 f = edges[fe[e2 = i] ^ (path = 1)].cap;
-        }
+        } // <hash>
         cyc[++clen] = e;
 
         for (int i = 1; i <= clen; ++i) {
@@ -93,7 +93,7 @@ struct NetworkSimplex {
             swap(laste, fe[cur]);
             swap(last, fa[cur]); swap(last, cur);
         }
-    }
+    } // <hash>
 
     Cost compute() {
         Cost cost = 0;

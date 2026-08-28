@@ -28,7 +28,7 @@ struct PalTree {
     int getLink(int v) {
         while (s[size(s) - d[v].len - 2] != s.back()) v = d[v].link;
         return v;
-    }
+    } // <hash>
     void updAns() { // serial path has O(log n) vertices
         ans.pb({MOD, MOD});
         for (int v = last; d[v].len > 0; v = d[v].slink) {
@@ -41,7 +41,7 @@ struct PalTree {
             F0R (i, 2) ans.back()[i] = min(ans.back()[i],
                 d[v].seriesAns[i ^ 1] + 1);
         }
-    }
+    } // <hash>
     void addChar(char C) {
         s += C; int c = C-'a'; last = getLink(last);
         if (!d[last].to[c]) {

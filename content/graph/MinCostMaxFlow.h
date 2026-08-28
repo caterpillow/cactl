@@ -21,7 +21,7 @@ struct MCMF {
     vt<vt<edge>> ed;
     vi seen;
     vl dist, pi;
-    vt<edge*> par;
+    vt<edge*> par; // <hash>
 
     MCMF(int n) : n(n), ed(n), seen(n), dist(n), pi(n), par(n) {}
 
@@ -40,7 +40,7 @@ struct MCMF {
 
         __gnu_pbds::priority_queue<pair<ll, int>> q;
         vt<decltype(q)::point_iterator> its(n);
-        q.push({ 0, s });
+        q.push({ 0, s }); // <hash>
 
         while (!q.empty()) {
             s = q.top().second; q.pop();
@@ -58,7 +58,7 @@ struct MCMF {
             }
         }
         F0R (i, n) pi[i] = min(pi[i] + dist[i], INF);
-    }
+    } // <hash>
 
     pl maxflow(int s, int t) {
         ll totflow = 0, totcost = 0;

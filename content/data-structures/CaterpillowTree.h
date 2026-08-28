@@ -26,7 +26,7 @@ struct Tree {
             seg[d][x >> 6] |= 1ull << (x & 63);
             x >>= 6;
         }
-    }
+    } // <hash>
 
     void erase(int x) {
         ull b = 0;
@@ -36,7 +36,7 @@ struct Tree {
             x >>= 6;
             b = bool(seg[d][x]);
         }
-    }
+    } // <hash>
 
     int next(int x) {
         if (x >= sz) return sz;
@@ -50,7 +50,7 @@ struct Tree {
             x = (x >> 6) + 1;
             if (d == 0 || x >= (1 << (6 * d))) return sz;
             d--;
-        }
+        } // <hash>
         while (++d < depth) {
             x = (x << 6) + __builtin_ctzll(seg[d][x]);
         }
@@ -69,7 +69,7 @@ struct Tree {
             x = (x >> 6) - 1;
             if (d == 0 || x == -1) return -1;
             d--;
-        }
+        } // <hash>
         while (++d < depth) {
             x = (x << 6) + 63 - __builtin_clzll(seg[d][x]);
         }
@@ -84,7 +84,7 @@ struct Tree {
             ans += __builtin_ctzll(seg[d][ans >> 6]);
         }
         return ans;
-    }
+    } // <hash>
 
     int max() {
         if (empty()) return -1;

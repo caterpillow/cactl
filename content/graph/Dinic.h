@@ -26,7 +26,7 @@ struct Dinic {
     void ae(int a, int b, ll c, ll rcap = 0) {
         adj[a].pb({b, size(adj[b]), c, c});
         adj[b].pb({a, size(adj[a]) - 1, rcap, rcap});
-    }
+    } // <hash>
     ll dfs(int v, int t, ll f) {
         if (v == t || !f) return f;
         for (int& i = ptr[v]; i < size(adj[v]); i++) {
@@ -39,7 +39,7 @@ struct Dinic {
             }
         }
         return 0;
-    }
+    } // <hash>
     ll calc(int s, int t) {
         ll flow = 0; q[0] = s;
         F0R (L, 31) do { // 'int L = 30' maybe faster for random data

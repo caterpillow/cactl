@@ -23,7 +23,7 @@ struct AhoCorasick {
 		// (nmatches is optional)
         int back, next[alpha], start = -1, end = -1, nmatches = 0;
         Node(int v) { memset(next, v, sizeof(next)); }
-    };
+    }; // <hash>
     vt<Node> N;
     vi backp;
     void insert(string& s, int j) {
@@ -33,7 +33,7 @@ struct AhoCorasick {
             int& m = N[n].next[c - first];
             if (m == -1) { n = m = size(N); N.emplace_back(-1); }
             else n = m;
-        }
+        } // <hash>
         if (N[n].end == -1) N[n].start = j;
         backp.pb(N[n].end);
         N[n].end = j;
@@ -42,7 +42,7 @@ struct AhoCorasick {
     AhoCorasick(vt<string>& pat) : N(1, -1) {
         F0R (i, size(pat)) insert(pat[i], i);
         N[0].back = size(N);
-        N.emplace_back(0);
+        N.emplace_back(0); // <hash>
 
         queue<int> q;
         for (q.push(0); !q.empty(); q.pop()) {
@@ -58,7 +58,7 @@ struct AhoCorasick {
                     q.push(ed);
                 }
             }
-        }
+        } // <hash>
     }
     vi find(string word) {
         int n = 0;
@@ -69,7 +69,7 @@ struct AhoCorasick {
 			// count += N[n].nmatches;
         }
         return res;
-    }
+    } // <hash>
     vt<vi> findAll(vt<string>& pat, string word) {
         vi r = find(word);
         vt<vi> res(size(word));

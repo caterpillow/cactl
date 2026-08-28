@@ -29,7 +29,7 @@ struct DSU {
             weight[i] = pi{inf, -1};
         }
         shuffle(all(pri), mt19937(random_device{}()));
-    }
+    } // <hash>
 
     int parent(int u) {
         if (par[u] == u) return par[u];
@@ -42,7 +42,7 @@ struct DSU {
     int find(int u, int w = inf - 1) {
         while (weight[u].f <= w) u = parent(u);
         return u;
-    }
+    } // <hash>
 
     int connect(int v, int w = inf - 1) {
         while (weight[v].f <= w) {
@@ -60,7 +60,7 @@ struct DSU {
             swap(weight[v], w);
         }
         connect(u);
-    }
+    } // <hash>
 
     int max_edge(int u, int v) {
         if (find(u) != find(v)) return -1;
@@ -70,7 +70,7 @@ struct DSU {
             u = par[u];
         }
         return u;
-    }
+    } // <hash>
 
     void delete_edge(int v, int w) {
         while (par[v] != v) {
@@ -87,7 +87,7 @@ struct DSU {
     void delete_max_edge(int u, int v, int w) {
         delete_edge(u, w);
         delete_edge(v, w);
-    }
+    } // <hash>
 
     // return weight of deleted edge; {inf, -1} otherwise
     pi merge(int u, int v, pi w) {

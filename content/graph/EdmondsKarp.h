@@ -26,7 +26,7 @@ template<class T> T edmondsKarp(vt<unordered_map<int, T>>&
                     if (v == t) goto out;
                 }
             }
-        }
+        } // <hash>
         return flow;
     out:
         T inc = numeric_limits<T>::max();

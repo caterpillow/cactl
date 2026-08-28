@@ -26,7 +26,7 @@ struct SuffixAutomaton {
             pos.pb(pos[q]), isClone.pb(1);
             for (; ~p && nex[p][c] == q; p = lnk[p]) nex[p][c] = clone;
             return clone;
-        };
+        }; // <hash>
 		// if (nex[p].count(c)) return getNex();
 		// ^ need if adding > 1 string
         int cur = N++; // make new state
@@ -34,7 +34,7 @@ struct SuffixAutomaton {
         pos.pb(pos[p] + 1), isClone.pb(0);
         for (; ~p && !nex[p].count(c); p = lnk[p]) nex[p][c] = cur;
         int x = getNex(); lnk[cur] = x; return cur;
-    }
+    } // <hash>
     void init(string s) { int p = 0;
         for (auto& x : s) p = add(p, x); } /// add string to automaton
 	// inverse links
@@ -52,7 +52,7 @@ struct SuffixAutomaton {
         vi oc; getAllOccur(oc, cur);
         for (auto& t : oc) t += 1 - size(s);
         sort(all(oc)); return oc;
-    }
+    } // <hash>
     vl distinct;
     ll getDistinct(int x) {
 		// # distinct strings starting at state x
@@ -65,7 +65,7 @@ struct SuffixAutomaton {
     ll numDistinct2() { // assert(numDistinct()==numDistinct2());
         ll ans = 1; FOR (i, 1, N) ans += len[i] - len[lnk[i]];
         return ans; }
-};
+}; // <hash>
 
 SuffixAutomaton S;
 vi sa; string s;

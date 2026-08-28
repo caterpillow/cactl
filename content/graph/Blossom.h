@@ -18,7 +18,7 @@ struct Blossom {
         assert(u && v);
         edges.pb({he[u], v}); he[u] = size(edges) - 1;
         edges.pb({he[v], u}); he[v] = size(edges) - 1;
-    }
+    } // <hash>
     inline int get(int u) { return fa[u] == u ? u : fa[u] = get(fa[u]); }
     void aug(int u, int v) {
         for (int p; u; u = p, v = pre[p])
@@ -28,7 +28,7 @@ struct Blossom {
         n = _n, cnt = 0;
         edges.assign(1, {});
         vis = q = mate = col = fa = pre = he = vi(n + 1);
-    }
+    } // <hash>
     int lca(int u, int v) {
         for (cnt++; ; u = pre[mate[u]]) {
             if (v) swap(u, v);
@@ -41,7 +41,7 @@ struct Blossom {
             p = mate[u]; pre[u] = v; fa[u] = fa[p] = f;
             if (col[p] != 1) col[q[++t] = p] = 1;
         }
-    }
+    } // <hash>
     bool bfs(int u) {
         FOR (i, 1, n + 1) col[i] = 0, fa[i] = i;
         h = 0; q[t = 1] = u; col[u] = 1;
@@ -53,7 +53,7 @@ struct Blossom {
                     if (!mate[y]) { aug(y, x); return 1; }
                     pre[y] = x;
                     col[y] = 2;
-                    col[q[++t] = mate[y]] = 1;
+                    col[q[++t] = mate[y]] = 1; // <hash>
                 } else if (col[y] == 1 && get(x) != get(y)) {
                     int p = lca(x, y);
                     blo(x, y, p);

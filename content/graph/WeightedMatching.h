@@ -30,7 +30,7 @@ pair<ll, vi> hungarian(const vt<vl> &a) {
                 auto cur = a[i0 - 1][j - 1] - u[i0] - v[j];
                 if (cur < dist[j]) dist[j] = cur, pre[j] = j0;
                 if (dist[j] < delta) delta = dist[j], j1 = j;
-            }
+            } // <hash>
             F0R (j, m) {
                 if (done[j]) u[p[j]] += delta, v[j] -= delta;
                 else dist[j] -= delta;
