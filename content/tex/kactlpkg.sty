@@ -109,6 +109,13 @@
 	\geometry{left=#1,right=#2,top=#3,bottom=#4}
 	\fancyheadoffset{0pt}\fancyfootoffset{0pt} % re-sync \headwidth
 }
+% \kactlbinding{len}: extra room on the binding edge for double-sided
+% printing (inner edge of every page, alternating). For single-sided stapling
+% just give \kactlmargins a bigger left margin.
+\newcommand{\kactlbinding}[1]{
+	\geometry{twoside,bindingoffset=#1}
+	\fancyheadoffset{0pt}\fancyfootoffset{0pt}
+}
 
 \renewcommand\chapter{
 	\global\@topnum\z@
