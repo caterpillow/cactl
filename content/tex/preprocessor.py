@@ -124,27 +124,26 @@ def parse_include(line):
         return line[8:].strip()
     return None
 
-def addref(caption):
-    """The header mark for the name line, and the name for the page-header state."""
-    with open(HEADER_STATE, 'a', encoding='utf-8') as f:
-        f.write(caption + "\n")
-    return [r"\kactlref{%s}" % caption]
-
 def emit_template(caption, block, includes, hashcaption, listingslang, source):
-    """The LaTeX fragment for one template: header mark, the Description/Usage/
-    Time/Memory fields, the include list and the tiny hash caption, then the
-    listing."""
-    out = addref(caption)
-    for field, text in block:
-        out.append(r"\def%s{%s}" % (field.lower(), text))
-    if includes:
-        out.append(r"\leftcaption{%s}" % pathescape(", ".join(includes)))
-    if hashcaption:
-        out.append(r"\rightcaption{%s}" % hashcaption)
-    out.append(r"\begin{lstlisting}[caption={%s}, language=%s]" % (caption, listingslang))
-    out.append(source)
-    out.append(r"\end{lstlisting}")
-    return out
+    """The LaTeX fragment for one template: the name line, the page-header
+    mark, the Description/Usage/Time/Memory block (which ends with the tiny
+    "included files -- hash, N lines" caption), then the code listing."""
+    with open(HEADER_STATE, 'a', encoding='utf-8') as f:
+        f.write(caption + "\n")          # page-header state, see print_header
+    return [
+        r"\kactlname{%s}" % pathescape(caption),
+        r"\kactlref{%s}" % caption,      # raw name: it is \detokenize'd into a mark
+        r"\kactlheader{%s}{%s}{%s}" % (
+            r"\\".join(r"\textbf{%s:} %s" % f for f in block),
+            pathescape(", ".join(includes)),
+            hashcaption),
+    ] + emit_listing(listingslang, source)
+
+# The one seam a different code renderer plugs into: everything above is
+# plain LaTeX, only this decides how the code itself is typeset.
+def emit_listing(listingslang, source):
+    return [r"\begin{lstlisting}[language=%s]" % listingslang, source,
+            r"\end{lstlisting}"]
 
 
 def processwithcomments(caption, text, listingslang):
@@ -239,7 +238,7 @@ def processwithcomments(caption, text, listingslang):
     if commands.get("Description"):
         block.append(("Description", escape(commands["Description"])))
     if commands.get("Usage"):
-        block.append(("Usage", codeescape(commands["Usage"])))
+        block.append(("Usage", r"\texttt{%s}" % codeescape(commands["Usage"])))
     if commands.get("Time"):
         block.append(("Time", ordoescape(commands["Time"])))
     if commands.get("Memory"):

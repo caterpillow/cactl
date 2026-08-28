@@ -252,7 +252,7 @@
 \lstset{emptylines=*1}
 \lstset{inputencoding=utf8}
 \lstset{upquote=true} % straight ' in code, not a curly quoteright
-\lstset{aboveskip=3pt}
+\lstset{aboveskip=0pt}
 \lstset{belowskip=2pt}
 % Wrapped code lines never split across a column break.
 \lst@AddToHook{Init}{\interlinepenalty\@M}
@@ -299,16 +299,9 @@
 	\pagestyle{fancy}
 }
 
-\newcommand{\kactlref}[1]{
-	\ifthenelse{\boolean{appendixmode}}{}{
-		\ifnum \value{section} > 0
-			\addcontentsline{ptc}{subsection}{\texttt{#1}\hspace{0.2em}}
-		\else
-			\addcontentsline{ptc}{section}{\texttt{#1}\hspace{0.2em}}
-		\fi
-	}
-	\marks\hdrmark{\detokenize{#1}}% literal text, so escaped names (\_) round-trip through \write18
-}
+% The name for this page's header list. \detokenize: literal text, so the
+% name survives the trip through \write18 and header.tmp unexpanded.
+\newcommand{\kactlref}[1]{\marks\hdrmark{\detokenize{#1}}}
 
 % Like \needspace, except with flush bottoms.
 \newcommand{\myneedspace}[1]{%
@@ -326,17 +319,10 @@
 % paragraph (or in the name line) as glue.
 \newcommand{\kactlimport}[2][]{% #1: extra preprocessor flags, #2: file name
 	\par
-	\leftcaption{}\rightcaption{}%
-	\setboolean{hasdescription}{false}%
-	\setboolean{hasusage}{false}%
-	\setboolean{hastime}{false}%
-	\setboolean{hasmemory}{false}%
-	\setboolean{hasleftcaption}{false}%
 	\if@nobreak\nobreak\else % directly after a heading: stay attached to it
 		\myneedspace{3\baselineskip}%
 		\penalty-100
 	\fi
-	{\large #2}%
 	\immediate\write18{rm -f \@builddir/kactl.tmp}% never \input a stale kactl.tmp
 	\immediate\write18{python3 content/tex/preprocessor.py -i "\@kactldir/#2" -o \@builddir/kactl.tmp #1}%
 	\input{\@builddir/kactl.tmp}%
@@ -362,67 +348,24 @@
 	\PackageError{kactlpkg}{#1}{}
 }
 
-\newboolean{hasleftcaption}
-\newcommand{\leftcaption}[1]{
-	\def\@leftcaption{#1}
-	\setboolean{hasleftcaption}{true}
-}
-\leftcaption{}
-\setboolean{hasleftcaption}{false}
-
-\newcommand{\rightcaption}[1]{
-	\def\@rightcaption{#1}
-}
-\rightcaption{}
-
-\newboolean{hasdescription}
-\newcommand{\defdescription}[1]{
-	\def\@defdescription{#1}
-	\setboolean{hasdescription}{true}
-}
-\defdescription{}
-\setboolean{hasdescription}{false}
-
-\newboolean{hasusage}
-\newcommand{\defusage}[1]{
-	\def\@defusage{\texttt{#1}}
-	\setboolean{hasusage}{true}
-}
-\defusage{}
-\setboolean{hasusage}{false}
-
-\newboolean{hastime}
-\newcommand{\deftime}[1]{
-	\def\@deftime{#1}
-	\setboolean{hastime}{true}
-}
-\deftime{}
-\setboolean{hastime}{false}
-
-\newboolean{hasmemory}
-\newcommand{\defmemory}[1]{
-	\def\@defmemory{#1}
-	\setboolean{hasmemory}{true}
-}
-\defmemory{}
-\setboolean{hasmemory}{false}
-
-
-% The tiny hash caption shares the last header line when it fits and
-% wraps to its own right-aligned line when it doesn't (no more overlap).
-\long\def\@makecaption#1#2{
-	\vspace{-3pt}
-	{\par\noindent\footnotesize\interlinepenalty\@M
-	\def\@chsep{}
-	\ifthenelse{\boolean{hasdescription}}{\@chsep\textbf{Description:} \@defdescription\def\@chsep{\\}}{}
-	\ifthenelse{\boolean{hasusage}}{\@chsep\textbf{Usage:} \@defusage\def\@chsep{\\}}{}
-	\ifthenelse{\boolean{hasmemory}}{\@chsep\textbf{Memory:} \@defmemory\def\@chsep{\\}}{}
-	\ifthenelse{\boolean{hastime}}{\@chsep\textbf{Time:} \@deftime\def\@chsep{\\}}{}
-	\unskip\nobreak\hfil\penalty50\hskip1em\hbox{}\nobreak\hfil
-	{\tiny\texttt{\@leftcaption}\enspace\@rightcaption}%
-	\parfillskip=0pt \finalhyphendemerits=0 \par}
+% One template, as emitted by the preprocessor:
+%   \kactlname{Foo.h} \kactlref{Foo.h} \kactlheader{block}{includes}{hash}
+%   \begin{lstlisting}...\end{lstlisting}
+% The block is "\textbf{Description:} ... \\ \textbf{Time:} ...", already
+% escaped. The tiny caption shares the block's last line when it fits and
+% takes its own right-aligned line when it does not.
+\newcommand{\kactlname}[1]{{\large #1}\par\nobreak}% \par outside the group: \large must not set the line's leading
+\newcommand{\kactlheader}[3]{%
+	% \@parboxrestore: the block is justified and \\ breaks a line inside it,
+	% i.e. the document's \raggedright does not apply here (listings used to
+	% do exactly this when the block rode on its caption mechanism).
+	{\par\@parboxrestore\footnotesize\interlinepenalty\@M\noindent
+	\if\relax\detokenize{#1}\relax\else % raw listings have no block at all
+		#1\unskip\nobreak\hfil\penalty50\hskip1em\hbox{}\nobreak
+	\fi
+	\hfil{\tiny\texttt{#2}\enspace#3}%
+	\parfillskip=0pt \finalhyphendemerits=0 \par}\nobreak
 }
 
 \newcommand{\bigo}[1] {\ensuremath{\mathcal{O} \left( #1 \right)}}
 
-\newcommand{\hardcolumnbreak}{\vfill\null\columnbreak}
