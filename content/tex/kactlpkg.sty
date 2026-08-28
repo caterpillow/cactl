@@ -11,6 +11,7 @@
 \usepackage{fancyhdr}                   % Fancy headers
 \usepackage{amsbsy, amssymb, amsmath}   % Enable math symbols
 \usepackage{tocloft}                    % Custom Table of Contents
+\tocloftpagestyle{fancy}                % tocloft would otherwise force `plain` on the TOC page
 \usepackage{titletoc}                   % Design control over Table of Contents
 \usepackage{ifthen}                     % To enable some conditional programming in LaTeX
 \usepackage[T1]{fontenc}
@@ -201,7 +202,7 @@
 
 % Styles for main toc
 \renewcommand{\chaptermark}[1]{\markboth{\emph{ #1}}{}}
-\renewcommand{\cftbeforetoctitleskip}{-45pt}
+\renewcommand{\cftbeforetoctitleskip}{0pt} % -45pt (KTH) pulled "Contents" off the paper
 \renewcommand{\cftaftertoctitleskip}{10pt}
 \renewcommand{\cftbeforechapskip}{11pt}
 \renewcommand\cftchapfont{\large\bfseries}
