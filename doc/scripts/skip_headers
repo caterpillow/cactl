@@ -1,9 +1,48 @@
-SolveLinear2.h
-Unrolling.h
-MinCostMaxFlow.h
-DivideAndConquerDP.h
-ModInverse.h
-ModSqrt.h
-Hashing-codeforces.h
-NumberTheoreticTransform.h
-MoQueries.h
+# Headers that cannot be syntax-checked standalone (test-compiles.sh wraps each
+# header after content/contest/template.cpp).  One path per line, matched as a
+# fixed substring (grep -F) of "content/<chapter>/<Name>.h" -- always give the
+# full relative path (a bare "STL.h" would also skip BumpAllocatorSTL.h).
+# '#' starts a comment, blank lines are ignored (compile-all.sh strips both).
+# Nothing under content/ is patched to make it compile: if a header needs the
+# user to define something first, it belongs here.
+
+# --- Paste-into-main / fragment snippets: statements at namespace scope,
+#     "{ ... }" stubs, or replacement lines for another header ---
+content/number-theory/Sieve.h            # bare FOR loop at namespace scope
+content/graph/CentroidDecomp.h           # [&] lambdas at namespace scope
+content/geometry/AllPointPairs.h         # "cin >> n" at namespace scope; also needs Point's radial operator<
+content/various/STL.h                    # usage cheat-sheet with placeholder type T
+content/data-structures/MoQueries.h      # add/del/calc are "{ ... }" stubs
+content/numerical/SolveLinear2.h         # diff against SolveLinear.h, not a complete file
+content/various/Unrolling.h              # needs from/to in scope and F's "..." body filled in
+
+# --- Need something the user defines first (struct T, mod/MOD, array bound,
+#     globals, dp table); the header comment says what ---
+content/data-structures/SegmentTree.h    # struct T with operator+ and const T id
+content/graph/VirtualTree.h              # globals pos[] (dfs order) and lca(u, v)
+content/graph/DEsopoPape.h               # global int n
+content/graph/KthWalk.h                  # array bound MX
+content/strings/PalTree.h                # MOD (the template defines neither MOD nor mod)
+content/numerical/IntDeterminant.h       # global ll mod, e.g. from number-theory/ModPow.h
+content/number-theory/ModInverse.h       # mod and LIM come from its commented "include-line"
+content/various/DivideAndConquerDP.h     # DP::f/store reference the user's dp/res tables
+content/geometry/ClosestPair.h           # non-template functions on P; Point.h has no global P ("using P = Point<ll>" is up to you)
+content/geometry/ConvexHull.h            # same: P is undefined outside struct Point
+content/geometry/SegmentDistance.h       # same: P is undefined outside struct Point
+content/geometry/InsidePolygon.h         # fails only through its #include of SegmentDistance.h
+
+# --- <bits/extc++.h> after the template: the function-like size(x) macro
+#     corrupts pb_ds's size() members (doc/audit-notes.md, Template gotchas) ---
+content/data-structures/HashMap.h
+content/data-structures/OrderStatisticTree.h
+content/heuristics/SimAnneal.h
+content/heuristics/BeamSearch.h          # also a complete program that re-#defines FOR/F0R/size
+content/graph/MinCostMaxFlow.h           # its extc++ include is a commented "include-line", so __gnu_pbds is undeclared
+
+# --- Complete programs with their own main() (clashes with template.cpp's) ---
+content/strings/SuffixAutomaton.h
+content/graph/LongestPath.h
+content/strings/Hashing-codeforces.h
+
+# --- Not C++ ---
+content/various/TestSession.h            # prose checklist

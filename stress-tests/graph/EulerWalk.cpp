@@ -1,129 +1,70 @@
+// Tests EulerWalk.h (Hierholzer dfs on globals adj/ret/used). Random small
+// directed and undirected multigraphs (self-loops allowed, half built from a
+// random walk so walks usually exist) are checked against Euler's condition
+// computed by brute force (degrees + weak connectivity). Exactly when a walk
+// must exist, reversed ret after dfs(start) must be a walk from start using
+// every edge once (and end at start when all degrees balance); otherwise the
+// output must not be one. Written by Claude (audit).
 #include "../utilities/template.h"
-
 #include "../../content/graph/EulerWalk.h"
 
-struct UF {
-	vi v;
-	UF(int n) : v(n, -1) {}
-	int find(int x) { return v[x] < 0 ? x : v[x] = find(v[x]); }
-	void join(int a, int b) {
-		a = find(a);
-		b = find(b);
-		if (a == b) return;
-		if (-v[a] < -v[b]) swap(a, b);
-		v[a] += v[b];
-		v[b] = a;
-	}
-};
-
-bool hasEulerWalk(vector<vector<pii>>& ed, int start, bool undir, bool cycle) {
-	int n = sz(ed);
-	int odd = 0;
-	bool anyEdges = false;
-	vi nins(n);
-	rep(i,0,n) {
-		for(auto &x: ed[i]) nins[x.first]++;
-	}
-	rep(i,0,n) {
-		if (!ed[i].empty()) anyEdges = true;
-		if (undir) {
-			assert(sz(ed[i]) == nins[i]);
-			int nout = 0;
-			for(auto &x: ed[i]) if (x.first != i) nout++;
-			if (i != start && nout % 2) odd++;
-		}
-		else {
-			if (nins[i] == sz(ed[i])) continue;
-			if (cycle) return false;
-			if (abs(nins[i] - sz(ed[i])) > 1) { return false; }
-			if (nins[i] < sz(ed[i]) && i != start) { return false; }
-		}
-	}
-	if (odd > !cycle) { return false; }
-	if (ed[start].empty() && anyEdges) { return false; }
-	UF uf(n);
-	rep(i,0,n) for(auto &x: ed[i]) uf.join(i, x.first);
-	int comp = 0;
-	rep(i,0,n) if (uf.find(i) == i) {
-		if (ed[i].empty()) continue;
-		comp++;
-	}
-	return comp <= 1;
-}
-
-vi eulerCycle(vector<vector<pii>>& gr, int nedges, int src=0) {
-	int n = sz(gr);
-	vi D(n), its(n), eu(nedges), ret, s = {src};
-	// D[src]++; // to allow Euler paths, not just cycles
-	while (!s.empty()) {
-		int x = s.back(), y, e, &it = its[x], end = sz(gr[x]);
-		if (it == end){ ret.push_back(x); s.pop_back(); continue; }
-		tie(y, e) = gr[x][it++];
-		if (!eu[e]) {
-			D[x]--, D[y]++;
-			eu[e] = 1; s.push_back(y);
-		}}
-	for(auto &x: D) if (x < 0 || sz(ret) != nedges+1) return {};
-	return {ret.rbegin(), ret.rend()};
-}
-
 int main() {
-	rep(cycle,0,2) rep(undir,0,2) {
-		rep(it,0,10000) {
-			int n = rand() % 10 + 1;
-			int m = rand() % 20;
-			int start = rand() % n;
-			vector<vector<pii>> ed(n);
-			map<pii, vi> allEds;
-			vector<pii> theEdges;
-			rep(i,0,m) {
-				int a = rand() % n;
-				int b = rand() % n;
-				ed[a].emplace_back(b, i);
-				allEds[pii(a, b)].push_back(i);
-				if (undir) {
-					ed[b].emplace_back(a, i);
-					allEds[pii(b, a)].push_back(i);
-				}
-				theEdges.emplace_back(a, b);
-			}
+	mt19937 rng(1234);
+	auto rnd = [&](int k) { return (int) (rng() % k); };
+	F0R(it, 40000) {
+		bool undir = rnd(2), big = it % 20 == 0;
+		n = rnd(big ? 40 : 8) + 1, m = rnd(big ? 150 : 12);
+		vt<pi> edges;
+		if (rnd(2)) { // random walk => a trail exists by construction
+			int u = rnd(n);
+			F0R(i, m) { int v = rnd(n); edges.pb({u, v}); u = v; }
+		} else F0R(i, m) edges.pb({rnd(n), rnd(n)});
 
-			vi res = cycle ? eulerCycle(ed, m, start) : eulerWalk(ed, m, start);
-			if (0) {
-				cout << n << ' ' << m << ' ' << start << ' ' << undir << ' ' << cycle << endl;
-				rep(i,0,n) {
-					for(auto &x: ed[i]) cout << x.first << ' ';
-					cout << endl;
-				}
-				cout << "returned" << endl;
-				for(auto &x: res) cout << x << ' ';
-				cout << endl;
-				cout << "of length " << sz(res) << endl;
-			}
-
-			if (res.empty()) {
-				assert(!hasEulerWalk(ed, start, undir, cycle));
-			} else {
-				assert(hasEulerWalk(ed, start, undir, cycle));
-
-				assert(res[0] == start);
-				if (cycle) assert(res.back() == start);
-				int cur = start;
-				vi seenEdge(m);
-				rep(i,1,sz(res)) {
-					int x = res[i];
-					for(auto &eid: allEds[pii(cur, x)]) {
-						if (!seenEdge[eid]) {
-							seenEdge[eid] = 1;
-							goto ok;
-						}
-					}
-					assert(0); // no usable edge there
-ok:
-					cur = x;
-				}
-			}
+		// brute force: Euler's condition
+		vi in(n), out(n), par(n);
+		iota(all(par), 0);
+		auto find = [&](int x) { while (par[x] != x) x = par[x]; return x; };
+		for (auto [a, b] : edges) out[a]++, in[b]++, par[find(a)] = find(b);
+		int comps = 0, odd = 0, over = 0, start = -1;
+		F0R(i, n) {
+			if (in[i] + out[i] && find(i) == i) comps++;
+			int d = undir ? (in[i] + out[i]) % 2 : out[i] - in[i];
+			if (d == 1) start = i;
+			odd += d != 0, over += abs(d) > 1;
 		}
+		bool exists = comps <= 1 && odd <= 2 && !over, cycle = exists && !odd;
+		if (start < 0 || !odd) do start = rnd(n); while (m && !(in[start] + out[start]));
+
+		// run the header
+		adj.assign(n, {});
+		F0R(i, m) {
+			auto [a, b] = edges[i];
+			adj[a].pb({b, i});
+			if (undir) adj[b].pb({a, i});
+		}
+		F0R(i, n) shuffle(all(adj[i]), rng);
+		used.assign(m, 0), ret.clear();
+		dfs(start);
+		reverse(all(ret));
+
+		// validate the walk
+		auto valid = [&]() {
+			if (size(ret) != m + 1 || ret[0] != start || (cycle && ret.back() != start)) return false;
+			map<pi, vi> ids;
+			F0R(i, m) {
+				auto [a, b] = edges[i];
+				ids[{a, b}].pb(i);
+				if (undir) ids[{b, a}].pb(i);
+			}
+			vi seen(m);
+			F0R(i, m) {
+				bool ok = false;
+				for (int e : ids[{ret[i], ret[i + 1]}]) if (!seen[e]) { seen[e] = 1, ok = true; break; }
+				if (!ok) return false;
+			}
+			return true;
+		};
+		assert(valid() == exists);
 	}
 	cout << "Tests passed!" << endl;
 }

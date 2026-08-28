@@ -1,75 +1,65 @@
+// Delaunay triangulation vs brute force. Written by Claude (audit).
+// Random integer point sets in general position (no duplicate, collinear triple
+// or cocircular quadruple - all checked with exact integer arithmetic). Every
+// emitted triangle must be CCW with an exactly empty circumcircle, every point
+// must be used, #triangles must equal 2n - h - 2, and the triangle areas must
+// sum to the hull area (convex_hull + polygon_area). cc_center / cc_radius are
+// cross-checked against the exact in-circle test.
 #include "../utilities/template.h"
-
 #include "../../content/geometry/DelaunayTriangulation.h"
-#define ll double
+#include "../../content/geometry/circumcircle.h" // defines P = Point<db>
 #include "../../content/geometry/ConvexHull.h"
-#undef ll
 #include "../../content/geometry/PolygonArea.h"
-#include "../../content/geometry/circumcircle.h"
 
-typedef Point<double> P;
+// exact: > 0 iff d is strictly inside the circumcircle of CCW triangle (a,b,c)
+ll incircle(P a, P b, P c, P d) {
+    ll m[3][3];
+    P v[3] = {a - d, b - d, c - d};
+    F0R(i, 3) {
+        m[i][0] = (ll) v[i].x; m[i][1] = (ll) v[i].y;
+        m[i][2] = m[i][0] * m[i][0] + m[i][1] * m[i][1];
+    }
+    return m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1])
+         - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0])
+         + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
+}
+
 int main() {
-	feenableexcept(29);
-	rep(it,0,100000) {{
-		vector<P> ps;
-		int N = rand() % 20 + 1;
-		rep(i,0,N) {
-			ps.emplace_back(rand() % 100 - 50, rand() % 100 - 50);
-		}
-
-		auto coc = [&](int i, int j, int k, int l) {
-			double a = (ps[i] - ps[j]).dist();
-			double b = (ps[j] - ps[k]).dist();
-			double c = (ps[k] - ps[l]).dist();
-			double d = (ps[l] - ps[i]).dist();
-			double e = (ps[i] - ps[k]).dist();
-			double f = (ps[j] - ps[l]).dist();
-			double q = a*c + b*d - e*f;
-			return abs(q) < 1e-4;
-		};
-
-		rep(i,0,N) rep(j,0,i) rep(k,0,j) {
-			if (ps[i].cross(ps[j], ps[k]) == 0) {  goto fail; }
-		}
-		rep(i,0,N) rep(j,0,i) rep(k,0,j) rep(l,0,k) {
-			if (coc(i,j,k,l) || coc(i,j,l,k) || coc(i,l,j,k) || coc(i,l,k,j)) { goto fail; }
-		}
-
-		auto fail = [&]() {
-			cout << "Points:" << endl;
-			for(auto &p: ps) {
-				cout << p.x << ' ' << p.y << endl;
-			}
-
-			cout << "Triangles:" << endl;
-			delaunay(ps, [&](int i, int j, int k) {
-				cout << i << ' ' << j << ' ' << k << endl;
-			});
-
-			abort();
-		};
-
-		double sumar = 0;
-		vi used(N);
-		delaunay(ps, [&](int i, int j, int k) {
-			used[i] = used[j] = used[k] = 1;
-			double ar = ps[i].cross(ps[j], ps[k]);
-			if (ar < -1e-4) fail();
-			sumar += ar;
-			P c = ccCenter(ps[i], ps[j], ps[k]);
-			double ra = ccRadius(ps[i], ps[j], ps[k]);
-			rep(l,0,N) {
-				if ((ps[l] - c).dist() < ra - 1e-5) fail();
-			}
-		});
-		if (N >= 3) rep(i,0,N) if (!used[i]) fail();
-
-		vector<P> hull = convexHull(ps);
-		double ar2 = polygonArea2(hull);
-		if (abs(sumar - ar2) > 1e-4) fail();
-
-		continue; }
-fail:;
-	}
-	cout<<"Tests passed!"<<endl;
+    feenableexcept(29);
+    mt19937 rng(20260829);
+    auto rnd = [&](int n) { return (int) (rng() % (unsigned) n); };
+    for (int done = 0; done < 20000;) {
+        int n = rnd(20) + 1;
+        vt<P> ps;
+        F0R(i, n) ps.pb(P{(db) (rnd(100) - 50), (db) (rnd(100) - 50)});
+        bool bad = false;
+        F0R(i, n) F0R(j, i) if (ps[i] == ps[j]) bad = true;
+        F0R(i, n) F0R(j, i) F0R(k, j)
+            if (ps[i].cross(ps[j], ps[k]) == 0) bad = true;
+        F0R(i, n) F0R(j, i) F0R(k, j) F0R(l, k)
+            if (incircle(ps[i], ps[j], ps[k], ps[l]) == 0) bad = true;
+        if (bad) continue;
+        done++;
+        db sumar = 0; int cnt = 0; vi used(n);
+        delaunay(ps, [&](int i, int j, int k) {
+            cnt++; used[i] = used[j] = used[k] = 1;
+            db ar = ps[i].cross(ps[j], ps[k]);
+            assert(ar > 0); // CCW
+            sumar += ar;
+            P c = cc_center(ps[i], ps[j], ps[k]);
+            db r = cc_radius(ps[i], ps[j], ps[k]);
+            for (int v : {i, j, k}) assert(abs((ps[v] - c).dist() - r) < 1e-6);
+            F0R(l, n) if (l != i && l != j && l != k) {
+                assert(incircle(ps[i], ps[j], ps[k], ps[l]) < 0);
+                assert((ps[l] - c).dist() > r - 1e-6);
+            }
+        });
+        vt<P> hull = convex_hull(ps);
+        if (n >= 3) {
+            F0R(i, n) assert(used[i]);
+            assert(cnt == 2 * n - size(hull) - 2);
+        } else assert(cnt == 0);
+        assert(abs(sumar - polygon_area(hull)) < 0.5); // both exact integers
+    }
+    cout << "Tests passed!" << endl;
 }

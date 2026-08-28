@@ -5,7 +5,12 @@ DIR=${1:-.}
 g++ -Wall -Wfatal-errors -Wconversion -std=c++17 -O2 $DIR/stress-tests/utilities/template.h
 trap "rm -f $DIR/stress-tests/utilities/template.h.gch" EXIT
 
-tests="$(find $DIR/stress-tests -name '*.cpp')"
+# Helper programs (generators, brute-force reference solutions, anything in a
+# helpers/ subdirectory) are not self-checking tests and are not run.
+helper=( '(' -path '*/helpers/*' -o -name 'gen.cpp' -o -iname '*brute.cpp' ')' )
+echo "helpers (not run): "
+find $DIR/stress-tests -name '*.cpp' "${helper[@]}" | sort
+tests="$(find $DIR/stress-tests -name '*.cpp' -not "${helper[@]}" | sort)"
 declare -i pass=0
 declare -i fail=0
 failTests=""
@@ -13,7 +18,8 @@ ulimit -s 524288 # For 2-sat test
 for test in $tests; do
     echo "$(basename $test): "
     start=`date +%s.%N`
-    g++ -Wall -Wfatal-errors -Wconversion -std=c++17 -O2 $test && ./a.out
+    # stdin is closed so a test that reads input fails instead of hanging
+    g++ -Wall -Wfatal-errors -Wconversion -std=c++17 -O2 $test && ./a.out </dev/null
     retCode=$?
     if (($retCode != 0)); then
         echo "Failed with $retCode"

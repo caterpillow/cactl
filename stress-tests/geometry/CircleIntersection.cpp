@@ -1,64 +1,44 @@
+// CircleIntersection.h: random circles with integer centres and half-integer
+// radii (so r^2 and d^2 are exact). Checks the intersect/no-intersect verdict
+// against the exact predicate (r1-r2)^2 <= d^2 <= (r1+r2)^2, that both returned
+// points lie on both circles, that they are distinct exactly when the circles
+// are not tangent, the a == b case, and one hand-computed example.
+// Written by Claude (audit).
 #include "../utilities/template.h"
 
 #include "../../content/geometry/CircleIntersection.h"
 
 int main() {
-	cin.sync_with_stdio(0); cin.tie(0);
-	cin.exceptions(cin.failbit);
-	srand(2);
-	rep(it,0,100000) {
-		double rnd[6];
-		rep(i,0,6)
-			rnd[i] = rand() % 21 - 10;
-		P a(rnd[0], rnd[1]);
-		P b(rnd[2], rnd[3]);
-		double ra = rand() % 10;
-		double rb = rand() % 10;
-		if (a == b) continue;
-		pair<P, P> out;
-		bool ret = circleInter(a, b, ra, rb, &out);
-		if (ret) {
-			assert(abs((out.first - a).dist() - ra) < 1e-9);
-			assert(abs((out.second - a).dist() - ra) < 1e-9);
-			assert(abs((out.first - b).dist() - rb) < 1e-9);
-			assert(abs((out.second - b).dist() - rb) < 1e-9);
-		}
+	pair<P, P> out;
+	// known values: unit circles at (0,0) and (1,0) meet at (1/2, +-sqrt(3)/2)
+	assert(circle_inter(P{0, 0}, P{1, 0}, 1, 1, &out));
+	assert(abs(out.f.x - 0.5) < 1e-12 && abs(out.s.x - 0.5) < 1e-12);
+	assert(abs(abs(out.f.y) - sqrt(3) / 2) < 1e-12 && abs(out.f.y + out.s.y) < 1e-12);
 
-		// Hill-climb the answer
-		auto func = [&](P x) {
-			double d1 = (x - a).dist() - ra;
-			double d2 = (x - b).dist() - rb;
-			return d1*d1 + d2*d2;
-		};
-		P start = (a + b) / 2 + (a - b).perp();
-		pair<double, P> cur(func(start), start);
-		for (double jmp = 100; jmp > 1e-20; jmp /= 2) {
-			int iters = 0;
-			for (int imp = 1; imp--;) {
-				if (++iters == 100) goto skip;
-				rep(dx,-1,2) rep(dy,-1,2) {
-					P p = cur.second;
-					p.x += dx*jmp;
-					p.y += dy*jmp;
-					pair<double, P> np{func(p), p};
-					if (np < cur) cur = np, imp = 1;
-				}
-			}
+	mt19937 rng(2);
+	auto rnd = [&](int lo, int hi) { return (int)(rng() % (unsigned)(hi - lo + 1)) + lo; };
+	int proper = 0, tangent = 0;
+	F0R(it, 300000) {
+		P a{(db)rnd(-20, 20), (db)rnd(-20, 20)}, b{(db)rnd(-20, 20), (db)rnd(-20, 20)};
+		int k1 = rnd(0, 20), k2 = rnd(0, 20);
+		db r1 = k1 / 2.0, r2 = k2 / 2.0;
+		if (a == b) {
+			if (k1 == k2) continue; // header asserts on identical circles
+			assert(!circle_inter(a, b, r1, r2, &out));
+			continue;
 		}
-
-		if (abs((cur.second - a).dist() - ra) < 1e-9 &&
-		    abs((cur.second - b).dist() - rb) < 1e-9) {
-			assert(ret);
-			assert((out.first - cur.second).dist() < 1e-6 || (out.second - cur.second).dist() < 1e-6);
-		} else {
-			assert(!ret);
+		bool ret = circle_inter(a, b, r1, r2, &out);
+		ll d4 = 4 * (ll)(b - a).dist2(), lo = (ll)(k1 - k2) * (k1 - k2), hi = (ll)(k1 + k2) * (k1 + k2);
+		assert(ret == (lo <= d4 && d4 <= hi));
+		if (!ret) continue;
+		for (P p : {out.f, out.s}) {
+			assert(abs((p - a).dist() - r1) < 1e-9);
+			assert(abs((p - b).dist() - r2) < 1e-9);
 		}
-
-		// cerr << '.';
-		continue;
-skip:;
-		// Sometimes hill-climbing is slow, for some reason. :(
-		// cerr << '#';
+		db gap = (out.f - out.s).dist();
+		if (lo < d4 && d4 < hi) assert(gap > 1e-6), proper++;
+		else assert(gap < 1e-5), tangent++;
 	}
-	cout<<"Tests passed!"<<endl;
+	assert(proper > 10000 && tangent > 100);
+	cout << "Tests passed!" << endl;
 }

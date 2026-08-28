@@ -1,49 +1,48 @@
+// Tests ManhattanMST: candidate edge set (<= 4N edges, correct weights) yields
+// the same MST cost as O(N^2) Kruskal on all pairs; random points incl. heavy
+// duplicates/ties and near-limit coordinates. Written by Claude (audit).
 #include "../utilities/template.h"
+#undef sz // UnionFind.h has a member named sz
 
 #include "../../content/geometry/Point.h"
 #include "../../content/geometry/ManhattanMST.h"
 #include "../../content/data-structures/UnionFind.h"
 
+mt19937 rng(1337);
+int rnd(int lo, int hi) { return uniform_int_distribution<int>(lo, hi)(rng); }
 
-typedef Point<int> P;
-typedef int T;
-T rectilinear_mst_n(vector<P> ps) {
-	struct edge { int src, dst; T weight; };
-	vector<edge> edges;
+ll dist(P a, P b) { return abs((ll) a.x - b.x) + abs((ll) a.y - b.y); }
 
-	auto dist = [&](int i, int j) {
-		return abs((ps[i]-ps[j]).x) + abs((ps[i]-ps[j]).y);
-	};
-	for (int i = 0; i < sz(ps); ++i)
-		for (int j = i+1; j < sz(ps); ++j)
-			edges.push_back({i, j, dist(i,j)});
-	T cost = 0;
-	sort(all(edges), [](edge a, edge b) { return a.weight < b.weight; });
-	UF uf(sz(ps));
-	for (auto e: edges)
-		if (uf.join(e.src, e.dst))
-			cost += e.weight;
-	return cost;
+ll brute(const vt<P>& ps) {
+    int n = size(ps);
+    vt<pair<ll, pi>> es;
+    F0R (i, n) FOR (j, i + 1, n) es.pb({dist(ps[i], ps[j]), {i, j}});
+    sort(all(es));
+    UF uf(n);
+    ll cost = 0;
+    for (auto& e : es) if (uf.join(e.s.f, e.s.s)) cost += e.f;
+    return cost;
 }
 
-signed main() {
-		for (int t=0; t<10000; t++) {
-				const int max_coord = rand() % 300 + 1;
-				const int num_pts = rand() % 100;
-				vector<P> pts;
-				for (int i = 0; i < num_pts; ++i) {
-						int x = rand() % max_coord - max_coord / 2;
-						int y = rand() % max_coord - max_coord / 2;
-						pts.push_back(P(x,y));
-				}
-				auto edges = manhattanMST(pts);
-				assert(edges.size() <= 4*pts.size());
-				sort(all(edges));
-				UF uf(sz(pts));
-				int cost = 0, joined = 0;
-				for (auto e: edges) if (uf.join(e[1], e[2])) cost += e[0], joined++;
-				if (num_pts > 0) assert(joined == num_pts - 1);
-				assert(cost == rectilinear_mst_n(pts));
-		}
-		cout<<"Tests passed!"<<endl;
+int main() {
+    F0R (t, 6000) {
+        int c = t % 3 == 0 ? rnd(1, 4) : t % 3 == 1 ? rnd(1, 300) : rnd(1, 400000000);
+        int n = t % 5 == 4 ? rnd(0, 300) : rnd(0, 60);
+        if (c > 1000) n = min(n, 40);
+        vt<P> ps;
+        F0R (i, n) ps.pb(P{rnd(-c, c), rnd(-c, c)});
+        auto edges = manhattanMST(ps);
+        assert(size(edges) <= 4 * n);
+        sort(all(edges));
+        UF uf(n);
+        ll cost = 0;
+        int joined = 0;
+        for (auto& e : edges) {
+            assert(e[1] != e[2] && e[0] == dist(ps[e[1]], ps[e[2]]));
+            if (uf.join(e[1], e[2])) cost += e[0], joined++;
+        }
+        assert(joined == max(n - 1, 0));
+        assert(cost == brute(ps));
+    }
+    cout << "Tests passed!" << endl;
 }
