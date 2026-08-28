@@ -154,7 +154,7 @@ def processwithcomments(caption, text, listingslang):
     for line in text.splitlines():
         if 'exclude-line' in line:
             if '<hash>' in line:
-                errors.append("<hash> marker on an exclude-line (the line is not printed).")
+                errors.append("<hash> marker on an exclude-line (the line is not printed)")
             continue
         if 'include-line' in line:
             line = line.replace('// ', '', 1)
@@ -163,7 +163,7 @@ def processwithcomments(caption, text, listingslang):
         # Remove /// comments
         stripped = line.split("///")[0].rstrip()
         if had_comment and '<hash>' in line and '<hash>' not in stripped:
-            errors.append("<hash> marker inside a /// comment (it is not printed).")
+            errors.append("<hash> marker inside a /// comment (it is not printed)")
         line = stripped
         # Remove '#pragma once' lines
         if line == "#pragma once":
@@ -186,7 +186,7 @@ def processwithcomments(caption, text, listingslang):
         nsource = nsource.rstrip() + source[end:start]
         end = source.find(end_str, start2)
         if end < start:
-            errors.append("Invalid %s %s comments." % (source[start:start2], end_str))
+            errors.append("Invalid %s %s comments" % (source[start:start2], end_str))
             break
         comment = source[start2:end].strip()
         end += len(end_str)
@@ -207,7 +207,7 @@ def processwithcomments(caption, text, listingslang):
                     and cline[0].isupper() and not cline.startswith('::', ind)):
                 if command:
                     if command not in KNOWN_COMMANDS:
-                        errors.append("Unknown command: " + command + ".")
+                        errors.append("Unknown command: " + command)
                     commands[command] = value.lstrip()
                 command = cline[:ind]
                 value = cline[ind + 1:].strip()
@@ -215,19 +215,19 @@ def processwithcomments(caption, text, listingslang):
                 value = value + '\n' + cline
         if command:
             if command not in KNOWN_COMMANDS:
-                errors.append("Unknown command: " + command + ".")
+                errors.append("Unknown command: " + command)
             commands[command] = value.lstrip()
     for rcommand in sorted(set(REQUIRED_COMMANDS) - set(commands)):
-        errors.append("Missing command: " + rcommand + ".")
+        errors.append("Missing command: " + rcommand)
     if end >= 0:
         nsource = nsource.rstrip() + source[end:]
     nsource = nsource.strip()
 
     hashed = listingslang in ['C++', 'Java']
     if not hashed and '<hash>' in nsource:
-        errors.append("<hash> markers are only supported in C++/Java listings.")
+        errors.append("<hash> markers are only supported in C++/Java listings")
     if errors:
-        raise PreprocessorError(" ".join(errors))
+        raise PreprocessorError("; ".join(errors))
 
     if hashed:
         nsource = hashmarkers(nsource)
@@ -254,7 +254,7 @@ def processraw(caption, text, listingslang):
         # the headers, but no doc comment and no hash caption.
         source = tabify(hashmarkers(source))
     elif '<hash>' in source:
-        raise PreprocessorError("<hash> markers are only supported in C++/Java listings.")
+        raise PreprocessorError("<hash> markers are only supported in C++/Java listings")
     hashcaption = "%d lines" % len(source.split("\n")) if source else ""
     return emit_template(caption, [], [], hashcaption, listingslang, source)
 
