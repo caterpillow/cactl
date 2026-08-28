@@ -232,11 +232,17 @@ def print_header(data, outstream):
     header_length = len("".join(lines[:ind]))
     def adjust(name):
         return name if name.startswith('.') else name.split('.')[0]
-    output = r"\enspace{}".join(map(adjust, lines[:ind]))
-    output = r"\hspace{3mm}\textbf{" + output + "}"
+    names = list(map(adjust, lines[:ind]))
     if header_length > 110:
-        # shrink long lists so they never reach the side headers
-        output = r"\resizebox{\dimexpr\headwidth-12cm\relax}{!}{" + output + "}"
+        # Long lists wrap onto two centred lines (the header box is 25pt
+        # high) instead of being shrunk to an unreadable size; the box is
+        # narrower than \headwidth so it never reaches the side headers.
+        # (\enspace is a kern and never breaks, hence the \hspace.)
+        size = r"\small" if header_length <= 240 else r"\footnotesize"
+        output = (r"\parbox[b]{\dimexpr\headwidth-10cm\relax}{\centering"
+                  + size + r"\textbf{" + r"\hspace{.5em}".join(names) + "}}")
+    else:
+        output = r"\hspace{3mm}\textbf{" + r"\enspace{}".join(names) + "}"
     print(output, file=outstream)
     with open('header.tmp', 'w') as f:
         for line in lines[ind:]:

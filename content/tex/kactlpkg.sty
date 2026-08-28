@@ -102,6 +102,14 @@
 \fancyfootoffset{0pt}
 \setlength\headsep{5pt}
 
+% \kactlmargins{left}{right}{top}{bottom}: page margins for the A4 landscape
+% output (defaults 0.5cm 0.5cm 1.0cm 0.4cm). The page header (25pt + 5pt)
+% lives inside the top margin, so keep top >= 1cm.
+\newcommand{\kactlmargins}[4]{
+	\geometry{left=#1,right=#2,top=#3,bottom=#4}
+	\fancyheadoffset{0pt}\fancyfootoffset{0pt} % re-sync \headwidth
+}
+
 \renewcommand\chapter{
 	\global\@topnum\z@
 	\secdef

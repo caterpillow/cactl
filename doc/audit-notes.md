@@ -33,9 +33,13 @@ because none of this is obvious from the code alone.
 - `header.tmp` (the page-header state file) lives in the **repo root** (cwd of
   pdflatex), not `build/`. The cleanup hooks now remove the right file; if
   headers ever look wrong again, delete a stale `header.tmp` and rebuild.
-- Page-header file lists longer than ~110 chars are shrunk with `\resizebox`
-  so they can't collide with the team name (the old `\fontsize{8}{8}` had no
-  `\selectfont` and never actually did anything).
+- Page-header file lists longer than ~110 chars wrap onto two centred lines
+  (`\small`, `\footnotesize` beyond 240 chars) in a `\parbox` narrower than
+  `\headwidth`, so they neither shrink to nothing nor collide with the team
+  name / page number. Separator must be `\hspace`, not `\enspace` (a kern
+  never breaks). Margins: `\kactlmargins{l}{r}{t}{b}` in kactl.tex
+  (defaults 0.5cm 0.5cm 1.0cm 0.4cm; the 25pt+5pt header lives in the top
+  margin, keep top >= 1cm).
 - The tiny "hash, N lines" caption shares the Description/Time line only when
   it fits, else wraps to its own line (`\@makecaption` in kactlpkg.sty).
 - Preprocessor rules worth remembering: comment blocks must contain `Author:`
