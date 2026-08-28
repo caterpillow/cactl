@@ -14,7 +14,6 @@
 \usepackage{amssymb, amsmath}           % Enable math symbols (amsmath loads amsbsy)
 \usepackage{tocloft}                    % Custom Table of Contents
 \tocloftpagestyle{fancy}                % tocloft would otherwise force `plain` on the TOC page
-\usepackage{titletoc}                   % Design control over Table of Contents
 \usepackage{ifthen}                     % To enable some conditional programming in LaTeX
 \usepackage[T1]{fontenc}
 \usepackage[scaled=0.9]{DejaVuSansMono} % optional scale
@@ -128,28 +127,6 @@
 	\@schapter
 }
 
-% Don't add appendices to the Table of Contents
-% Currently, this disables parts of the local TOC for appendices chapters
-\newboolean{appendixmode}
-\setboolean{appendixmode}{false}
-\let\Oldaddtoc\addcontentsline
-\renewcommand{\addcontentsline}[3]{
-	\ifthenelse{
-		\boolean{appendixmode}\and\equal{#1}{toc}
-	}{}{\Oldaddtoc{#1}{#2}{#3}}
-}
-
-% Redefine appendix
-\renewcommand\appendix{
-	% Change chapter counter to A,B,C,...
-	\setcounter{tocdepth}{8}
-	\setcounter{chapter}{0}
-	\def\thechapter{\Alph{chapter}}
-	% Switch to appendixmode defined above (disables TOC entries)
-	\setboolean{appendixmode}{true}
-	\clearpage
-}
-
 % The whole notebook is set ragged-right on purpose: the body is three
 % narrow columns (~180pt, ~35 characters of prose), and justifying those
 % opens word gaps big enough to read as rivers. This used to happen by
@@ -170,8 +147,7 @@
 			{\huge\bfseries (\thechapter) \par\nobreak }
 		\fi
 	}
-	\startcontents[chapters]
-	\nobreak % its \write whatsits would make the next glue breakable
+	\nobreak % the chapter head keeps the first template of the chapter
 }
 
 \renewcommand\section{\@startsection {section}{1}{\z@}%
@@ -218,12 +194,6 @@
 \normalsize
 \smallskipamount=1\smallskipamount \medskipamount=1\medskipamount
 \bigskipamount=1\bigskipamount
-
-% Styles for local toc
-\titlecontents{localsection}[1.5em]{\small}{}
-	{\small}{\titlerule*[0.8em]{.}\contentspage}
-\titlecontents{localsubsection}[3.8em]{\small}{}
-	{\small}{\titlerule*[0.8em]{.}\contentspage}
 
 % Styles for main toc
 \renewcommand{\cftbeforetoctitleskip}{0pt} % -45pt (KTH) pulled "Contents" off the paper
