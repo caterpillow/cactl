@@ -201,8 +201,12 @@
 
 % Styles for main toc
 \renewcommand{\chaptermark}[1]{\markboth{\emph{ #1}}{}}
-\renewcommand{\cftbeforetoctitleskip}{-45pt}
-\renewcommand{\cftaftertoctitleskip}{10pt}
+% No "Contents" title: the chapter list speaks for itself and the title was
+% being pulled off the top of the page by the old -45pt skip.
+\renewcommand{\contentsname}{}
+\renewcommand{\cfttoctitlefont}{}
+\renewcommand{\cftbeforetoctitleskip}{-\baselineskip}
+\renewcommand{\cftaftertoctitleskip}{0pt}
 \renewcommand{\cftbeforechapskip}{11pt}
 \renewcommand\cftchapfont{\large\bfseries}
 \renewcommand{\cftdotsep}{4.5}
