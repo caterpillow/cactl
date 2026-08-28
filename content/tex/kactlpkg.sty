@@ -167,13 +167,26 @@
 	\clearpage
 }
 
+% The whole notebook is set ragged-right on purpose: the body is three
+% narrow columns (~180pt, ~35 characters of prose), and justifying those
+% opens word gaps big enough to read as rivers. This used to happen by
+% accident -- \@makechapterhead's \raggedright leaked out of the (unbraced)
+% chapter head into the rest of the document -- so it is stated here instead.
+% Side effect the content relies on: \raggedright makes \\ end the paragraph
+% (\@centercr), so a prose paragraph ending in \\ costs nothing.
+\AtBeginDocument{\raggedright}
+
+% Braced like report.cls's: the head's own \raggedright/\parindent/\let\\\@centercr
+% must not leak into the body (they used to, which is how the whole notebook
+% became ragged-right by accident -- it is now set that way on purpose above).
 \def\@makechapterhead#1{
 	\myneedspace{7\baselineskip}
-	\parindent \z@ \raggedright \normalfont
-	{\underline{\huge \bfseries #1} }
-	\ifnum \c@secnumdepth >\m@ne
-		{\huge\bfseries (\thechapter) \par\nobreak }
-	\fi
+	{\parindent \z@ \raggedright \normalfont
+		{\underline{\huge \bfseries #1} }
+		\ifnum \c@secnumdepth >\m@ne
+			{\huge\bfseries (\thechapter) \par\nobreak }
+		\fi
+	}
 	\startcontents[chapters]
 	\nobreak % its \write whatsits would make the next glue breakable
 }
