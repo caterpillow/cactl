@@ -1,7 +1,8 @@
-// Tests graph/Dijkstra.h (radix heap) against a
+// Tests graph/Dijkstra.h (pb_ds pairing heap with decrease-key) against a
 // plain O(V^2) Dijkstra on random graphs: connected and disconnected, zero
 // weights, multi-edges, self loops, and a stress of the modify() path.
 // written by Claude (audit)
+#include <bits/extc++.h>   // before size(x) exists, as in a real solution
 #include "../utilities/template.h"
 
 #include "../../content/graph/Dijkstra.h"
