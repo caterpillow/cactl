@@ -62,7 +62,7 @@
 
 % Remove temp files from old failed runs
 \AtBeginDocument{\immediate\write18{rm -f header.tmp}}
-\AtEndDocument{\immediate\write18{rm -f header.tmp}\immediate\write18{rm -f \@builddir/header2.tmp}\immediate\write18{rm -f \@builddir/kactl.tmp}}
+\AtEndDocument{\immediate\write18{rm -f header.tmp}\immediate\write18{rm -f \@builddir/header2.tmp}\immediate\write18{rm -f \@builddir/kactl.tmp \@builddir/kactl-code.tmp}}
 
 % Include a list of source files at the top of every page. TeX ships pages
 % asynchronously (noticeably so under multicol), so the names are recorded as
@@ -86,13 +86,21 @@
 	\ifthenelse{\equal{\@unishort}{ }\OR\equal{\@unishort}{}\OR\equal{\@teamname}{}}%
 		{\@unishort\@teamname}{\@unishort\ \textbar\ \@teamname}%
 }
+% Width of the centre header's file list when it wraps to two lines. It is a
+% length, not arithmetic in the generated header file: that file is \input
+% from the output routine, and a \dimexpr there printed "10cm" into the
+% header of any page whose break fell inside a minted listing.
+\newlength{\kactlheadlist}
+\newcommand{\kactl@synchead}{%
+	\fancyheadoffset{0pt}\fancyfootoffset{0pt}% re-sync \headwidth
+	\setlength{\kactlheadlist}{\headwidth}\addtolength{\kactlheadlist}{-10cm}%
+}
 \lhead{\@leftheadertext}
 \chead{\immediate\write18{rm -f \@builddir/header2.tmp}\immediate\write18{python3 content/tex/preprocessor.py --print-header "\kactl@hdrlast" -o \@builddir/header2.tmp}\input{\@builddir/header2.tmp}}
 \rhead{\thepage}
 %\lhead{}\chead{\thepage}\rhead{}
 \lfoot{}\cfoot{}\rfoot{}
-\fancyheadoffset{0pt}
-\fancyfootoffset{0pt}
+\kactl@synchead
 
 % \kactlmargins{left}{right}{top}{bottom}: page margins for the A4 landscape
 % output (defaults 0.5cm 0.5cm 1.1cm 0.4cm). The page header (a 25pt box plus
@@ -102,7 +110,7 @@
 % top < 27pt puts the header box itself above the paper.
 \newcommand{\kactlmargins}[4]{
 	\geometry{left=#1,right=#2,top=#3,bottom=#4}
-	\fancyheadoffset{0pt}\fancyfootoffset{0pt} % re-sync \headwidth
+	\kactl@synchead
 }
 % \kactlbinding{len}: extra room on the binding edge for double-sided
 % printing (inner edge of every page, alternating). For single-sided stapling
@@ -247,6 +255,24 @@
 
 \lstdefinelanguage{raw}{} % Raw language, no keywords.
 
+% Which renderer typesets the C++ listings.  \kactlhighlight{minted} -- the
+% one line in content/kactl.tex -- loads content/tex/kactlhl.sty (Pygments
+% syntax highlighting, colour palette at the top of that file) and tells the
+% preprocessor to hand the code over to it.  \kactlhighlight{listings} is the
+% fallback: the plain listings rendering, needing no Python packages, for a
+% machine without Pygments.  Everything that is not C++ -- .vimrc, hash.sh,
+% troubleshoot.txt -- stays on listings either way.
+\def\kactl@engineopt{}
+\newcommand{\kactlhighlight}[1]{%
+	\ifthenelse{\equal{#1}{minted}}%
+		{\def\kactl@engineopt{-e minted}\RequirePackage{kactlhl}}%
+		{\ifthenelse{\equal{#1}{listings}}{}%
+			{\kactlerror{\string\kactlhighlight: unknown renderer '#1' (minted or listings)}}}%
+}
+% Where the preprocessor leaves a listing's code for a renderer that reads it
+% from a file; listings is handed it inline instead, so only minted uses this.
+\newcommand{\kactlcodefile}{\@builddir/kactl-code.tmp}
+
 \setlength{\columnseprule}{0.5pt} % Multicol separation line with
 \setlength{\columnsep}{10pt} % Multicol separation margin
 \setcounter{tocdepth}{1} % Table of contents depth
@@ -298,8 +324,8 @@
 		\myneedspace{3\baselineskip}%
 		\penalty-100
 	\fi
-	\immediate\write18{rm -f \@builddir/kactl.tmp}% never \input a stale kactl.tmp
-	\immediate\write18{python3 content/tex/preprocessor.py -i "\@kactldir/#2" -o \@builddir/kactl.tmp #1}%
+	\immediate\write18{rm -f \@builddir/kactl.tmp \@builddir/kactl-code.tmp}% never typeset a stale one
+	\immediate\write18{python3 content/tex/preprocessor.py -i "\@kactldir/#2" -o \@builddir/kactl.tmp \kactl@engineopt\space#1}%
 	\input{\@builddir/kactl.tmp}%
 }
 

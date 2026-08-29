@@ -1,0 +1,217 @@
+% Syntax highlighting for the code listings, via Pygments (minted).
+% License: CC0
+%
+% Loaded by \kactlhighlight{minted} in content/kactl.tex; \kactlhighlight
+% {listings} never loads it, which is the fallback for a machine without
+% Pygments.  Only the C++ listings come through here -- .vimrc, hash.sh,
+% troubleshoot.txt and the other raw ones stay on listings, unchanged.
+%
+% Three pieces:
+%   content/tex/kactl_pygments.py  which word gets which class (the lexer),
+%                                  and a `pygmentize' shim, so nothing beyond
+%                                  the pygments Python module is needed
+%   this file                      the colours and the page layout
+%   build/_minted-kactl/           Pygments' output, cached per listing;
+%                                  `make clean' drops it
+\ProvidesPackage{kactlhl}
+\RequirePackage{etoolbox}
+\RequirePackage{xcolor}
+
+% ===========================================================================
+% THE PALETTE.  Edit a colour here, re-run `make fast', done: these override
+% whatever Pygments generated, so no cache purge is needed.
+%
+% To change *which words* get a class -- say to add a type alias, or to paint
+% the loop macros of your own template -- edit the vocabulary lists at the top
+% of content/tex/kactl_pygments.py (TYPE_ALIASES, LOOP_MACROS, UTIL_MACROS,
+% MEMBER_MACROS, CONSTANTS, STL_TYPES, CONTROL_FLOW) instead.  That is a
+% re-lex, not a recolour, so it needs `make clean' first: the cached listings
+% in build/_minted-kactl/ are keyed on the source, not on the lexer.
+%
+% Defaults are VS Code's "Light+" theme.
+% ===========================================================================
+\definecolor{hlText}{HTML}{000000}        % operators, punctuation, braces
+\definecolor{hlKeyword}{HTML}{0000FF}     % keyword: const static struct template using auto
+\definecolor{hlControl}{HTML}{AF00DB}     % control flow: if else for while return, FOR F0R ROF
+\definecolor{hlType}{HTML}{267F99}        % type: int ll vi, struct/typedef/STL names
+\definecolor{hlFunction}{HTML}{795E26}    % function call or definition
+\definecolor{hlVariable}{HTML}{001080}    % variable: every other identifier
+\definecolor{hlBuiltin}{HTML}{0000FF}     % macro: pb all size .f .s, true false nullptr
+\definecolor{hlConstant}{HTML}{0070C1}    % constant: inf INF mod LLONG_MAX
+\definecolor{hlNumber}{HTML}{098658}      % number literal
+\definecolor{hlString}{HTML}{A31515}      % string and character literal
+\definecolor{hlComment}{HTML}{008000}     % comment (set in italics, as before)
+\definecolor{hlPreproc}{HTML}{AF00DB}     % preprocessor: #include #define #pragma
+\definecolor{hlPreprocFile}{HTML}{A31515} % included file name: <bits/stdc++.h>
+
+% ===========================================================================
+% minted
+% ===========================================================================
+% outputdir must be pdflatex's -output-directory (Makefile: build/); minted
+% then writes its cache to build/_minted-kactl/.
+\RequirePackage[outputdir=build]{minted}
+% kactl_pygments.py doubles as a `pygmentize' that knows the lexer `kactlcpp'
+% and the style `kactlvscode'.  Path relative to pdflatex's cwd (the repo
+% root); the file has to be executable.
+\renewcommand{\MintedPygmentize}{content/tex/kactl_pygments.py}
+
+% Everything below reproduces what listings does, so that switching engines
+% does not move a single line: same font and size, same tab stops, same
+% wrapping, same top rule, same vertical spacing.
+%
+% The character grid.  listings sets every character in a cell exactly
+% \lst@basewidth = 0.6em wide (columns=[c]fixed, its default), while fvextra
+% just advances by the glyph's own width -- 0.60205em in DejaVu Sans Mono.
+% The 0.35% is invisible on one character, but across a 70-column line it
+% moves where long lines wrap, which cost a whole extra page.  So set the
+% code in a font scaled by exactly 0.6em/(glyph advance): same cell, same
+% wrap points, and no notebook-wide font change to argue about.
+\newdimen\kactl@codesize
+\newdimen\kactl@codeskip
+\begingroup
+	\footnotesize\ttfamily
+	\@tempdima=0.6\fontdimen6\font   % the cell listings uses
+	\setbox\z@\hbox{x}%              % the cell fvextra would use
+	\global\kactl@codeskip=\baselineskip
+	\global\kactl@codesize=\dimexpr\f@size\p@
+		*\numexpr\@tempdima\relax/\numexpr\wd\z@\relax\relax % exact in \dimexpr
+\endgroup
+
+\setminted{
+  style=kactlvscode,
+  fontsize={\fontsize{\the\kactl@codesize}{\the\kactl@codeskip}\selectfont},
+  tabsize=2,                   % lstset tabsize
+  obeytabs=true,               % ... which fancyvrb only honours with this
+  breaklines=true,             % lstset breaklines
+  breakindent=20pt,            % listings' breakindent/breakautoindent defaults
+  % Where a line may be broken.  listings prints a name or a number as one
+  % unit and can break either side of anything else, so it never splits an
+  % identifier; breakanywhere would, which fits more on a line and shifts the
+  % layout.  Give fvextra the same rule: break beside punctuation, not inside
+  % a word.  (These are every non-word ASCII character, TeX-escaped.)
+  breakbefore={!"\#\$\%\&'()*+\,-./:;<=>?[\\]\^`\{|\}\~},
+  breakafter={!"\#\$\%\&'()*+\,-./:;<=>?[\\]\^`\{|\}\~},
+  breakbeforeinrun=true,       % ... including between two of the same, as in <<
+  breakafterinrun=true,
+  breaksymbolleft={},          % no hookarrow on wrapped lines
+  breaksymbolindentleft=0pt,
+  breaksymbolsepleft=0pt,
+  frame=topline,               % lstset frame=t
+  framerule=0.4pt,             % listings' framerule/framesep defaults
+  framesep=3pt,
+  stripnl=true,
+}
+% fvextra marks a break with a small floor bracket by default; listings marks
+% nothing.
+\fvset{breakbeforesymbolpre={}, breakbeforesymbolpost={},
+       breakaftersymbolpre={}, breakaftersymbolpost={}}
+
+\makeatletter
+% Vertical spacing.  listings emits, in vertical mode:
+%     \par\nobreak \vspace{aboveskip=0pt} <top rule> <code> \vspace{belowskip=2pt}
+% so fancyvrb's own glue (its \vspace, and the list's \topsep/\partopsep/
+% \parskip) is zeroed here and the belowskip is put back in \kactlminted.
+% \hyphenpenalty: fvextra breaks a long line at punctuation, but TeX would
+% also hyphenate a long identifier (typename printed as "type-" / "name"),
+% i.e. code you cannot type back in.  Hyphenation discretionaries are the
+% ones charged \hyphenpenalty; fvextra's own carry an empty pre-break list
+% and are charged \exhyphenpenalty, so they still work.
+\fvset{vspace=0pt,
+  listparameters={\topsep\z@\partopsep\z@\parsep\z@\parskip\z@\hyphenpenalty\@M
+    \@beginparpenalty\@M\@endparpenalty-50 }}  % listings' \penalty-50 below
+% The top rule.  listings puts its rule box -- framerule high, framesep deep,
+% with the first code line hard against the box's baseline -- exactly
+% \lineskip below the header's last BASELINE.  fvextra instead gives the rule
+% ordinary interline glue and then kerns back half a \baselineskip, which
+% lands the rule, and with it every code line, about 1.2pt too high.  So take
+% fvextra's glue out on both sides of the rule and put listings' back.
+\def\kactl@frametop{%
+  \nobreak
+  \ifdim\prevdepth<-\p@\else\vskip-\prevdepth\fi % back up to the last baseline
+  \vskip\normallineskip
+  \nointerlineskip}
+\patchcmd{\FV@BeginListFrame@Lines}{\kern-0.5\baselineskip\relax}
+  {\nointerlineskip}{}
+  {\PackageError{kactlhl}{FV@BeginListFrame@Lines kern patch failed}{}}
+\patchcmd{\FV@BeginListFrame@Lines}{\FV@SingleFrameLine{\z@}}
+  {\kactl@frametop\FV@SingleFrameLine{\z@}}{}
+  {\PackageError{kactlhl}{FV@BeginListFrame@Lines rule patch failed}{}}
+
+% A wrapped code line.  fvextra sets one in a \parbox[t], so the box's height
+% is its FIRST line and all the rest is depth -- 10pt or more, well past
+% \maxdepth (4.5pt).  multicol splits columns with \splitmaxdepth=\maxdepth,
+% and TeX charges any excess depth to the column's height, so every wrapped
+% line made its column look ~6pt fuller than it is and the column stopped
+% early.  \parbox[b] gives the same box (fvextra stacks the lines with zero
+% glue, so nothing moves) with an ordinary one-line depth.
+\patchcmd{\FV@SaveLineBox}{\parbox[t]{\FV@LineWidth}}
+  {\parbox[b]{\FV@LineWidth}}{}
+  {\PackageError{kactlhl}{FV@SaveLineBox parbox patch failed}{}}
+
+% --- the palette, applied on top of the generated style ---------------------
+% minted (re)runs the generated kactlvscode.pygstyle before every listing; it
+% defines \PYG@tok@<name> per token class.  We append our own definitions so
+% the \definecolor's above win and the cache never has to be purged for a
+% colour change.  Pygments' LaTeX short names: k keyword (kd kr kc kn kp),
+% kControlFlow (added by our lexer), kt type, n name, nf function, nc class,
+% nn namespace, nb builtin, no constant, m* number, s* string, c* comment,
+% cp preprocessor, cpf included file, o operator, p punctuation, w whitespace.
+\newcommand{\kactl@tok}[2]{%
+  \@namedef{PYG@tok@#1}{\let\PYG@it=\relax\def\PYG@tc####1{\textcolor{#2}{####1}}}}
+\newcommand{\kactl@tokit}[2]{%
+  \@namedef{PYG@tok@#1}{\let\PYG@it=\textit\def\PYG@tc####1{\textcolor{#2}{####1}}}}
+\newcommand{\kactlhlpalette}{%
+  \kactl@tok{k}{hlKeyword}\kactl@tok{kd}{hlKeyword}\kactl@tok{kr}{hlKeyword}%
+  \kactl@tok{kc}{hlKeyword}\kactl@tok{kn}{hlKeyword}\kactl@tok{kp}{hlKeyword}%
+  \kactl@tok{kControlFlow}{hlControl}%
+  \kactl@tok{kt}{hlType}\kactl@tok{nc}{hlType}\kactl@tok{nn}{hlType}%
+  \kactl@tok{nf}{hlFunction}%
+  \kactl@tok{n}{hlVariable}\kactl@tok{nv}{hlVariable}\kactl@tok{na}{hlVariable}%
+  \kactl@tok{nl}{hlText}%
+  \kactl@tok{nb}{hlBuiltin}\kactl@tok{no}{hlConstant}%
+  \kactl@tok{m}{hlNumber}\kactl@tok{mi}{hlNumber}\kactl@tok{mf}{hlNumber}%
+  \kactl@tok{mh}{hlNumber}\kactl@tok{mb}{hlNumber}\kactl@tok{mo}{hlNumber}%
+  \kactl@tok{il}{hlNumber}%
+  \kactl@tok{s}{hlString}\kactl@tok{sc}{hlString}\kactl@tok{se}{hlString}%
+  \kactl@tok{sa}{hlString}\kactl@tok{s1}{hlString}\kactl@tok{s2}{hlString}%
+  \kactl@tok{dl}{hlString}\kactl@tok{sd}{hlString}%
+  \kactl@tokit{c}{hlComment}\kactl@tokit{c1}{hlComment}%
+  \kactl@tokit{cm}{hlComment}\kactl@tokit{cs}{hlComment}\kactl@tokit{ch}{hlComment}%
+  \kactl@tok{cp}{hlPreproc}\kactl@tok{cpf}{hlPreprocFile}%
+  \kactl@tok{o}{hlText}\kactl@tok{ow}{hlKeyword}\kactl@tok{p}{hlText}%
+  \kactl@tok{w}{hlText}\kactl@tok{err}{hlText}%
+}
+% Comment this line out to use the colours baked into kactl_pygments.py.
+\apptocmd{\minted@defstyle}{\kactlhlpalette}{}
+  {\PackageError{kactlhl}{minted@defstyle patch failed}{}}
+
+% --- \kactlminted ----------------------------------------------------------
+% What the preprocessor emits in place of a C++ listing once \kactlhighlight
+% has selected this engine: the code is waiting in \kactlcodefile, written a
+% moment ago by the same preprocessor run.  Every other language still emits
+% an lstlisting environment, so the raw .vimrc/hash.sh/troubleshoot.txt
+% listings never come through here.
+\newcommand{\kactlminted}{%
+	\begingroup
+		\parskip\z@
+		% listings fills a line to the last character that fits and breaks
+		% there.  fvextra offers both kinds of break, but a break at a space
+		% is free while its mid-word \discretionary costs \exhyphenpenalty, so
+		% TeX prefers the space and leaves the line short.  Price them the
+		% same and the greedy fill comes back.
+		\hyphenpenalty\z@ \exhyphenpenalty\z@
+		% Column breaks inside a listing.  fvextra sets all of a listing's
+		% lines as ONE paragraph, so the document's prose settings
+		% (\clubpenalty = \widowpenalty = infinite, kactlpkg.sty) would forbid
+		% a break after the first code line and before the last one, and a
+		% column would stop filling early.  listings gives every line its own
+		% paragraph and separately keeps a template's header with its first
+		% three code lines; eTeX's per-line penalties say exactly that.
+		\clubpenalties 3 \@M \@M \z@   % no break after code line 1 or 2
+		\widowpenalties 1 \z@          % nothing special at the last line
+		\interlinepenalty\z@
+		\inputminted{kactlcpp}{\kactlcodefile}%
+		\vskip 2pt          % listings belowskip
+	\endgroup
+}
+\makeatother

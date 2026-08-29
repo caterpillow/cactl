@@ -19,16 +19,29 @@ help:
 	@echo ""
 	@echo "For more information see the file 'doc/README'"
 
-fast: | build
+# Pygments' output is cached per listing in build/_minted-kactl/, keyed on the
+# listing's source and on the pygmentize command line -- but NOT on the lexer,
+# so an edit to content/tex/kactl_pygments.py would otherwise keep being served
+# from the stale cache.  This stamp drops the cache whenever the lexer changes;
+# the colour palette in content/tex/kactlhl.sty is applied in LaTeX and needs
+# no purge at all.
+MINTEDCACHE = build/_minted-kactl build/_minted-test-session
+
+build/lexer.stamp: content/tex/kactl_pygments.py | build
+	rm -rf $(MINTEDCACHE)
+	touch $@
+
+fast: build/lexer.stamp | build
 	$(LATEXCMD) content/kactl.tex
 	cp build/kactl.pdf kactl.pdf
 
-kactl: test-session.pdf | build
+kactl: test-session.pdf build/lexer.stamp | build
 	$(LATEXCMD) content/kactl.tex && $(LATEXCMD) content/kactl.tex
 	cp build/kactl.pdf kactl.pdf
 
 clean:
-	rm -f build/kactl.* build/test-session.* build/*.tmp header.tmp
+	rm -f build/kactl.* build/test-session.* build/*.tmp build/lexer.stamp header.tmp
+	rm -rf $(MINTEDCACHE)
 
 veryclean: clean
 	rm -f kactl.pdf test-session.pdf
@@ -44,7 +57,7 @@ test:
 test-compiles:
 	./doc/scripts/compile-all.sh .
 
-test-session.pdf: content/test-session/test-session.tex content/test-session/chapter.tex | build
+test-session.pdf: content/test-session/test-session.tex content/test-session/chapter.tex build/lexer.stamp | build
 	$(LATEXCMD) content/test-session/test-session.tex
 	cp build/test-session.pdf test-session.pdf
 

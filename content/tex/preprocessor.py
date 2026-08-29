@@ -18,6 +18,10 @@ import traceback
 
 HASH_SCRIPT = 'content/contest/hash.sh'   # printed in the notebook; typed on the judge
 HEADER_STATE = 'header.tmp'
+CODE_FILE = 'kactl-code.tmp'   # one listing's code, for a renderer that reads a file
+OUTDIR = 'build'               # directory of -o, i.e. kactlpkg.sty's \\@builddir
+ENGINES = ['listings', 'minted']   # -e; kactlpkg.sty's \\kactlhighlight picks one
+ENGINE = ENGINES[0]
 
 KNOWN_COMMANDS = ['Author', 'Date', 'Description', 'Source', 'Time', 'Memory',
                   'License', 'Status', 'Usage', 'Details']
@@ -139,9 +143,18 @@ def emit_template(caption, block, includes, hashcaption, listingslang, source):
             hashcaption),
     ] + emit_listing(listingslang, source)
 
-# The one seam a different code renderer plugs into: everything above is
-# plain LaTeX, only this decides how the code itself is typeset.
+# The one seam a different code renderer plugs into: everything above is plain
+# LaTeX, only this decides how the code itself is typeset.  \kactlhighlight in
+# content/kactl.tex picks the engine (kactlpkg.sty passes it here as -e).
+# minted takes only the C++ listings, and reads them from a file of their own,
+# which \kactlminted (content/tex/kactlhl.sty) hands to Pygments; everything
+# else -- .vimrc, hash.sh, and the whole listings engine -- gets the code
+# inline, exactly as before.
 def emit_listing(listingslang, source):
+    if ENGINE == 'minted' and listingslang == 'C++':
+        with open(os.path.join(OUTDIR, CODE_FILE), 'w', encoding='utf-8') as f:
+            f.write(source + "\n")
+        return [r"\kactlminted"]
     return [r"\begin{lstlisting}[language=%s]" % listingslang, source,
             r"\end{lstlisting}"]
 
@@ -298,7 +311,7 @@ def print_header(data):
         # unreadable size; the box is narrower than \headwidth so it never
         # reaches the side headers. (\enspace is a kern and never breaks,
         # hence the \hspace.)
-        output = (r"\parbox[b]{\dimexpr\headwidth-10cm\relax}{\centering"
+        output = (r"\parbox[b]{\kactlheadlist}{\centering"
                   r"\footnotesize\textbf{" + r"\hspace{.5em}".join(names) + "}}")
     else:
         output = r"\hspace{3mm}\textbf{" + r"\enspace{}".join(names) + "}"
@@ -309,9 +322,11 @@ def print_header(data):
 
 
 USAGE = """usage (from the repo root):
-  preprocessor.py -i <file> [-o <out.tex>] [-l <language>]
+  preprocessor.py -i <file> [-o <out.tex>] [-l <language>] [-e <engine>]
   preprocessor.py --print-header <mark> [-o <out.tex>]
-languages: %s (default: the file extension)""" % ", ".join(sorted(LANGUAGES))
+languages: %s (default: the file extension)
+engines:   %s (default: %s)""" % (", ".join(sorted(LANGUAGES)),
+                                 ", ".join(ENGINES), ENGINE)
 
 def write_output(outpath, text):
     if outpath:
@@ -323,11 +338,12 @@ def write_output(outpath, text):
 def main():
     language = None
     caption = None
+    engine = None
     inpath = None
     outpath = None
     header = None
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ho:i:l:", ["help", "output=", "input=", "language=", "print-header="])
+        opts, args = getopt.getopt(sys.argv[1:], "ho:i:l:e:", ["help", "output=", "input=", "language=", "engine=", "print-header="])
     except getopt.GetoptError as err:
         print(err, file=sys.stderr)
         print(USAGE, file=sys.stderr)
@@ -346,8 +362,19 @@ def main():
                 caption = value.rsplit('/', 1)[-1]
         if option in ("-l", "--language"):
             language = value
+        if option in ("-e", "--engine"):
+            engine = value
         if option == "--print-header":
             header = value
+
+    global OUTDIR, ENGINE
+    if outpath:
+        OUTDIR = os.path.dirname(outpath) or '.'
+    if engine is not None:
+        if engine not in ENGINES:
+            print("unknown engine '%s' (use %s)" % (engine, "|".join(ENGINES)), file=sys.stderr)
+            return 2
+        ENGINE = engine
 
     if header is not None:
         # The page header is \input on every page, so the file must always exist.
