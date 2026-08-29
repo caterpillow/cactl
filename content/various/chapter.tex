@@ -68,6 +68,7 @@
 		\item \texttt{\_\_float128}: 113-bit mantissa (\tilde{}34 digits), software emulated (libgcc calls, \tilde{}25$\times$ slower than \texttt{double}). Arithmetic and casts just work; \texttt{sqrtq}, \texttt{expq} and printing need \texttt{<quadmath.h>} + \texttt{-lquadmath}, so print via \texttt{(long double)} or peel digits manually.
 	\end{itemize}
 	\kactlimport{BigIntFixed.h}
+	\kactlimport{BigInt.h}
 
 \section{Other}
 	\kactlimport{GrayCode.h}
