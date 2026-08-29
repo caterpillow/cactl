@@ -1,7 +1,5 @@
-" :Hash the whole file, :1,.Hash up to the cursor (that matches a printed
-" // abc123 prefix marker), or select a region first. C++ only: cpp does
-" not know what a comment is in any other language.
-com! -range=% Hash <line1>,<line2>w !cpp -dD -P -fpreprocessed \| tr -d '[:space:]' \| md5sum \| cut -c-6
+" Select region and then type :Hash to hash your selection.
+ca Hash w !cpp -dD -P -fpreprocessed \| tr -d '[:space:]' \| md5sum \| cut -c-6
 
 set cin aw ai is et ts=4 sw=4 sts=4 ttm=50 nu noeb ru cul bs=2 mouse=a noswf
 sy on | ino <A-[> <Esc>
