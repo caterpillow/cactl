@@ -3,16 +3,9 @@
  * Date: 2026-08-29
  * License: CC0
  * Source: __gnu_pbds
- * Description: Shortest paths from s, non-negative weights. Decrease-key
- * keeps exactly one entry per vertex. Measured against a regular
- * \texttt{priority\_queue<pl, vt<pl>, greater<>>} that pushes on every
- * relaxation and skips stale entries when popped: 1.2--1.4x faster on
- * dense graphs and when a vertex is relaxed often, up to 1.4x slower on
- * sparse random and grid graphs. Against pushing every neighbour and
- * skipping a vertex only once it has been popped: 1.3--2x faster, and
- * 50--70x on a dense graph, where that version pushes every edge.
- * Unreachable vertices keep INF. The include must precede the template's
- * \texttt{size(x)} macro, which breaks extc++.
+ * Description: Decrease-key keeps exactly one entry per vertex. 
+ * 1.2--1.4x faster on dense graphs and when a vertex is relaxed often, 
+ * up to 1.4x slower on sparse random and grid graphs. 
  * Time: O(E + V \log V)
  * Status: stress-tested
  */

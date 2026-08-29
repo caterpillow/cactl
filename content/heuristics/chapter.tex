@@ -2,8 +2,8 @@
 
 \section{Tips}
 	\subsection{Simulated Annealing}
-	Default temperature schedule for SA: $t = t_0 * (\frac{t_n}{t_0})^{\text{time\_passed}}, \text{time\_passed} \in [0, 1]$
-	Acceptance function: $RNG() < exp((\text{cur} - \text{new}) / t)$
+	Default temperature schedule for SA: $t = t_0 \cdot (\frac{t_n}{t_0})^{\text{time\_passed}}, \text{time\_passed} \in [0, 1]$
+	Acceptance function: $RNG() < \operatorname{exp}((\text{cur} - \text{new}) / t)$
 	A good schedule should have a slowly decreasing acceptance rate. 
 	Priorities:
 	\begin{itemize}
