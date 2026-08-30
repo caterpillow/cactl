@@ -1,4 +1,4 @@
-// Tests BigIntFixed.h (BigF<N>, fixed-width unsigned, arithmetic mod 2^(64N)).
+// Tests BigIntFixed.h (BigF<N> : array<ull,N>, top limb first, mod 2^(64N)).
 // Two independent oracles: __uint128_t, which BigF<2> is bit-for-bit (so the
 // documented wraparound of both + and - is checked exactly), and a bit-by-bit
 // ripple-carry bitset<320> reference for BigF<5>. Covers carry/borrow chains
@@ -9,16 +9,21 @@
 #include "../utilities/template.h"
 #include "../../content/various/BigIntFixed.h"
 
+// limbs are stored most significant first now; L(a, i) is still limb i counted
+// from the bottom, so the tests below read the same as before
+template<int M> ull& L(BigF<M>& a, int i) { return a[M - 1 - i]; }
+template<int M> ull L(const BigF<M>& a, int i) { return a[M - 1 - i]; }
+
 mt19937_64 rng(20260829);
 int rnd(int n) { return (int) (rng() % (ull) n); }
 
 // ---------- oracle 1: BigF<2> is exactly __uint128_t ----------
 BigF<2> from128(u128 v) {
     BigF<2> a;
-    a.d[0] = (ull) v, a.d[1] = (ull) (v >> 64);
+    L(a, 0) = (ull) v, L(a, 1) = (ull) (v >> 64);
     return a;
 }
-u128 to128(const BigF<2>& a) { return (u128) a.d[1] << 64 | a.d[0]; }
+u128 to128(const BigF<2>& a) { return (u128) L(a, 1) << 64 | L(a, 0); }
 
 u128 rnd128() {
     switch (rnd(7)) {
@@ -64,7 +69,7 @@ using BS = bitset<W>;
 
 BS toBS(const BigF<K>& a) {
     BS r;
-    F0R (i, K) F0R (j, 64) if (a.d[i] >> j & 1) r[i * 64 + j] = 1;
+    F0R (i, K) F0R (j, 64) if (L(a, i) >> j & 1) r[i * 64 + j] = 1;
     return r;
 }
 BS addBS(BS a, const BS& b) {
@@ -94,9 +99,9 @@ BigF<K> rndBig() {
     BigF<K> a;
     int shape = rnd(4), len = rnd(K + 1);
     F0R (i, K) {
-        if (shape == 0) a.d[i] = rng();
-        else if (shape == 1) a.d[i] = rng() % 2 ? ~0ULL : 0;
-        else if (shape == 2) a.d[i] = i < len ? rng() : 0;
+        if (shape == 0) L(a, i) = rng();
+        else if (shape == 1) L(a, i) = rng() % 2 ? ~0ULL : 0;
+        else if (shape == 2) L(a, i) = i < len ? rng() : 0;
     }
     if (shape == 3) F0R (t, 3) a.set(rnd(W));   // a few sparse bits
     return a;
@@ -126,7 +131,7 @@ void testBS() {
 // ---------- boundaries, by hand ----------
 void testEdges() {
     BigF<K> zero, ones, one(1);
-    F0R (i, K) ones.d[i] = ~0ULL;
+    F0R (i, K) L(ones, i) = ~0ULL;
     assert(ones + one == zero);          // carry out of the top limb is lost
     assert(zero - one == ones);          // borrow out of the top limb is lost
     assert(zero < ones && !(ones < zero) && !(zero < zero));
@@ -136,10 +141,10 @@ void testEdges() {
     // a carry chain running out of limb i into limb i + 1
     F0R (i, K) {
         BigF<K> a;
-        F0R (j, i + 1) a.d[j] = ~0ULL;
+        F0R (j, i + 1) L(a, j) = ~0ULL;
         BigF<K> c = a + one;
-        F0R (j, i + 1) assert(c.d[j] == 0);
-        if (i + 1 < K) assert(c.d[i + 1] == 1);
+        F0R (j, i + 1) assert(L(c, j) == 0);
+        if (i + 1 < K) assert(L(c, i + 1) == 1);
         else assert(c == zero);
         assert(c - one == a);            // and the borrow chain back
     }
@@ -148,7 +153,7 @@ void testEdges() {
         BigF<K> a;
         assert(!a.bit(i));
         a.set(i);
-        assert(a.bit(i) && a.d[i / 64] == 1ULL << (i % 64));
+        assert(a.bit(i) && L(a, i / 64) == 1ULL << (i % 64));
         F0R (j, W) assert(a.bit(j) == (i == j));
         a.flip(i);
         assert(a == zero);
@@ -157,20 +162,20 @@ void testEdges() {
     }
     // comparison must look at the top limb first
     BigF<K> hi, lo;
-    hi.d[K - 1] = 1, lo.d[0] = ~0ULL;
+    L(hi, K - 1) = 1, L(lo, 0) = ~0ULL;
     assert(lo < hi && !(hi < lo));
     // 64-bit limb boundary: 2^64 - 1 plus 1
     BigF<K> big(~0ULL);
     big += BigF<K>(1);
-    assert(!big.bit(63) && big.bit(64) && big.d[0] == 0 && big.d[1] == 1);
+    assert(!big.bit(63) && big.bit(64) && L(big, 0) == 0 && L(big, 1) == 1);
     big -= BigF<K>(1);
-    assert(big.d[0] == ~0ULL && big.d[1] == 0);
+    assert(L(big, 0) == ~0ULL && L(big, 1) == 0);
     // widths other than 5
     BigF<1> u(~0ULL);
     assert(u + BigF<1>(1) == BigF<1>(0));
     BigF<9> w;
     w.set(64 * 9 - 1);
-    assert(w.bit(64 * 9 - 1) && w.d[8] == 1ULL << 63);
+    assert(w.bit(64 * 9 - 1) && L(w, 8) == 1ULL << 63);
     assert(BigF<9>(0) - w == w);          // 2^575 is its own negation
 }
 
