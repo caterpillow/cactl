@@ -1,70 +1,75 @@
-// Tests BigInt.h (Big, arbitrary-length unsigned, trimmed representation).
-// Two independent oracles: __uint128_t for values that fit in 128 bits, and a
-// bit-by-bit ripple-carry bitset<512> reference for long random sequences of
-// add / subtract / set / clear / flip / compare. Checks the no-leading-zero
-// invariant after every operation, comparison of different lengths, growth on
-// set and flip past the end, clearing past the end being a no-op, shrinking
-// when the top bit goes away, and bit indices at and beyond limb boundaries.
+// Tests BigInt.h (Big<N> : array<ull,N>, top limb first, mod 2^(64N)).
+// Two independent oracles: __uint128_t, which Big<2> is bit-for-bit (so the
+// documented wraparound of both + and - is checked exactly), and a bit-by-bit
+// ripple-carry bitset<320> reference for Big<5>. Covers carry/borrow chains
+// across every limb, subtraction that underflows, unsigned comparison of
+// values differing only in the top or only in the bottom limb, and
+// get/set/clear/flip at every bit index including limb boundaries.
 // written by Claude (audit)
 #include "../utilities/template.h"
 #include "../../content/various/BigInt.h"
 
+// limbs are stored most significant first now; L(a, i) is still limb i counted
+// from the bottom, so the tests below read the same as before
+template<int M> ull& L(Big<M>& a, int i) { return a[M - 1 - i]; }
+template<int M> ull L(const Big<M>& a, int i) { return a[M - 1 - i]; }
+
 mt19937_64 rng(20260829);
 int rnd(int n) { return (int) (rng() % (ull) n); }
 
-void inv(const Big& a) { assert(!size(a.d) || a.d.back()); }
-
-// ---------- oracle 1: __uint128_t, for values below 2^127 ----------
-Big from128(u128 v) {
-    Big a;
-    a.d = {(ull) v, (ull) (v >> 64)};
-    a.trim();
+// ---------- oracle 1: Big<2> is exactly __uint128_t ----------
+Big<2> from128(u128 v) {
+    Big<2> a;
+    L(a, 0) = (ull) v, L(a, 1) = (ull) (v >> 64);
     return a;
 }
-u128 to128(const Big& a) {
-    u128 v = 0;
-    ROF (i, 0, size(a.d)) v = v << 64 | a.d[i];
-    return v;
-}
-u128 rnd127() {
+u128 to128(const Big<2>& a) { return (u128) L(a, 1) << 64 | L(a, 0); }
+
+u128 rnd128() {
     switch (rnd(7)) {
         case 0: return 0;
         case 1: return 1;
-        case 2: return ~(u128) 0 >> 1;         // 2^127 - 1
-        case 3: return (u128) rng();           // one limb
-        case 4: return (u128) ~0ULL;           // limb of all ones
-        case 5: return (u128) rng() << 63;     // straddles the boundary
+        case 2: return ~(u128) 0;             // all ones
+        case 3: return (u128) rng();          // low limb only
+        case 4: return (u128) rng() << 64;    // high limb only
+        case 5: return (u128) rng() << 63;    // straddles the boundary
     }
-    return ((u128) rng() << 64 | rng()) >> 1;
+    return (u128) rng() << 64 | rng();
 }
 
 void test128() {
     F0R (it, 200000) {
-        u128 x = rnd127(), y = rnd127();
-        if (x < y) swap(x, y);                 // a -= b requires a >= b
-        Big a = from128(x), b = from128(y);
-        inv(a), inv(b);
-        Big p = a + b, q = a - b;
-        inv(p), inv(q);
-        assert(to128(p) == x + y);
-        assert(to128(q) == x - y);
+        u128 x = rnd128(), y = rnd128();
+        Big<2> a = from128(x), b = from128(y);
+        assert(to128(a + b) == (u128) (x + y));
+        assert(to128(a - b) == (u128) (x - y));   // wraps when x < y
         assert((a < b) == (x < y));
-        assert((b < a) == (y < x));
         assert((a == b) == (x == y));
-        int i = rnd(130);                      // 2 indices past the top limb
-        assert(a.bit(i) == (i < 128 && (bool) (x >> i & 1)));
-        assert(to128(Big((ull) x)) == (ull) x);
+        Big<2> c = a;
+        c += b, assert(to128(c) == (u128) (x + y));
+        c = a, c -= b, assert(to128(c) == (u128) (x - y));
+        int i = rnd(128);
+        assert(a.bit(i) == (bool) (x >> i & 1));
+        c = a, c.flip(i);
+        assert(to128(c) == (x ^ (u128) 1 << i));
+        c = a, c.set(i);
+        assert(to128(c) == (x | (u128) 1 << i));
+        c = a, c.set(i, 0);
+        assert(to128(c) == (x & ~((u128) 1 << i)));
+    }
+    F0R (it, 1000) {   // implicit ull constructor
+        ull v = rng();
+        assert(to128(Big<2>(v)) == v);
     }
 }
 
-// ---------- oracle 2: ripple-carry bitset ----------
-const int W = 512, LIM = 6;                    // reset a above LIM limbs
+// ---------- oracle 2: ripple-carry bitset for Big<5> ----------
+const int K = 5, W = 64 * K;
 using BS = bitset<W>;
 
-BS toBS(const Big& a) {
+BS toBS(const Big<K>& a) {
     BS r;
-    assert(size(a.d) <= W / 64);
-    F0R (i, size(a.d)) F0R (j, 64) if (a.d[i] >> j & 1) r[i * 64 + j] = 1;
+    F0R (i, K) F0R (j, 64) if (L(a, i) >> j & 1) r[i * 64 + j] = 1;
     return r;
 }
 BS addBS(BS a, const BS& b) {
@@ -74,7 +79,6 @@ BS addBS(BS a, const BS& b) {
         a[i] = x ^ y ^ c;
         c = (x && y) || (c && (x != y));
     }
-    assert(!c);                                // no wraparound expected here
     return a;
 }
 BS subBS(BS a, const BS& b) {
@@ -84,7 +88,6 @@ BS subBS(BS a, const BS& b) {
         a[i] = x ^ y ^ c;
         c = (!x && (y || c)) || (x && y && c);
     }
-    assert(!c);
     return a;
 }
 bool lessBS(const BS& a, const BS& b) {
@@ -92,104 +95,88 @@ bool lessBS(const BS& a, const BS& b) {
     return 0;
 }
 
-Big rndBig(int len) {
-    Big a;
-    int shape = rnd(4);
-    F0R (i, len) {
-        if (shape == 0) a.d.pb(rng());
-        else if (shape == 1) a.d.pb(rng() % 2 ? ~0ULL : 0);
-        else if (shape == 2) a.d.pb(rng() % 4 ? 0 : rng());
-        else a.d.pb(i + 1 == len);             // exactly one high bit
+Big<K> rndBig() {
+    Big<K> a;
+    int shape = rnd(4), len = rnd(K + 1);
+    F0R (i, K) {
+        if (shape == 0) L(a, i) = rng();
+        else if (shape == 1) L(a, i) = rng() % 2 ? ~0ULL : 0;
+        else if (shape == 2) L(a, i) = i < len ? rng() : 0;
     }
-    a.trim();
-    inv(a);
+    if (shape == 3) F0R (t, 3) a.set(rnd(W));   // a few sparse bits
     return a;
 }
 
 void testBS() {
-    Big a = rndBig(rnd(5));
+    Big<K> a = rndBig();
     BS o = toBS(a);
     F0R (it, 200000) {
-        Big b = rndBig(rnd(5));
+        Big<K> b = rndBig();
         BS ob = toBS(b);
         assert((a < b) == lessBS(o, ob));
-        assert((b < a) == lessBS(ob, o));
         assert((a == b) == (o == ob));
         int i = rnd(W);
         switch (rnd(5)) {
             case 0: a += b, o = addBS(o, ob); break;
-            case 1:
-                if (a < b) swap(a, b), swap(o, ob);
-                a -= b, o = subBS(o, ob);
-                break;
+            case 1: a -= b, o = subBS(o, ob); break;
             case 2: a.set(i), o[i] = 1; break;
             case 3: a.set(i, 0), o[i] = 0; break;
             default: a.flip(i), o[i] = !o[i];
         }
-        inv(a);
         assert(toBS(a) == o);
         assert(a.bit(i) == o[i]);
-        F0R (t, 4) {                           // reads past the end are 0
-            int j = rnd(W + 200);
-            assert(a.bit(j) == (j < W && o[j]));
-        }
-        if (size(a.d) > LIM) a = rndBig(rnd(5)), o = toBS(a);
     }
 }
 
-// ---------- length and bit-index boundaries, by hand ----------
+// ---------- boundaries, by hand ----------
 void testEdges() {
-    Big zero, one(1);
-    assert(size(zero.d) == 0 && size(one.d) == 1);
-    assert(zero == Big(0) && zero < one && !(one < zero));
-    assert(one - one == zero && zero + zero == zero);
-    inv(zero + zero), inv(one - one);
-    assert(size((one - one).d) == 0);          // subtraction trims
+    Big<K> zero, ones, one(1);
+    F0R (i, K) L(ones, i) = ~0ULL;
+    assert(ones + one == zero);          // carry out of the top limb is lost
+    assert(zero - one == ones);          // borrow out of the top limb is lost
+    assert(zero < ones && !(ones < zero) && !(zero < zero));
+    assert(zero == zero && !(zero == ones));
+    assert(zero - zero == zero && ones - ones == zero);
 
-    // growth on set / flip, and clearing past the end is a no-op
-    F0R (i, 400) {
-        Big a;
-        a.set(i, 0);
-        assert(size(a.d) == 0);
+    // a carry chain running out of limb i into limb i + 1
+    F0R (i, K) {
+        Big<K> a;
+        F0R (j, i + 1) L(a, j) = ~0ULL;
+        Big<K> c = a + one;
+        F0R (j, i + 1) assert(L(c, j) == 0);
+        if (i + 1 < K) assert(L(c, i + 1) == 1);
+        else assert(c == zero);
+        assert(c - one == a);            // and the borrow chain back
+    }
+    // every bit index, including both ends of every limb
+    F0R (i, W) {
+        Big<K> a;
+        assert(!a.bit(i));
         a.set(i);
-        assert(size(a.d) == i / 64 + 1 && a.bit(i));
-        assert(a.d[i / 64] == 1ULL << (i % 64));
-        F0R (j, i / 64) assert(a.d[j] == 0);
-        a.set(i, 0);                           // clearing the top bit shrinks
-        assert(size(a.d) == 0 && !a.bit(i));
-        a.flip(i), a.flip(i);
-        assert(size(a.d) == 0);
+        assert(a.bit(i) && L(a, i / 64) == 1ULL << (i % 64));
+        F0R (j, W) assert(a.bit(j) == (i == j));
+        a.flip(i);
+        assert(a == zero);
+        a.set(i, 0);
+        assert(a == zero);
     }
-    // carry chain that adds a limb, and the borrow chain back
-    FOR (n, 1, 6) {
-        Big a;
-        F0R (i, n) a.d.pb(~0ULL);              // 2^(64n) - 1
-        Big b = a + one;
-        inv(b);
-        assert(size(b.d) == n + 1 && b.d[n] == 1);
-        F0R (i, n) assert(b.d[i] == 0);
-        Big c = b - one;
-        inv(c);
-        assert(c == a && size(c.d) == n);
-    }
-    // comparison is by length first, then from the top limb down
-    Big lo, hi;
-    lo.d = {~0ULL}, hi.d = {0, 1};
-    assert(lo < hi && !(hi < lo) && !(lo == hi));
-    assert(lo + one == hi && hi - one == lo);
-    Big p, q;
-    p.d = {0, 5}, q.d = {~0ULL, 5};
-    assert(p < q && !(q < p));
-    // reading far past the end
-    assert(!one.bit(64) && !one.bit(1000) && one.bit(0));
-    // a += a and a -= a alias safely
-    Big r;
-    r.d = {~0ULL, 1};
-    Big rr = r;
-    r += r;
-    assert(r == rr + rr && r.bit(64) && r.bit(0) == 0);
-    r -= r;
-    assert(r == zero && size(r.d) == 0);
+    // comparison must look at the top limb first
+    Big<K> hi, lo;
+    L(hi, K - 1) = 1, L(lo, 0) = ~0ULL;
+    assert(lo < hi && !(hi < lo));
+    // 64-bit limb boundary: 2^64 - 1 plus 1
+    Big<K> big(~0ULL);
+    big += Big<K>(1);
+    assert(!big.bit(63) && big.bit(64) && L(big, 0) == 0 && L(big, 1) == 1);
+    big -= Big<K>(1);
+    assert(L(big, 0) == ~0ULL && L(big, 1) == 0);
+    // widths other than 5
+    Big<1> u(~0ULL);
+    assert(u + Big<1>(1) == Big<1>(0));
+    Big<9> w;
+    w.set(64 * 9 - 1);
+    assert(w.bit(64 * 9 - 1) && L(w, 8) == 1ULL << 63);
+    assert(Big<9>(0) - w == w);          // 2^575 is its own negation
 }
 
 int main() {

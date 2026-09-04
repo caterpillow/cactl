@@ -86,20 +86,22 @@ Integration by parts:
 \[\int_a^bf(x)g(x)dx = [F(x)g(x)]_a^b-\int_a^bF(x)g'(x)dx\]
 
 \section{Vector calculus}
-	Notation: $\mathbf{F} = (P, Q[, R])$ is a vector field (a vector at every point). $d\mathbf{r} = (dx, dy)$ is a step along the curve, so $\mathbf{F}\cdot d\mathbf{r} = P\,dx + Q\,dy$ and $\oint \mathbf{F}\cdot d\mathbf{r}$ is the circulation (work) around it. $\mathbf{n}$ is the outward unit normal and $ds$ / $dS$ the length / area element of the boundary, so $\oint \mathbf{F}\cdot\mathbf{n}\,ds$ is the outward flux; for a CCW curve $\mathbf{n}\,ds = (dy, -dx)$, i.e. flux $= \oint P\,dy - Q\,dx$, computed edge by edge on a polygon. $\nabla\cdot\mathbf{F} = P_x + Q_y\,(+R_z)$ is the divergence (net outflow per unit area) and $\nabla\times\mathbf{F}$ the curl ($= Q_x - P_y$ in 2D). Both theorems say ``what crosses the boundary equals what is generated inside''; the trick is choosing $\mathbf{F}$ so that one side is trivial, e.g. $\mathbf{F} = (x, 0)$ turns area into $\oint x\,dy$, and a region integral of a divergence/curl turns into a walk around the edges.
-	\subsection{Change of variables}
-		For $\mathbf{x} = \mathbf{g}(\mathbf{u})$ the Jacobian is $J = \dfrac{\partial(x_1,\dots,x_n)}{\partial(u_1,\dots,u_n)} = \left(\dfrac{\partial x_i}{\partial u_j}\right)_{ij}$ and
-		\[ \int_{g(U)} f(\mathbf{x})\,d\mathbf{x} = \int_U f(\mathbf{g}(\mathbf{u}))\,|\det J|\,d\mathbf{u}. \]
-		Polar $(r,\theta)$: $|\det J| = r$. Cylindrical $(r,\theta,z)$: $r$. Spherical $(r,\theta,\phi)$, $\theta$ from the $z$-axis: $r^2\sin\theta$. In 1D this is $u$-substitution.
-	\subsection{Green's theorem}
-		$C$ a simple closed curve traversed CCW, bounding $D$:
-		\[ \oint_C (P\,dx + Q\,dy) = \iint_D \left(\frac{\partial Q}{\partial x} - \frac{\partial P}{\partial y}\right) dA. \]
-		Area: $A = \oint_C x\,dy = -\oint_C y\,dx = \frac12\oint_C (x\,dy - y\,dx)$; on a polygon this is the shoelace formula $\frac12\sum_i (x_i y_{i+1} - x_{i+1} y_i)$. Stokes in 3D: $\oint_{\partial S} \mathbf{F}\cdot d\mathbf{r} = \iint_S (\nabla\times\mathbf{F})\cdot\mathbf{n}\,dS$.
-	\subsection{Divergence theorem}
-		2D (flux form of Green, outward normal $\mathbf{n}\,ds = (dy, -dx)$):
-		\[ \oint_C \mathbf{F}\cdot\mathbf{n}\,ds = \iint_D \nabla\cdot\mathbf{F}\,dA, \quad
-		   \iint_{\partial V} \mathbf{F}\cdot\mathbf{n}\,dS = \iiint_V \nabla\cdot\mathbf{F}\,dV \text{ (3D)}. \]
-		Polyhedron volume from its CCW-oriented triangles ($\mathbf{F} = \mathbf{x}/3$): $V = \frac16\sum \mathbf{a}\cdot(\mathbf{b}\times\mathbf{c})$.
+$\mathbf{F} = (P, Q[, R])$ is a vector field and $\nabla = (\partial_x, \partial_y[, \partial_z])$, so $\nabla\cdot\mathbf{F}$ is the divergence (net outflow per unit area) and $\nabla\times\mathbf{F}$ the curl ($= Q_x - P_y$ in 2D). Along a curve $d\mathbf{r} = (dx, dy)$, so $\oint \mathbf{F}\cdot d\mathbf{r}$ is the circulation; $\mathbf{n}$ is the outward unit normal, $\mathbf{n}\,ds = (dy, -dx)$ on a CCW curve, so $\oint \mathbf{F}\cdot\mathbf{n}\,ds$ is the outward flux. Both theorems say ``what crosses the boundary equals what is generated inside''; pick $\mathbf{F}$ so that one side is trivial.
+
+\subsection{Change of variables}
+For $\mathbf{x} = \mathbf{g}(\mathbf{u})$ with Jacobian $J = (\partial x_i / \partial u_j)_{ij}$:
+\[ \int_{g(U)} f(\mathbf{x})\,d\mathbf{x} = \int_U f(\mathbf{g}(\mathbf{u}))\,|\det J|\,d\mathbf{u} \]
+Polar: $|\det J| = r$. Cylindrical: $r$. Spherical, $\theta$ from the $z$-axis: $r^2\sin\theta$.
+
+\subsection{Green's theorem}
+$C$ a simple closed CCW curve bounding $D$:
+\[ \oint_C \mathbf{F}\cdot d\mathbf{r} = \iint_D (\nabla\times\mathbf{F})\,dA \]
+Area: $A = \oint_C x\,dy = \frac12\oint_C (x\,dy - y\,dx)$, the shoelace formula on a polygon. Stokes, in 3D: $\oint_{\partial S} \mathbf{F}\cdot d\mathbf{r} = \iint_S (\nabla\times\mathbf{F})\cdot\mathbf{n}\,dS$.
+
+\subsection{Divergence theorem}
+\[ \oint_C \mathbf{F}\cdot\mathbf{n}\,ds = \iint_D \nabla\cdot\mathbf{F}\,dA \]
+\[ \iint_{\partial V} \mathbf{F}\cdot\mathbf{n}\,dS = \iiint_V \nabla\cdot\mathbf{F}\,dV \]
+Polyhedron volume from its CCW triangles ($\mathbf{F} = \mathbf{x}/3$): $V = \frac16\sum \mathbf{a}\cdot(\mathbf{b}\times\mathbf{c})$.
 
 \section{Sums}
 \[ c^a + c^{a+1} + \dots + c^{b} = \frac{c^{b+1} - c^a}{c-1}, c \neq 1 \]
