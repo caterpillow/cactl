@@ -302,7 +302,10 @@
 
 % The name for this page's header list. \detokenize: literal text, so the
 % name survives the trip through \write18 and header.tmp unexpanded.
-\newcommand{\kactlref}[1]{\marks\hdrmark{\detokenize{#1}}}
+% \nobreak after the mark: it sits between the name line and the
+% description, and a mark is not discardable, so without it the glue that
+% follows is a legal column break and the name gets orphaned.
+\newcommand{\kactlref}[1]{\marks\hdrmark{\detokenize{#1}}\nobreak}
 
 % Like \needspace, except with flush bottoms.
 \newcommand{\myneedspace}[1]{%
