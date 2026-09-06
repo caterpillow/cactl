@@ -6,9 +6,9 @@
  */
 #pragma once
 
-template<class V, class L>
-db signedPolyVolume(const V& p, const L& trilist) {
+template<class P>
+db signedPolyVolume(const P &pts, const vt<array<int, 3>> &trilist) {
     db v = 0;
-    for (auto i : trilist) v += p[i.a].cross(p[i.b]).dot(p[i.c]);
+    for (auto [a, b, c] : trilist) v += pts[a].cross(pts[b]).dot(pts[c]);
     return v / 6;
 }
