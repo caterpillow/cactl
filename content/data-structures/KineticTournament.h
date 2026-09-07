@@ -2,51 +2,47 @@
  * Author: caterpillow
  * Date: 2026-09-07
  * License: CC0
- * Description: Points $p_i$; \texttt{seg[1]} is $\arg\min_i p_i\cdot t$ as
- * the direction $t$ sweeps CCW from t0 to tn, strictly under a half turn
- * (\texttt{assert(t0.cross(tn) > 0)}). \texttt{upd} fills or moves a point
- * (fine mid-sweep); \texttt{heaten} advances $t$, which must not go back
- * under the angular \texttt{<}. \texttt{pad} is the value of unused leaves:
- * a point whose dot beats every real one over the whole window (so never
- * the argmin), i.e. far along the middle of the sweep, e.g. $\{B,B\}$ if
- * the sweep stays in $x+y>0$. For argmax, flip the \texttt{<} in combine
- * and put pad on the far side. Safe while directions, $|coord| \le 10^9$.
- * Time: O((n + f) \log n) per sweep, f = O(n \log n) melt events
+ * Source: https://codeforces.com/blog/entry/82094
+ * Description: \texttt{seg[1]} is the point minimising $p \cdot t$ while
+ * the direction $t$ sweeps CCW from t0 to tn, less than a half turn
+ * (asserted). \texttt{heaten} advances $t$ (never back), \texttt{upd}
+ * moves a point, fine mid-sweep. \texttt{mt[i]} is the first direction at
+ * which node $i$'s winner can change; a subtree is rebuilt only once $t$
+ * reaches it. For argmax flip the \texttt{<} in combine. Only cross, dot
+ * and perp of Point are used, its \texttt{<} is not. Lines $ax+b$ at
+ * increasing $x$: point $(a,-b)$, t0 $(-B,-1)$, heaten $(x,-1)$, tn
+ * $(B,-1)$. Safe for $|coord|, |t| \le 10^9$ (a cross of two
+ * certificates reaches $8 \cdot 10^{18}$).
+ * Time: O(\log n) per upd. A node's winner changes at most (subtree
+ * size) times per sweep, so O(n \log n) rebuilds, each walking a root
+ * path: O(n \log^2 n) per sweep, i.e. O(\log^2 n) amortized per heaten.
  * Status: stress-tested
  */
 #pragma once
 
-struct P {
-    ll x, y;
-    P operator-(P p) const { return {x - p.x, y - p.y}; }
-    ll dot(P p) const { return x * p.x + y * p.y; }
-    ll cross(P p) const { return x * p.y - y * p.x; }
-    P perp() const { return {-y, x}; }
-    bool operator<(P p) const { return cross(p) > 0; } // p CCW
-};
+#include "../geometry/Point.h"
 
+using P = Point<ll>;
 struct KineticTournament {
     int n; vt<P> seg, mt; P t, tn;
-    KineticTournament(int cnt, P t0, P tn, P pad)
-        : t(t0), tn(tn) {
-        assert(t0.cross(tn) > 0); // CCW turn < 180
-        for (n = 1; n < cnt; n *= 2) {}
-        seg.assign(2 * n, pad), mt.assign(2 * n, t0);
-        FOR (i, n, 2 * n) mt[i] = tn; // leaves never melt
+    static bool lt(P a, P b) { return a.cross(b) > 0; } // b CCW
+    KineticTournament(vt<P> a, P t0, P tn)
+        : n(size(a)), seg(2*n), mt(2*n, tn), t(t0), tn(tn) {
+        assert(lt(t0, tn)); // CCW turn < 180
+        copy(all(a), n + begin(seg));
         ROF (i, 1, n) combine(i);
     }
     void combine(int i) { // rebuild i from its children
-        P p = seg[2*i], q = seg[2*i+1];
+        P p = seg[2 * i], q = seg[2 * i + 1];
         if (q.dot(t) < p.dot(t)) swap(p, q); // p = argmin
-        seg[i] = p, mt[i] = min(mt[2*i], mt[2*i+1]);
-        P e = (q - p).perp(); // future dir where p, q swap
-        if (e < t) e = {-e.x, -e.y};
-        if (e < tn) mt[i] = min(mt[i], e);
+        seg[i] = p, mt[i] = min(mt[2 * i], mt[2 * i + 1], lt);
+        P e = (q - p).perp(); // where p, q tie; ahead of t
+        if (!lt(tn, e)) mt[i] = min(mt[i], e, lt);
     }
     void pull(int i) { // recurse into expired subtrees
-        if (i >= n || t < mt[i]) return;
-        pull(2*i), pull(2*i+1), combine(i);
+        if (i >= n || lt(t, mt[i])) return;
+        pull(2 * i), pull(2 * i + 1), combine(i);
     }
-    void upd(int i, P p) { seg[i+=n]=p; while (i/=2) combine(i); }
-    void heaten(P nt) { assert(!(nt < t)); t = nt, pull(1); }
+    void upd(int i, P p) { for (seg[i+=n] = p; i /= 2; combine(i)); }
+    void heaten(P nt) { assert(!lt(nt, t)); t = nt, pull(1); }
 };
