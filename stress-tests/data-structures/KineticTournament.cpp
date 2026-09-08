@@ -4,9 +4,12 @@
 // sweep is monotone. Covers mid-sweep upd, duplicate and near-collinear
 // points, |coord| and |t| up to 1e9 under UBSan (cross reaches 8e18),
 // sweeps that end exactly at tn, a tiny-coordinate run where exact ties
-// at the certificate direction are common, and the lines mapping.
+// at the certificate direction are common, and the lines mapping. All
+// windows sit in the upper half-plane, as the header requires with the
+// radial comparator.
 // written by Claude (audit)
 #include "../utilities/template.h"
+#include "../utilities/radial_point.h"
 
 #include "../../content/data-structures/KineticTournament.h"
 
@@ -37,20 +40,20 @@ void run(P t0, P tn, ll C, ll D, int iters) {
     }
 }
 int main() {
-    run({2, -1}, {-1, 2}, 1000, 100, 100000);        // general window
-    run({2, -1}, {-1, 2}, 3, 3, 100000);             // tiny: exact ties galore
-    run({-1000000, -1}, {1000000, -1}, 1000000, 1000000, 40000); // lower half
-    run({2, -1000000000}, {-1, 1000000000}, 1000000000, 1000000000, 40000); // 1e9
-    // min a*x + b over lines at increasing x: point (a, -b), t = (x, -1)
+    run({2, 1}, {-1, 2}, 1000, 100, 100000);         // general window
+    run({2, 1}, {-1, 2}, 3, 3, 100000);              // tiny: exact ties galore
+    run({1, 0}, {-1, 1}, 1000000, 1000000, 40000);   // from the x-axis
+    run({1000000000, 1}, {-1000000000, 1}, 1000000000, 1000000000, 40000); // 1e9
+    // min a*x + b over lines at increasing x: point (-a, b), t = (-x, 1)
     F0R (iter, 40000) {
         int n = (int) rnd(1, 8); vt<ll> A(n), B(n); vt<P> pts(n);
-        F0R (i, n) A[i] = rnd(-1000, 1000), B[i] = rnd(-1000, 1000), pts[i] = {A[i], -B[i]};
-        ll BIG = 1000000000; KineticTournament kt(pts, {-BIG, -1}, {BIG, -1});
+        F0R (i, n) A[i] = rnd(-1000, 1000), B[i] = rnd(-1000, 1000), pts[i] = {-A[i], B[i]};
+        ll BIG = 1000000000; KineticTournament kt(pts, {BIG, 1}, {-BIG, 1});
         ll x = -BIG + 1;
         F0R (j, rnd(1, 10)) {
-            x += rnd(0, 50); kt.heaten({x, -1});
+            x += rnd(0, 50); kt.heaten({-x, 1});
             ll want = LLONG_MAX; F0R (i, n) want = min(want, A[i] * x + B[i]);
-            assert(kt.seg[1].dot(P{x, -1}) == want);
+            assert(kt.seg[1].dot(P{-x, 1}) == want);
         }
     }
     cout << "Tests passed!" << endl;
