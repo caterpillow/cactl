@@ -5,7 +5,6 @@
 // sequences broke earlier drafts. Plus a 1e9-coordinate run.
 // written by Claude (audit)
 #include "../utilities/template.h"
-#include "../utilities/radial_point.h"
 
 #include "../../content/data-structures/MonotonicCHT.h"
 
