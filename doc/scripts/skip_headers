@@ -36,6 +36,7 @@ content/geometry/InsidePolygon.h         # fails only through its #include of Se
 content/data-structures/HashMap.h
 content/graph/Dijkstra.h
 content/data-structures/OrderStatisticTree.h
+content/data-structures/Rope.h                 # <ext/rope> declares size() too
 content/heuristics/SimAnneal.h
 content/heuristics/BeamSearch.h          # also a complete program that re-#defines FOR/F0R/size
 content/graph/MinCostMaxFlow.h           # its extc++ include is a commented "include-line", so __gnu_pbds is undeclared

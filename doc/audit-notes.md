@@ -10,7 +10,7 @@ because none of this is obvious from the code alone.
   header that declares a `size()` member, notably `<bits/extc++.h>` (pb_ds).
   **Any `#include <bits/extc++.h>` must go above the template**, or be wrapped
   in `#undef size` / re-`#define`. Affected: HashMap, OrderStatisticTree,
-  MinCostMaxFlow, SimAnneal.
+  Rope (`<ext/rope>`), MinCostMaxFlow, SimAnneal.
 - `#define f first` / `#define s second` break any declaration named `f` or `s`.
 - `pi` is now `pair<int, int>` — that's why KMP's prefix function is named
   `pfun` (a function named `pi` no longer compiles).
