@@ -2,7 +2,7 @@
  * Author: Johan Sannemo
  * Date: 2016-12-15
  * License: CC0
- * Description: pi[x] computes the length of the longest prefix of s that ends at x,
+ * Description: pfun[x] computes the length of the longest prefix of s that ends at x,
  * other than s[0...x] itself (abacaba -> 0010123).
  * Can be used to find all occurrences of a string.
  * Time: O(n)
@@ -10,7 +10,7 @@
  */
 #pragma once
 
-vi pfun(const string& s) { // renamed: pi is a template alias
+vi pfun(const string& s) { 
     vi p(size(s));
     FOR (i, 1, size(s)) {
         int g = p[i - 1];
