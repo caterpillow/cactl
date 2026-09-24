@@ -1,63 +1,70 @@
 /**
  * Author: Johan Sannemo
  * Date: 2017-04-18
- * Source: derived from https://gist.github.com/msg555/4963794 by Mark Gordon
- * Description: Computes all faces of the 3-dimension hull of a point set.
- *  *No four points must be coplanar*, or else random results will be returned.
- *  All faces will point outwards.
- * Time: O(n^2)
- * Status: tested on SPOJ CH3D
+ * Source: https://codeforces.com/blog/entry/81768
+ * Description: Incremental 3D hull. The first four points must be noncoplanar.
+ *  Returns outward triangles with original indices; later coplanarity and
+ *  duplicates are allowed. May retain redundant boundary vertices.
+ *  \texttt{hull3d\_vertices} returns only extreme vertex indices; faces are unchanged.
+ *  Requires reliable orientation signs; use a sufficiently wide integer type
+ *  for exact integer inputs. Floating-point roundoff can affect degeneracies.
+ * Time: Hull: O(n^2) time and space. Vertices: O(n + m\log m), m = number of triangles.
+ * Status: stress-tested
  */
 #pragma once
 
 #include "Point3D.h"
 
 using P3 = Point3D<db>;
-
-struct PR {
-    void ins(int x) { (a == -1 ? a : b) = x; }
-    void rem(int x) { (a == x ? a : b) = -1; }
-    int cnt() { return (a != -1) + (b != -1); }
-    int a, b;
-};
-
 struct F { P3 q; int a, b, c; };
 
 vt<F> hull3d(const vt<P3>& A) {
-    assert(size(A) >= 4);
-    vt<vt<PR>> E(size(A), vt<PR>(size(A), {-1, -1}));
-#define E(x,y) E[f.x][f.y]
+    assert(size(A) >= 4 && (A[1] - A[0]).cross(A[2] - A[0]).dot(A[3] - A[0]) != 0);
+    vt<vt<bool>> dead(size(A), vt<bool>(size(A), true));
     vt<F> FS;
-    auto mf = [&] (int i, int j, int k, int l) {
-        P3 q = (A[j] - A[i]).cross((A[k] - A[i]));
-        if (q.dot(A[l]) > q.dot(A[i]))
-            q = q * -1;
-        F f{q, i, j, k};
-        E(a, b).ins(k); E(a, c).ins(j); E(b, c).ins(i);
-        FS.pb(f);
+    auto add = [&](int a, int b, int c) {
+        FS.pb({(A[b] - A[a]).cross(A[c] - A[a]), a, b, c});
+        dead[a][b] = dead[b][c] = dead[c][a] = false;
     };
-    F0R (i, 4) FOR (j, i + 1, 4) FOR (k, j + 1, 4)
-        mf(i, j, k, 6 - i - j - k);
-
-    FOR (i, 4, size(A)) {
-        F0R (j, size(FS)) {
-            F f = FS[j];
-            if (f.q.dot(A[i]) > f.q.dot(A[f.a])) {
-                E(a, b).rem(f.c);
-                E(a, c).rem(f.b);
-                E(b, c).rem(f.a);
-                swap(FS[j--], FS.back());
-                FS.pop_back();
+    add(0, 1, 2); add(0, 2, 1); // Two-sided disk; point 3 makes a tetrahedron.
+    FOR (i, 3, size(A)) {
+        vt<F> keep;
+        for (F f : FS) {
+            if (f.q.dot(A[i] - A[f.a]) > 0)
+                dead[f.a][f.b] = dead[f.b][f.c] = dead[f.c][f.a] = true;
+            else keep.pb(f);
+        }
+        FS.clear();
+        for (F f : keep) {
+            int v[] = {f.a, f.b, f.c};
+            F0R (j, 3) {
+                int a = v[j], b = v[(j + 1) % 3];
+                if (dead[b][a]) add(b, a, i);
             }
         }
-        int nw = size(FS);
-        F0R (j, nw) {
-            F f = FS[j];
-#define C(a, b, c) if (E(a,b).cnt() != 2) mf(f.a, f.b, i, f.c);
-            C(a, b, c); C(a, c, b); C(b, c, a);
+        FS.insert(FS.end(), all(keep));
+    }
+    return FS;
+} // <hash>
+
+// For a full-dimensional hull from hull3d. Does not modify its triangulation.
+vt<int> hull3d_vertices(const vt<P3>& A, const vt<F>& faces) {
+    map<pair<int, int>, int> edges;
+    vt<int> neighbor(size(A), -1), corner(size(A)), ans;
+    for (F f : faces) {
+        int v[] = {f.a, f.b, f.c};
+        F0R (j, 3) {
+            int a = v[j], b = v[(j + 1) % 3], c = v[(j + 2) % 3];
+            auto [it, added] = edges.emplace(minmax(a, b), c);
+            if (added || f.q.dot(A[it->second] - A[a]) == 0) continue;
+            F0R (k, 2) {
+                if (neighbor[a] < 0) neighbor[a] = b;
+                else if (!((A[neighbor[a]] - A[a]).cross(A[b] - A[a]) == P3()))
+                    corner[a] = 1;
+                swap(a, b);
+            }
         }
     }
-    for (F& it : FS) if ((A[it.b] - A[it.a]).cross(
-        A[it.c] - A[it.a]).dot(it.q) <= 0) swap(it.c, it.b);
-    return FS;
-};
+    F0R (i, size(A)) if (corner[i]) ans.pb(i);
+    return ans;
+}
