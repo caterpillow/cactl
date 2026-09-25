@@ -1,9 +1,9 @@
-// Tests Chordal.h: ok against brute-force recognition (repeatedly delete a
-// simplicial vertex; chordal iff that empties the graph) on random graphs
-// of every density and on random subtree-intersection graphs (always
-// chordal), n <= 9; when ok, peo must be a permutation in which every
-// vertex's later neighbours form a clique. Plus a 2e5-vertex path/clique
-// chain for speed and a long cycle (not chordal). written by Claude (audit)
+// Tests Chordal.h: isPeo(g, mcs(g)) against brute-force recognition
+// (repeatedly delete a simplicial vertex) on random graphs of every density
+// and random subtree-intersection graphs (always chordal), n <= 9. mcs's
+// order and a random order are both checked against the definition of a
+// perfect elimination ordering. Plus a 2e5 triangle chain and a 2e5 cycle.
+// written by Claude (audit)
 #include "../utilities/template.h"
 
 #include "../../content/graph/Chordal.h"
@@ -24,14 +24,20 @@ bool brute(int n, vt<vt<bool>> a) {
     }
     return 1;
 }
+bool brutePeo(int n, vt<vt<bool>> &a, vi &ord) { // straight from the definition
+    vi at(n, -1); F0R (i, n) { if (at[ord[i]] >= 0) return 0; at[ord[i]] = i; }
+    F0R (v, n) F0R (x, n) F0R (y, n)
+        if (x != y && a[v][x] && a[v][y] && at[x] > at[v] && at[y] > at[v] && !a[x][y]) return 0;
+    return 1;
+}
 void check(int n, vt<vt<bool>> &a) {
     vt<vi> g(n); F0R (i, n) F0R (j, n) if (a[i][j]) g[i].pb(j);
-    Chordal c(g);
-    assert(c.ok == brute(n, a));
-    if (!c.ok) return;
-    vi at(n, -1); F0R (i, n) { assert(at[c.peo[i]] < 0); at[c.peo[i]] = i; }
-    F0R (v, n) for (int x : g[v]) for (int y : g[v])
-        if (x != y && at[x] > at[v] && at[y] > at[v]) assert(a[x][y]);
+    vi o = mcs(g);
+    assert(size(o) == n);
+    bool ok = isPeo(g, o);
+    assert(ok == brute(n, a) && ok == brutePeo(n, a, o));
+    vi r(n); iota(all(r), 0); shuffle(all(r), rng); // isPeo on any order
+    assert(isPeo(g, r) == brutePeo(n, a, r));
 }
 int main() {
     F0R (it, 200000) {
@@ -55,9 +61,9 @@ int main() {
     { // big: overlapping triangles in a chain are chordal, a long cycle is not
         int n = 200000; vt<vi> g(n);
         FOR (i, 1, n) { g[i].pb(i - 1), g[i - 1].pb(i); if (i > 1) g[i].pb(i - 2), g[i - 2].pb(i); }
-        Chordal c(g); assert(c.ok && size(c.peo) == n);
+        assert(isPeo(g, mcs(g)));
         vt<vi> cy(n); F0R (i, n) cy[i].pb((i + 1) % n), cy[(i + 1) % n].pb(i);
-        assert(!Chordal(cy).ok);
+        assert(!isPeo(cy, mcs(cy)));
     }
     cout << "Tests passed!" << endl;
 }
