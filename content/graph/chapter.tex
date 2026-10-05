@@ -47,6 +47,11 @@
 		% Source: https://en.wikipedia.org/wiki/Erd%C5%91s%E2%80%93Gallai_theorem
 		% Test: stress-tests/graph/erdos-gallai.cpp
 
+	\subsection{Euler's formula (planar graphs)}
+		A connected planar graph has $V - E + F = 2$ (counting the outer face); with $C$ components, $V - E + F = 1 + C$.
+		Simple planar with $V \ge 3$: $E \le 3V - 6$ (and $E \le 2V - 4$ if triangle-free), so average degree $< 6$.
+		% Source: https://en.wikipedia.org/wiki/Euler_characteristic#Plane_graphs
+
 \section{Fundamentals}
 	\kactlimport{Dijkstra.h}
 	\kactlimport{BellmanFord.h}
