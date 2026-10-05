@@ -11,13 +11,12 @@
  * write, at 2--5KB per version (fine for $10^5$, not $10^6$). \texttt{r[i]}
  * is a value, $O(\log n)$, 0.2--0.6$\mu$s at $10^6$; a range-for is
  * 2--17ns per step, but any mutation frees \texttt{begin()} iterators
- * (\texttt{mutable\_begin()} ones survive). Landmines: include
- * \texttt{<ext/rope>} above the template (the size macro breaks it); T
+ * (\texttt{mutable\_begin()} ones survive). Landmines: T
  * must not be a std type (pair, string), wrap it in a struct; a literal 0
  * is ambiguous with the pointer overloads unless T is int, so
  * \texttt{Rope<ll>} needs \texttt{0LL}; never the one-argument
  * \texttt{erase(i)}, it erases $i+1$ elements up to gcc 11.2 and does not
- * compile after. Benchmarks: doc/rope.md
+ * compile after.
  * Time: O(\log n) amortized
  * Status: stress-tested, benchmarked
  */
@@ -35,8 +34,8 @@ void example() {
     r.erase(2, 3);                   // 0 9 4 (3 elements from 2)
     Rope<int> t = r.substr(1, 2);    // 9 4
     r = t + r; r.insert(1, t);       // 9 9 4 4 0 9 4
-    r.mutable_reference_at(0) = 7;   // r[0] = 7; t is unchanged
-    r.replace(0, 7);                 // same but copies the path
+    r.mutable_reference_at(0) = 7;   // assignment: r[0] = 7; t is unchanged
+    r.replace(0, 7);                 // same as above but copies the path
     assert(r[0] == 7 && t[0] == 9 && size(r) == 7);
     for (int x : r) cout << x;       // O(1) amortized per step
     t.replace(0, 1, r.substr(3, 2)); // t = 4 0 4

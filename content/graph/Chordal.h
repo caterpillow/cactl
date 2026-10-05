@@ -33,6 +33,7 @@ vi mcs(vt<vi> &g) {
     reverse(all(ord));
     return ord;
 } // <hash>
+
 bool isPeo(vt<vi> &g, const vi &ord) {
     int n = size(g); vi pos(n), mk(n, -1); vt<vi> ch(n);
     F0R (i, n) pos[ord[i]] = i;

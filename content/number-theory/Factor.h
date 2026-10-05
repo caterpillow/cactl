@@ -53,7 +53,7 @@
 #include "ModMulLL.h"
 #include "MillerRabin.h"
 
-ull pollard(ull n) {
+ull pollard(ull n) { // returns random factor
     ull x = 0, y = 0, t = 30, prd = 2, i = 1, q;
     auto f = [&] (ull x) { return mmul(x, x, n) + i; };
     while (t++ % 40 || __gcd(prd, n) == 1) {
