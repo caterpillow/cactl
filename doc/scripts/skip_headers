@@ -35,6 +35,7 @@ content/geometry/InsidePolygon.h         # fails only through its #include of Se
 #     corrupts pb_ds's size() members (doc/audit-notes.md, Template gotchas) ---
 content/data-structures/HashMap.h
 content/graph/Dijkstra.h
+content/graph/GabowWeighted.h
 content/data-structures/OrderStatisticTree.h
 content/data-structures/Rope.h                 # <ext/rope> declares size() too
 content/heuristics/SimAnneal.h

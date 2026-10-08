@@ -9,36 +9,41 @@
  *  edges and self-loops are never used.
  * Usage: GabowWeighted g; g.init(n); g.ae(u, v, w);
  *  ll best = g.solve(); g.mate[v] = partner, 0 if none.
- * Time: O(NM \log N)
+ * Time: O(NM \log N). Include \texttt{bits/extc++.h} before the template.
  * Status: stress-tested
  */
 #pragma once
 
+#include <bits/extc++.h> /** keep-include */
+
 struct GabowWeighted {
     using A = array<ll, 4>; // {time, from, to, id}
-    using PQ = priority_queue<A, vt<A>, greater<A>>;
-    struct Heaps { // item i: in heap w[i] (-1: none), key c[i]
-        vt<PQ> s; vt<A> c; vi w;
+    using PQ = __gnu_pbds::priority_queue<A, greater<A>>;
+    struct Heaps { // item i: in heap w[i] (-1: none) at it[i]
+        vt<PQ> s; vt<PQ::point_iterator> it; vi w;
         void init(int h, int m) {
-            s.assign(h, {}), c.assign(m, {}), w.assign(m, -1);
+            s.assign(h, {}), it.assign(m, {}), w.assign(m, -1);
         }
-        void er(int i) { w[i] = -1; }
+        void er(int i) {
+            if (w[i] >= 0) s[w[i]].erase(it[i]), w[i] = -1;
+        }
         void put(int i, A v, int h = 0) {
-            v[3] = i, s[h].push(c[i] = v), w[i] = h;
+            v[3] = i;
+            if (w[i] == h) return s[h].modify(it[i], v);
+            er(i), it[i] = s[h].push(v), w[i] = h;
         }
-        A top(int h = 0) { // best current entry, {INF} if none
-            auto& p = s[h]; A a;
-            while (size(p) && (a = p.top(), w[a[3]] != h ||
-                    c[a[3]] != a)) p.pop();
-            return size(p) ? p.top() : A{INF};
+        A top(int h = 0) {
+            return s[h].empty() ? A{INF} : s[h].top();
         }
         void clear(int h = 0) {
-            for (A a; (a = top(h))[0] < INF; s[h].pop()) er(a[3]);
+            for (A a : s[h]) w[a[3]] = -1;
+            s[h].clear();
         }
     };
     int n, qh = 0, cc = 0; ll T = 0; pl e1 = {INF, 0};
     vi mate, sf, bs, lab, hv, gp, bf, fr, q, sz;
-    vl pot, tc, lz, sl; Heaps h2, h2s, h4; PQ h3;
+    vl pot, tc, lz, sl; Heaps h2, h2s, h4;
+    priority_queue<A, vt<A>, greater<A>> h3;
     vt<vt<pl>> g; vt<pi> lk; vt<array<pi, 2>> nd;
     void init(int _n) { n = _n, g.assign(n + 1, {}); }
     void ae(int u, int v, ll w) {
@@ -71,7 +76,7 @@ struct GabowWeighted {
         }
         if (inner) return;
         A m = y == by ? A{t, x, y} : h2s.top(by); m[0] += lz[by];
-        if (h2.w[by] < 0 || m[0] < h2.c[by][0]) h2.put(by, m);
+        if (h2.w[by] < 0 || m[0] < (*h2.it[by])[0]) h2.put(by, m);
     } // <hash>
     void swp(int a, int b) { // b is a maximal blossom
         auto w = [&](auto&... v) { (swap(v[a], v[b]), ...); };

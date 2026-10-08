@@ -3,6 +3,7 @@
 // one object reused via init()), mate[] validity and its weight, and
 // agreement with the other weighted general matching on n <= 150.
 // written by Claude (audit)
+#include <bits/extc++.h>
 #include "../utilities/template.h"
 #include "../../content/graph/WeightedBlossom.h"
 #include "../../content/graph/GabowWeighted.h"
