@@ -15,6 +15,7 @@ content/various/STL.h                    # usage cheat-sheet with placeholder ty
 content/data-structures/MoQueries.h      # add/del/calc are "{ ... }" stubs
 content/numerical/SolveLinear2.h         # diff against SolveLinear.h, not a complete file
 content/various/Unrolling.h              # needs from/to in scope and F's "..." body filled in
+content/graph/BlockCutTree.h             # paste-in snippet: needs n, E and the BCC object b
 
 # --- Need something the user defines first (struct T, mod/MOD, array bound,
 #     globals, dp table); the header comment says what ---
@@ -28,8 +29,6 @@ content/number-theory/ModInverse.h       # mod and LIM come from its commented "
 content/various/DivideAndConquerDP.h     # DP::f/store reference the user's dp/res tables
 content/geometry/ClosestPair.h           # non-template functions on P; Point.h has no global P ("using P = Point<ll>" is up to you)
 content/geometry/ConvexHull.h            # same: P is undefined outside struct Point
-content/geometry/SegmentDistance.h       # same: P is undefined outside struct Point
-content/geometry/InsidePolygon.h         # fails only through its #include of SegmentDistance.h
 
 # --- <bits/extc++.h> after the template: the function-like size(x) macro
 #     corrupts pb_ds's size() members (doc/audit-notes.md, Template gotchas) ---

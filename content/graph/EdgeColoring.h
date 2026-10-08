@@ -8,7 +8,10 @@
  * $(D + 1)$-coloring of the edges such that no neighboring edges share a color.
  * ($D$-coloring is NP-hard, but can be done for bipartite graphs by repeated matchings of
  * max-degree nodes.)
+ * Usage: vi c = edgeColoring(N, eds); // vertices 0..N-1
+ * // c[i] in [0, D] is the color of eds[i]
  * Time: O(NM)
+ * Memory: O(ND)
  * Status: stress-tested, tested on kattis:gamescheduling
  */
 #pragma once

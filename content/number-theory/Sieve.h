@@ -6,6 +6,7 @@
  * Description: Linear sieve implementation. Around 0.5s for 1e8. Also computes
  * smallest prime divisor for each number in lp. Memory: 4(mx+1) bytes
  * (mx=1e8 \ensuremath{\to} \tilde{}400MB;).
+ * Prime iff \texttt{lp[x] == x}. \texttt{factor(x)} returns \{p, e\} pairs, $1 \le x \le$ mx.
  * Status: Tested
  */
 #pragma once
@@ -17,7 +18,6 @@ FOR (i, 2, mx + 1) {
     if (lp[i] == 0) lp[i] = i, primes.pb(i);
     for (int j = 0; i * primes[j] <= mx; j++) {
         lp[i * primes[j]] = primes[j];
-		// store i to avoid division when factoring
         if (primes[j] == lp[i]) break;
     }
 }

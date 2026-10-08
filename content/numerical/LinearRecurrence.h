@@ -9,6 +9,9 @@
  * Faster than matrix multiplication.
  * Useful together with Berlekamp--Massey.
  * Usage: linearRec({0, 1}, {1, 1}, k) // k'th Fibonacci number
+ *  vl s; F0R (i, 40) s.pb(brute(i) % mod); // >= 2n terms
+ *  vl c = berlekampMassey(s); // check 2 size(c) < size(s)
+ *  ll x = linearRec(s, c, k); // s[k], k up to 1e18
  * Time: O(n^2 \log k)
  * Status: bruteforce-tested mod 5 for n <= 5
  */
@@ -19,6 +22,8 @@ const ll mod = 5; /** exclude-line */
 using Poly = vt<ll>;
 ll linearRec(Poly S, Poly tr, ll k) {
     int n = size(tr);
+    assert(size(S) >= n);
+    if (!n) return 0;
 
     auto combine = [&] (Poly a, Poly b) {
         Poly res(n * 2 + 1);
@@ -40,5 +45,5 @@ ll linearRec(Poly S, Poly tr, ll k) {
 
     ll res = 0;
     F0R (i, n) res = (res + pol[i + 1] * S[i]) % mod;
-    return res;
+    return (res + mod) % mod;
 }

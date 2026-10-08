@@ -4,7 +4,9 @@
  * License: CC0
  * Source: folklore
  * Description: Unsigned bigint of exactly $N$ 64-bit limbs, stored most
- * significant first
+ * significant first. Arithmetic is mod $2^{64N}$. \texttt{Big(x)} puts $x$
+ * in the lowest limb, zero-extended. \texttt{bit(i)} is bit $i$ from the
+ * LSB. \texttt{==} and \texttt{<} compare values.
  * Time: O(N) per operation.
  * Status: stress-tested against __uint128\_t and a bitset oracle
  */

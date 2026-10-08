@@ -6,6 +6,8 @@ run-all.sh          load-bearing  'make test' and CI. Compiles and runs every
                                   -O2 and stdin closed, using a precompiled
                                   stress-tests/utilities/template.h. Any
                                   nonzero exit is a failed test.
+                                  A test containing a "// -std=c++20" comment is
+                                  compiled with that standard instead.
 compile-all.sh      load-bearing  'make test-compiles' and CI. Syntax-checks
                                   every content/**/*.h except the ones listed
                                   in skip_headers.

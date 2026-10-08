@@ -5,11 +5,14 @@
  * Description: Ukkonen's algorithm for the compact trie of all suffixes.
  *  Edges are intervals $[l,r)$ of the input, so the tree has $O(N)$ nodes.
  *  Each internal node's suffix link removes the first character from its path.
- *  The root is 0; node 1 is auxiliary and not part of the tree.
+ *  Node v has parent p[v], suffix link suf[v], children t[v][c] (-1 if none)
+ *  and incoming edge a[l[v]..r[v]). The root is 0 (l = -1, r = 0); node 1 is auxiliary.
  *  Append a unique dummy symbol to make every suffix an explicit leaf;
  *  without one, some suffixes end inside edges (substring matching still works).
- *  Characters are consecutive from `a'; pass the alphabet size to the constructor.
+ *  Every character, the dummy included, lies in [`a', `a'+alpha); pass alpha
+ *  to the constructor (default 27, dummy '\{').
  * Time: $O(\Sigma N)$
+ * Memory: $\approx(8\Sigma+120)N$ bytes
  * Status: stress-tested
  */
 #pragma once

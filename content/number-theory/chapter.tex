@@ -23,7 +23,7 @@
 	\kactlimport{CRT.h}
 	
 	\subsection{Bézout's identity}
-	For $a \neq $, $b \neq 0$, then $d=gcd(a,b)$ is the smallest positive integer for which there are integer solutions to
+	For $a, b$ not both $0$, $d=\gcd(a,b)$ is the smallest positive integer for which there are integer solutions to
 	$$ax+by=d$$
 	If $(x,y)$ is one solution, then all solutions are given by
 	$$\left(x+\frac{kb}{\gcd(a,b)}, y-\frac{ka}{\gcd(a,b)}\right), \quad k\in\mathbb{Z}$$
@@ -38,11 +38,12 @@
 	and is denoted shortly as
 	\[ r = [a_0; a_1, a_2, \ldots, a_k]. \]
 	If $a_0 > 0$ then $\frac{1}{r}$ is given by sticking a $0$ in front. If $a_0 = 0$ then ditch the first term. \\ 
-	$[a_0, a_1, \dots, a_n - 1]$ gives the run-length encoding (right first) of $r$'s path in the Stern-Brocot tree. \\ 
+$[a_0, a_1, \dots, a_n - 1]$ gives the run-length encoding $R^{a_0}L^{a_1}R^{a_2}\cdots$ of $r$'s path from the root $1/1$ in the Stern-Brocot tree. \\ 
 	$r_k = [a_0; a_1, a_2, \dots, a_k] = \frac{p_k}{q_k}$ is called the $k$-th \emph{convergent} of $r$. \\
+	$p_k=a_kp_{k-1}+p_{k-2}$, $q_k=a_kq_{k-1}+q_{k-2}$, $(p_{-1},q_{-1})=(1,0)$, $(p_{-2},q_{-2})=(0,1)$. \\
 	Semiconvergents are convergents but you can lower the last number down to 1. \\
 	Consider the convex hull of points above and below $y = rx$. Odd convergents $(q_k; p_k)$ give vertices of the upper hull, while even convergents give the vertices of the lower hull. \\
-	The set of semiconvergents = set of lattice points on the hulls. Combine these facts with Pick's theorem for funny stuff. \\
+	The set of semiconvergents = set of lattice points on the hulls. Combine these facts with Pick's theorem ($A = I + B/2 - 1$) for funny stuff. \\
 
 	\kactlimport{SBT.h}
 	\kactlimport{ContinuedFractions.h}
@@ -54,17 +55,41 @@
  with $m > n > 0$, $k > 0$, $m \bot n$, and either $m$ or $n$ even.
 
 \section{Primes}
-	$p=962592769$ is such that $2^{21} \mid p-1$, which may be useful. For hashing
+	$p=962592769$ is such that $2^{21} \mid p-1$ (primitive root 7), which may be useful. For hashing
 	use 970592641 (30-bit number), 31443539979727 (45-bit), 3006703054056749
 	(52-bit). There are 78498 primes less than 1\,000\,000.
 
 	Primitive roots exist modulo any prime power $p^a$, except for $p = 2, a > 2$, and there are $\phi(\phi(p^a))$ many.
 	For $p = 2, a > 2$, the group $\mathbb Z_{2^a}^\times$ is instead isomorphic to $\mathbb Z_2 \times \mathbb Z_{2^{a-2}}$.
 
+	\subsection{NTT primes}
+	$p=c\cdot2^a+1$, result length $\le2^a$. \texttt{root} must be a primitive root $g$ of $p$ (62 in NTT.h only fits the first five):\\
+	998244353 ($c{=}119,a{=}23,g{=}3$), 167772161 ($5,25,3$), 469762049 ($7,26,3$), 1004535809 ($479,21,3$), 2013265921 ($15,27,31$), 754974721 ($45,24,11$), 962592769 ($459,21,7$).
+
 \section{Estimates}
 	$\sum_{d|n} d = O(n \log \log n)$.
 
 	The number of divisors of $n$ is at most 100 for $n < 5e4$, 240 for $n < 1e6$, 768 for $n < 1e8$, 6720 for $n < 1e12$, 103\,680 for $n < 1e18$.
+
+	Max $d(n)$ for $n<10^k$: 100 for $5\cdot10^4$, 240 for $10^6$ (720720), 768 for $10^8$, 1344 for $10^9$ (735134400), 6720 for $10^{12}$ (963761198400), 26880 for $10^{15}$ (866421317361600), 103\,680 for $10^{18}$ (897612484786617600).
+	Primorials: 2, 6, 30, 210, 2310, 30030, 510510, 9699690, 223092870, 6469693230, \dots; $\omega(n)\le9,11,15$ for $n<10^9,10^{12},10^{18}$.
+
+	\begin{center}
+	\begin{tabular}{c|c@{\ }c@{\ }c@{\ }c@{\ }c@{\ }c@{\ }c}
+	$k$ & 3 & 4 & 5 & 6 & 7 & 8 & 9\\ \hline
+	$\pi(10^k)$ & 168 & 1229 & 9592 & 78498 & 664579 & 5761455 & 50847534
+	\end{tabular}
+	\end{center}
+	$\pi(10^{12})=37607912018$. Largest prime gap below $10^9$: 282 (after 436273009), $10^{12}$: 540, $10^{18}$: 1442.
+
+\section{Floors}
+$\lfloor\lfloor n/a\rfloor/b\rfloor=\lfloor n/ab\rfloor$, $\lceil a/b\rceil=\lfloor(a+b-1)/b\rfloor$ for $a\ge0,b>0$.\\
+$\lfloor n/i\rfloor$ takes $\le2\sqrt n$ values, constant on blocks:\\
+\verb@for (l = 1; l <= n; l = r + 1) {@\\
+\verb@  r = n / (n / l); /* i in [l,r] */ }@\\
+$\sum_{i\le n}\lfloor n/i\rfloor=\sum_{k\le n}d(k)=2\sum_{i\le\sqrt n}\lfloor n/i\rfloor-\lfloor\sqrt n\rfloor^2$,\\
+$\sum_{i\le n}i\lfloor n/i\rfloor=\sum_{k\le n}\sigma(k)$.\\
+Lattice points under a line: \texttt{divsum} (ModSum.h).
 
 \section{Mobius Function}
 	\[
@@ -79,3 +104,13 @@
 	$ g(n) = \sum_{n|d} f(d) \Leftrightarrow f(n) = \sum_{n|d} \mu(d/n)g(d)$
 
 	$ g(n) = \sum_{1 \leq m \leq n} f(\left\lfloor\frac{n}{m}\right \rfloor ) \Leftrightarrow f(n) = \sum_{1\leq m\leq n} \mu(m)g(\left\lfloor\frac{n}{m}\right\rfloor)$ \\
+
+	\subsection{Multiplicative functions}
+	$(f*g)(n)=\sum_{d|n}f(d)g(n/d)$. $\phi=\mu*\mathrm{id}$, $d=1*1$, $\sigma=\mathrm{id}*1$, $\sigma(n)=\prod\frac{p_i^{e_i+1}-1}{p_i-1}$, $\prod_{d|n}d=n^{d(n)/2}$.
+	\begin{align*}
+	\textstyle\sum_{i\le n,j\le m}[\gcd(i,j)=1]&=\textstyle\sum_d\mu(d)\lfloor\frac nd\rfloor\lfloor\frac md\rfloor\\
+	\textstyle\sum_{i,j\le n}\gcd(i,j)&=\textstyle\sum_d\phi(d)\lfloor\frac nd\rfloor^2\\
+	\textstyle\sum_{i\le n}\gcd(i,n)&=\textstyle\sum_{d|n}d\,\phi(n/d)\\
+	\textstyle\sum_{i\le n}\mathrm{lcm}(i,n)&=\textstyle\frac n2\big(1+\sum_{d|n}d\,\phi(d)\big)
+	\end{align*}
+	Coprime pairs in $[1,n]^2$: $2\Phi(n)-1$, $\Phi=\sum_{i\le n}\phi(i)$. $\Phi(n)=\frac{n(n+1)}2-\sum_{d\ge2}\Phi(\lfloor n/d\rfloor)$ in $O(n^{2/3})$ with a sieve up to $n^{2/3}$.

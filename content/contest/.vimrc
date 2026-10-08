@@ -3,8 +3,8 @@ sy on | ino <A-[> <Esc>
 for k in split('h j k l o') | exe 'ino <A-'.k.'> <C-o>'.k | exe 'nno <A-'.k.'> '.k | endfor
 
 " F5: save, compile with sanitizers, run (paste the input, then Ctrl-D):
-nno <F5> :w<CR>:!g++ -Wall -Wextra -Wfatal-errors -fsanitize=address,undefined -g -Og % -o %< && ./%<<CR>
-nno <F6> :w<CR>:!g++ -Wall -Wextra -Wfatal-errors -fsanitize=address,undefined -g -Og % -o %< && ./%< < in<CR>
+nno <F5> :w<CR>:!g++ -D_GLIBCXX_DEBUG -Wall -Wextra -Wfatal-errors -fsanitize=address,undefined -g -Og % -o %< && ./%<<CR>
+nno <F6> :w<CR>:!g++ -D_GLIBCXX_DEBUG -Wall -Wextra -Wfatal-errors -fsanitize=address,undefined -g -Og % -o %< && ./%< < in<CR>
 
 " Select region and then type :Hash to hash your selection.
 ca Hash w !cpp -dD -P -fpreprocessed \| tr -d '[:space:]' \| md5sum \| cut -c-6

@@ -7,8 +7,9 @@
  * edges such that the path from any leaf to the root contains at most log(n)
  * light edges. \texttt{process(u, v, op)} calls \texttt{op(l, r)} on
  * $O(\log N)$ half-open ranges of positions covering the u--v path; pair it
- * with any range structure indexed by \texttt{pos}. Subtree of u is
- * \texttt{[pos[u], pos[u] + sz[u])}. in\_edges true stores values on edges
+ * with any range structure indexed by \texttt{pos}; op must be commutative.
+ * Subtree of u is \texttt{[pos[u] + in\_edges, pos[u] + sz[u])}.
+ * in\_edges true stores edge (par[v], v) at \texttt{pos[v]}
  * (the range for a path skips the LCA). Takes the full adjacency list;
  * root must be 0.
  * Time: O((\log N)^2)
@@ -20,7 +21,7 @@ template<bool in_edges> struct HLD {
     int n, time;
     vt<vi> adj;
     vi par, root, sz, pos;
-    HLD(vt<vi> &adj) : n(size(adj)), time(0), adj(adj), par(n), root(n), sz(n), pos(n) {
+    HLD(vt<vi> &adj) : n(size(adj)), time(0), adj(adj), par(n, -1), root(n), sz(n), pos(n) {
         dfs_sz(0);
         dfs_hld(0);
     } // <hash>
@@ -41,11 +42,6 @@ template<bool in_edges> struct HLD {
             dfs_hld(v);
         }
     }
-    void init(int _n) {
-        n = _n, time = 0;
-        adj.resize(n);
-        par = root = sz = pos = vi(n);
-    } // <hash>
     template <class Op>
     void process(int u, int v, Op op) {
         for (; ; v = par[root[v]]) {
@@ -54,5 +50,10 @@ template<bool in_edges> struct HLD {
             op(pos[root[v]], pos[v] + 1);
         }
         op(pos[u] + in_edges, pos[v] + 1); // u is lca
+    }
+    int lca(int u, int v) {
+        for (; root[u] != root[v]; v = par[root[v]])
+            if (pos[u] > pos[v]) swap(u, v);
+        return pos[u] < pos[v] ? u : v;
     }
 };

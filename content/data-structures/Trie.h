@@ -4,15 +4,18 @@
  * Description: maintains a multiset of ints in [0, 2\ensuremath{^{lg}})
  * with queries related to xor. All lazy/push lines are optional:
  * delete them if you don't need global xor.
- * Usage: Node t{}; t.ins(x); t.qmin(x); t.lazy ^= v;
+ * Usage: Node t{}; t.ins(x) (1 if new); t.del(x); t.qmin(x);
+ *  t.count<0>(x, k) = \#y with x^y < k (<1>: >); t.lazy ^= v;
+ *  mex() needs ins-only tries. merge(a, b) with ptr a, b; b is consumed.
  * Time: O(lg)
+ * Memory: 24 B/node, $\le$ lg nodes per element, never freed.
  * Source: me
  */
 
 const int lg = 30;
 using ptr = struct Node *;
 struct Node {
-    int cnt = 0;
+    int cnt = 0, lazy = 0; // root->lazy ^= v xors all elements
     ptr _c[2] = {};
     ptr &c(int i) { return _c[i] ?: _c[i] = new Node {}; }
 
@@ -32,7 +35,7 @@ struct Node {
         return (i-- ? c(1 & x >> i)->del(x, i) : cnt) ? cnt-- : 0;
     }
 
-    // find y in n with minimum x ^ y
+    // min of x ^ y over the set (nonempty)
     int qmin(int x, int i = lg) {
         push(i);
         if (!i--) return 0;
@@ -41,7 +44,7 @@ struct Node {
             c(!b)->qmin(x, i) | (1 << i);
     }
 
-    // find y in n with maximum x ^ y
+    // max of x ^ y over the set (nonempty)
     int qmax(int x, int i = lg) {
         push(i);
         if (!i--) return 0;
@@ -60,15 +63,13 @@ struct Node {
             + c(b)->count<sgn>(x, k, i);
     }
 
-    int lazy = 0; // root->lazy ^= v xors every element by v
-
     inline void push(int i) { // lazy xor
         if (i && 1 & lazy >> (i - 1)) swap(_c[0], _c[1]);
         for (int j = 2; j--; _c[j] && (_c[j]->lazy ^= lazy));
         lazy = 0;
     }
 
-    int mex(int i = lg) {
+    int mex(int i = lg) { // ins-only tries
         if (!i) return 0;
         push(i);
         int b = c(0)->cnt == (1 << --i);

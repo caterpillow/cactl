@@ -5,6 +5,7 @@
  * Source: own work
  * Description: Solves $Ax = b$ over $\mathbb F_2$. If there are multiple solutions, one is returned arbitrarily.
  *  Returns rank, or -1 if no solutions. Destroys $A$ and $b$.
+ * Usage: solveLinear(A, b, x, m); // b[i] is 0 or 1
  * Time: O(n^2 m)
  * Status: bruteforce-tested for n, m <= 4
  */

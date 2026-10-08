@@ -5,7 +5,9 @@
  * Source: https://github.com/spaghetti-source/algorithm/blob/master/graph/arborescence.cc
  * and https://github.com/bqi343/USACO/blob/42d177dfb9d6ce350389583cfa71484eb8ae614c/Implementations/content/graphs%20(12)/Advanced/DirectedMST.h for the reconstruction
  * Description: Finds a minimum spanning
- * tree/arborescence of a directed graph, given a root node. If no MST exists, returns -1.
+ * tree/arborescence of a directed graph, given a root node. Edges
+ * go from a to b with weight w. Returns (cost, par), par[v] = tail
+ * of v's tree edge, par[r] = -1; par is empty if no MST exists.
  * Time: O(E \log V)
  * Status: Stress-tested, also tested on NWERC 2018 fastestspeedrun
  */
@@ -36,7 +38,7 @@ Node *merge(Node *a, Node *b) {
 void pop(Node*& a) { a->prop(); a = merge(a->l, a->r); }
 
 pair<ll, vi> dmst(int n, int r, vt<Edge>& g) {
-    DSU uf; uf.init(n);
+    DSU uf(n);
     vt<Node*> heap(n);
     for (Edge e : g) heap[e.b] = merge(heap[e.b], new Node{e});
     ll res = 0;

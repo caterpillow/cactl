@@ -5,7 +5,8 @@
  * Source: me
  * Description: Generic sparse table for idempotent operations.
  * Time: O(N \log N) build, O(1) query.
- * Usage: Define the desired operation
+ * Usage: RMQ<int> t; t.init(v); t.query(l, r) on [l, r), r > l; edit the func define (min).
+ * Memory: O(N \log N), 160MB for ll at N = 1e6.
  * Status: stress-tested
  */
 #pragma once

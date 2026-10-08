@@ -2,7 +2,10 @@
  * Author: caterpillow
  * Date: 2025-08-26
  * Source: me
- * Description: KD-tree (2d)
+ * Description: KD-tree (2d), squared distances. Coordinates in $[-10^9, 10^9]$.
+ * Usage: vt<P> v; // P = array<int, 2>
+ *  Node *t = new Node(all(v), 0); // reorders v
+ *  ll b = LLONG_MAX; t->search(q, b); // b = nearest dist2
  * Status: stress-tested
  */
 #pragma once
@@ -38,7 +41,7 @@ struct Node {
         rc = new Node(m, r, d ^ 1);
     }
 
-    // nearest neighbour: init best = INF (ok for |coords| <= 7e8); 0 if p in set
+    // nearest neighbour: init best = LLONG_MAX; 0 if p in set
     void search(P p, ll &best) {
         if (lc) { // rc will also exist
             ll dl = lc->dist2(p), dr = rc->dist2(p);
@@ -48,7 +51,7 @@ struct Node {
         } else best = min(best, dist2(p, lo));
     }
 
-    // fill pq with k infinities for nearest k points
+    // push k LLONG_MAX; top() = kth nearest
     void search(P p, priority_queue<ll> &pq) {
         if (lc) {
             ll dl = lc->dist2(p), dr = rc->dist2(p);

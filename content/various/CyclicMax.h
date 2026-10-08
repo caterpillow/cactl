@@ -10,7 +10,7 @@
  * may be equal. Returns $(i, i+1 \bmod n)$ if $f(i) = f(i+1)$ is the max,
  * else $(i, -1)$. \texttt{cyc\_peak} takes a 3-way \texttt{comp(i, j)}
  * $=$ sign of $f(i) - f(j)$, exactly $-1/0/1$, instead of values (angles
- * via cross products, or negate for the argmin). At most $5 \log_2 n$
+ * via cross products, or negate for the argmin). At most $5 \log_2 n + 3$
  * comparisons. The eps version needs consecutive values to differ by
  * more than eps except at the two ties.
  * Usage: cyc_max(n, [\&](int i) { return poly[i].dot(dir); })

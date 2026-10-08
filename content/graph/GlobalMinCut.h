@@ -6,6 +6,7 @@
  * Description: Find a global minimum cut in an undirected graph, as
  * represented by an adjacency matrix. Weights are ll; keep the total
  * graph weight below \tilde{}1e17.
+ * Usage: mat[a][b] += w, mat[b][a] += w; returns {weight, one side}
  * Time: O(V^3)
  * Status: Stress-tested together with GomoryHu
  */

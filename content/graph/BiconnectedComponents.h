@@ -4,10 +4,12 @@
  * License: CC0
  * Source: folklore
  * Description: Finds all biconnected components in an undirected graph.
- *  In a biconnected component there are at least two distinct paths between any two nodes (a cycle exists through them). 
+ *  In a biconnected component there are at least two internally disjoint paths between any two nodes (a cycle exists through them). 
  *  Note that a node can be in several components. 
- *  An edge which is not in a component is a bridge, i.e., not part of any cycle.
+ *  An edge in no component is a bridge or a self-loop.
  *  Note that degree 0 nodes are not considered components. 
+ * Usage: BCC b; b.init(n, E); // E: vt<pi> lvalue, 0-indexed
+ *  b.comps[k]: indices into E of block k; b.is_bridge[i]: E[i].
  * Time: O(E + V)
  * Status: tested on yosupo
  */

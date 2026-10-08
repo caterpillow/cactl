@@ -22,9 +22,9 @@ This is useful for solving problems on the type
 where $a_0$, $a_{n+1}$, $b_i$, $c_i$ and $d_i$ are known. $a$ can then be obtained from
 \begin{align*}
 \{a_i\}=\textrm{tridiagonal}(&\{1,-1,-1,...,-1,1\}, \{0,c_1,c_2,\dots,c_n\},\\
-&\{b_1,b_2,\dots,b_n,0\}, \{a_0,d_1,d_2,\dots,d_n,a_{n+1}\}).
+&\{b_1,b_2,\dots,b_n,0\}, \{a_0,-d_1,-d_2,\dots,-d_n,a_{n+1}\}).
 \end{align*}
-Fails if the solution is not unique.
+Fails if the solution is not unique. $p$ and $q$ have length $n-1$.
 
 If $|d_i| > |p_i| + |q_{i-1}|$ for all $i$, or $|d_i| > |p_{i-1}| + |q_i|$, or the matrix is positive definite,
 the algorithm is numerically stable and neither \texttt{tr} nor the check for \texttt{diag[i] == 0} is needed.

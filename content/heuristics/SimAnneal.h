@@ -2,7 +2,8 @@
  * Author: caterpillow
  * Date: 2025-09-23
  * Source: me
- * Description: template for simulated annealing
+ * Description: Complete SA program (own main) with an example
+ * problem. \texttt{gen(l, r)} is inclusive.
  */
 #pragma once
 
@@ -46,7 +47,7 @@ struct State {
             case 0:
                 i = gen(0, n - 1);
                 j = gen(0, n - 2);
-                if (i == j) j++;
+                if (j >= i) j++;
                 swap(a[i], a[j]);
                 break;
             case 1:
@@ -68,7 +69,7 @@ struct State {
         }
     }
 
-    int calc_value() {
+    T calc_value() {
         T ans = 0, sum = 0;
         for (int x : a) sum += x, ans += abs(sum);
         return value = ans;
@@ -106,7 +107,7 @@ signed main() {
     int its = 0;
     db t;
     while (true) {
-        if ((its & 511) == 0) {
+        if ((its & 511) == 0) { // lower if eval slow
             time_passed = elapsed() / TIME_LIMIT;
             if (time_passed > 1.0) break;
             t = t0 * pow(tn / t0, time_passed);

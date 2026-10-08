@@ -3,9 +3,9 @@
  * Date: 2016-8-24
  * License: CC0
  * Source: me
- * Description: LiChao tree
+ * Description: LiChao tree: min of lines at integer $x \in [0, sz)$; empty tree gives INF.
  * Time: O(\log N).
- * Usage: self explanatory i think
+ * Usage: ptr root = 0; add(root, {m, c}); query(root, x). Max: add {-m, -c}, negate.
  * Status: stress-tested
  */
 #pragma once

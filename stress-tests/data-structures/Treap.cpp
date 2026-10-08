@@ -2,10 +2,36 @@
 // Tests: del exact-key semantics (dups, absent keys), findi with keys != indices,
 // upd/updi on empty ranges, and full randomized mixes vs brute force:
 // key mode (ins/del/upd/query/find/findi/mn/unite) and index mode
-// (insi/deli/updi with add/assign/rev, queryi/findi). written by Claude (audit)
+// (insi/deli/updi with add/assign/rev, queryi/findi), and order() with parent
+// pointers after reversals. written by Claude (audit)
 #include "../utilities/template.h"
 #undef sz // template.h shim clashes with Treap.h's sz(ptr) function
 #include "../../content/data-structures/Treap.h"
+
+// Convenience wrappers (left the header on 2026-10-06; use split + lazy + merge).
+ptr ins(ptr n, K k, Value val) { auto [l, r] = split(n, k); return merge(l, merge(new Node(k, val), r)); }
+ptr insi(ptr n, int i, K k, Value val) { auto [l, r] = spliti(n, i); return merge(l, merge(new Node(k, val), r)); }
+ptr deli(ptr n, int i) { auto b = spliti(n, i + 1), a = spliti(b.f, i); return merge(a.f, b.s); }
+ptr upd(ptr n, K lo, K hi, Lazy nv) {
+    if (lo > hi) return n;
+    auto [lhs, r] = split(n, hi + 1); auto [l, m] = split(lhs, lo);
+    if (m) m->lazy += nv;
+    return merge(l, merge(m, r));
+}
+ptr updi(ptr n, int lo, int hi, Lazy nv) {
+    if (lo > hi) return n;
+    auto [lm, r] = spliti(n, hi + 1); auto [l, m] = spliti(lm, lo);
+    if (m) m->lazy += nv;
+    return merge(l, merge(m, r));
+}
+Value query(ptr &n, K lo, K hi) {
+    auto [lm, r] = split(n, hi + 1); auto [l, m] = split(lm, lo);
+    Value res = agg(m); n = merge(l, merge(m, r)); return res;
+}
+Value queryi(ptr &n, int lo, int hi) {
+    auto [lm, r] = spliti(n, hi + 1); auto [l, m] = spliti(lm, lo);
+    Value res = agg(m); n = merge(l, merge(m, r)); return res;
+}
 
 mt19937 rng(12345);
 ll rnd(ll a, ll b) { return uniform_int_distribution<ll>(a, b)(rng); }
@@ -219,11 +245,48 @@ void test_mix_index() { // item 4b: index-mode mix with add/assign/rev lazies
     delete n;
 }
 
+void test_order() { // order(x): index of node x once the root-to-x path is pushed (find/findi do that)
+    F0R(it, 300) {
+        ptr n = 0; vt<PKV> brute;
+        int m = (int) rnd(1, 40);
+        F0R(j, m) {
+            K k = rnd(0, 15); ll v = rnd(-5, 5); int i = (int) rnd(0, size(brute));
+            n = insi(n, i, k, mkval(v)); brute.insert(brute.begin() + i, {k, v});
+        }
+        F0R(op, 40) {
+            int lo = (int) rnd(0, size(brute) - 1), hi = (int) rnd(lo, size(brute) - 1);
+            int kind = (int) rnd(0, 2);
+            if (kind == 0) { n = updi(n, lo, hi, {0, true, true}); reverse(brute.begin() + lo, brute.begin() + hi + 1); }
+            else if (kind == 1) { int i = (int) rnd(0, size(brute) - 1); n = deli(n, i); brute.erase(brute.begin() + i); if (brute.empty()) break; }
+            else { int i = (int) rnd(0, size(brute)); K k = rnd(0, 15); n = insi(n, i, k, mkval(1)); brute.insert(brute.begin() + i, {k, 1}); }
+            F0R(rep, 3) {
+                int i = (int) rnd(0, size(brute) - 1);
+                ptr x = findi(n, i);
+                assert(x && x->key == brute[i].f && order(x) == i);
+            }
+            check_eq(n, brute);
+        }
+        delete n;
+    }
+    // key mode: sorted treap, order(find(n, k)) is an index holding key k
+    F0R(it, 100) {
+        ptr n = 0; vt<PKV> brute;
+        F0R(j, 30) { K k = rnd(0, 20); n = ins(n, k, mkval(k)); brute.insert(brute.begin() + lbk(brute, k), {k, k}); }
+        F0R(q, 30) {
+            K k = rnd(0, 20); ptr x = find(n, k);
+            if (!x) { assert(lbk(brute, k) == size(brute) || brute[lbk(brute, k)].f != k); continue; }
+            int i = order(x); assert(0 <= i && i < size(brute) && brute[i].f == k);
+        }
+        delete n;
+    }
+}
+
 int main() {
     test_del();
     test_findi();
     test_empty_ranges();
     test_mix_key();
     test_mix_index();
+    test_order();
     cout << "Tests passed!" << endl;
 }

@@ -10,6 +10,7 @@
  * ($p_k/q_k$ alternates between $>x$ and $<x$.)
  * If $x$ is rational, $y$ eventually becomes $\infty$;
  * if $x$ is the root of a degree $2$ polynomial the $a$'s eventually become cyclic.
+ * Usage: pl r = approximate(M_PI, 1000); // {355, 113}
  * Time: O(\log N)
  * Status: stress-tested for n <= 300
  */

@@ -5,10 +5,14 @@
  * Source: Wikipedia
  * Description: Fast integration using an adaptive Simpson's rule.
  *  eps is the absolute error budget for the whole interval (halves get
- *  eps/2); recursion also stops below width 1e-10, so rescale tiny
- *  domains. Split at kinks and discontinuities; for endpoint
- *  singularities substitute $x = a + t^2$ ($dx = 2t\,dt$), for infinite
- *  ranges $x = \tan t$ or $x = t/(1-t)$. Nested quads cost eps$^{-d}$.
+ *  eps/2). Stop test $|T - S| \le 15\,$eps: the two-half estimate $T$ has
+ *  error $\approx (T - S)/15$, which is also the correction returned.
+ *  Width $< 10^{-10}$ also stops, so rescale tiny domains. Cost grows
+ *  with $|f|$: scale eps with the answer (the sphere below takes $10^7$
+ *  evaluations). Split at kinks and discontinuities; for endpoint
+ *  singularities substitute $x = a + t^2$ ($dx = 2t\,dt$; the
+ *  endpoints are evaluated, so guard $t = 0$), for infinite
+ *  ranges $x = \tan t$ or $x = t/(1-t)$.
  * Usage: quad(a, b, f, eps = 1e-8) // e.g.
 	db sphereVolume = quad(-1, 1, [](db x) {
 	return quad(-1, 1, [\&](db y) {
@@ -25,7 +29,7 @@ template <class F>
 d rec(F& f, d a, d b, d eps, d S) {
     d c = (a + b) / 2;
     d S1 = S(a, c), S2 = S(c, b), T = S1 + S2;
-    if (abs(T - S) <= 15 * eps || b - a < 1e-10)
+    if (abs(T - S) <= 15 * eps || abs(b - a) < 1e-10)
         return T + (T - S) / 15;
     return rec(f, a, c, eps / 2, S1) + rec(f, c, b, eps / 2, S2);
 }

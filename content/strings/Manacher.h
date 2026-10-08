@@ -1,8 +1,8 @@
 /**
  * Author: User adamant on CodeForces
  * Source: http://codeforces.com/blog/entry/12143
- * Description: For each position in a string, computes p[0][i] = half length of
- *  longest even palindrome around pos i, p[1][i] = longest odd (half rounded down).
+ * Description: p[0][i] = k: s[i-k, i+k) is the longest even palindrome (length 2k).
+ *  p[1][i] = k: s[i-k, i+k] is the longest odd palindrome (length 2k+1).
  * Time: O(N)
  * Status: Stress-tested
  */

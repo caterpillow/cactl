@@ -5,7 +5,7 @@
  * Source: me
  * Description: Generic sparse table for idempotent operations.
  * Time: O(N \log N) build, O(1) query.
- * Usage: Define the desired operation
+ * Usage: init(v); query(l, r) on [l, r), r > l.
  * Status: stress-tested
  */
 #pragma once

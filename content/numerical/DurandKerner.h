@@ -4,9 +4,9 @@
  * License: CC0
  * Description: Durand--Kerner: all $n$ complex roots of
  * $a_0 + a_1 x + \dots + a_n x^n$ at once ($a_n \ne 0$). Quadratic
- * convergence for simple roots, only linear (\tilde{}1e-5) for multiple
- * ones (a Newton polish is included). Scale the coefficients so roots
- * are $O(1)$. Real roots: \texttt{abs(imag) < eps}.
+ * convergence for simple roots; a root of multiplicity $m$ is only
+ * accurate to $\approx 10^{-16/m}$, and $n > 15$ is ill-conditioned.
+ * Scale so roots are $O(1)$. Real roots: \texttt{abs(imag) < eps}.
  * Usage: dk_roots({-2, 0, 1}) // x^2 - 2
  * Time: O(n^2) per iteration, typically 50--500 iterations
  * Status: stress-tested
@@ -14,6 +14,7 @@
 #pragma once
 
 vt<complex<db>> dk_roots(vt<db> a, int iters = 500) {
+    while (size(a) > 1 && a.back() == 0) a.pop_back();
     int n = size(a) - 1;
     vt<complex<db>> z(n);
     F0R (i, n)
@@ -31,7 +32,7 @@ vt<complex<db>> dk_roots(vt<db> a, int iters = 500) {
     F0R (i, n) F0R (t, 3) { // Newton polish
         complex<db> v = 0, d = 0;
         ROF (k, 0, n + 1) d = d * z[i] + v, v = v * z[i] + a[k];
-        if (abs(d) > 0) z[i] -= v / d;
+        if (abs(v) < abs(d) * 1e-9) z[i] -= v / d;
     }
     return z;
 }

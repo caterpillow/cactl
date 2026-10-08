@@ -3,10 +3,10 @@
  * Date: 2019-05-17
  * License: CC0
  * Source: https://github.com/ngthanhtrung23/ACM_Notebook_new
- * Description: Determine whether a point t lies inside a convex hull (CCW
+ * Description: Determine whether a point p lies inside a convex hull (CCW
  * order, with no collinear points). Returns true if point lies within
- * the hull. If strict is true, points on the boundary aren't included.
- * Usage:
+ * the hull. strict (default true) excludes points on the boundary.
+ * Usage: in_hull(hull, p, false); // boundary counts
  * Status: stress-tested
  * Time: O(\log N)
  */

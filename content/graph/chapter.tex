@@ -6,7 +6,7 @@
 
 	\subsection{Hall's Marriage Theorem}
 		$G = (L, R; E)$ has a matching covering all of $L$ iff $|N(S)| \ge |S|$ for every $S \subseteq L$. \\
-		Corollary: Let $\delta=\max_{S\subseteq L}\big(|S|-|N(S)|\big)$. The size of the maximum matching is $\tau = |L|-\delta$. \\
+		Corollary: Let $\delta=\max_{S\subseteq L}\big(|S|-|N(S)|\big)$. The size of the maximum matching is $\nu = |L|-\delta$. \\
 
 	\subsection{Kőnig's Theorem}
  		In bipartite graphs: \textbf{max matching = min vertex cover}, i.e. $\nu(G)=\tau(G)$.
@@ -22,9 +22,11 @@
 		Reduction: make bipartite graph with two copies of elements; edge $x_L\!-\!y_R$ if $x<y$. Then
 		width $=$ min chain decomposition size $= |P|-\nu$. \\
 		Mirsky's Theorem (dual): Height (max chain size) = min number of antichains in a partition. \\
+		Max antichain: from a min vertex cover, take the $x$ with neither $x_L$ nor $x_R$ in it. \\
+		Min vertex-disjoint path cover of a DAG $=|V|-\nu$, with an edge $x_L\!-\!y_R$ per DAG edge. \\
 
 	\subsection{Tutte's 1-Factor Theorem}
-		$odd(G)$ is the number of components in $G$ with an odd number of vertices. 
+$\text{odd}(H)$ is the number of components of a graph $H$ with an odd number of vertices.
 		$G$ has a perfect matching iff for all $S\subseteq V$, $\text{odd}(G-S)\le |S|$.
 		Tutte--Berge formula: $\displaystyle \nu(G)=\tfrac12\min_{S\subseteq V}\big(|V|-\text{odd}(G-S)+|S|\big)$. \\
 
@@ -35,7 +37,7 @@
 	\subsection{Number of Spanning Trees}
 		Create an $N\times N$ matrix \texttt{mat}, and for each edge $a \rightarrow b \in G$, do
 		\texttt{mat[a][b]---, mat[b][b]++} (and \texttt{mat[b][a]---, mat[a][a]++} if $G$ is undirected).
-		Remove the $i$th row and column and take the determinant; this yields the number of directed spanning trees rooted at $i$
+		Remove the $i$th row and column and take the determinant; this yields the number of directed spanning trees rooted at $i$ with edges pointing away from $i$
 		(if $G$ is undirected, remove any row/column).
 		% I.e. matrix-tree theorem.
 		% Source: https://en.wikipedia.org/wiki/Kirchhoff%27s_theorem
@@ -51,6 +53,9 @@
 		A connected planar graph has $V - E + F = 2$ (counting the outer face); with $C$ components, $V - E + F = 1 + C$.
 		Simple planar with $V \ge 3$: $E \le 3V - 6$ (and $E \le 2V - 4$ if triangle-free), so average degree $< 6$.
 		% Source: https://en.wikipedia.org/wiki/Euler_characteristic#Plane_graphs
+
+	\subsection{BEST theorem}
+	Connected digraph with indeg $=$ outdeg $=\deg(v)$ everywhere: the number of Eulerian circuits (cyclic sequences of distinct edges) is $t_w(G)\prod_v(\deg(v)-1)!$, where $t_w$ is the number of spanning arborescences rooted at $w$ (any $w$; the matrix of Number of Spanning Trees). Euler trails $s\to t$: add an arc $t\to s$ first.
 
 \section{Fundamentals}
 	\kactlimport{Dijkstra.h}
@@ -76,7 +81,7 @@
 		\item Add edges $s$ to $i$ of capacity $B[i] + \texttt{inf}$. 
 		\item Add edges $i$ to $t$ of capacity $A[i] + \texttt{inf}$. 
 		\item Add edges $i$ to $j$ of capacity $C[i][j]$. 
-		\item The answer is the maximum flow in this graph minus $n \times \texttt{inf}$. 
+\item The answer is the maximum flow in this graph minus $N \times \texttt{inf}$, where $\texttt{inf} \ge \max_i(-A[i], -B[i])$.
 		\end{itemize}
 
 	\subsection{Circulation \& Lower Bounds}
@@ -109,7 +114,7 @@
 	Let $D=\sum_{d[v]>0} d[v]$. Feasible circulation iff max $S \rightarrow T$ flow equals $D$.
 
 	To recover original flow, use $f_e = f'_e + \ell_e$.
-	We can model max $s \rightarrow t$ flow with lower bounds by adding edge $(t, s)$ and binary searching on its lower bound. 
+	We can model max $s \rightarrow t$ flow with lower bounds by adding edge $(t, s)$ with bounds $[L, \infty)$ and binary searching the largest feasible $L$. 
 
 	\kactlimport{FordFulkerson.h}
 	\kactlimport{EdmondsKarp.h}
@@ -129,6 +134,7 @@
 	\kactlimport{WeightedMatching.h}
 	% \kactlimport{GeneralMatching.h} % redundant
 	\kactlimport{Blossom.h}
+	\kactlimport{GabowMatching.h}
 	\kactlimport{WeightedBlossom.h}
 	\kactlimport{GabowWeighted.h}
 
@@ -151,6 +157,10 @@
 	\kactlimport{MaximumIndependentSet.h}
 
 \section{Trees}
+	\subsection{Tree facts}
+	For vertex sets $A,B$ with diameter endpoints $(a_1,a_2),(b_1,b_2)$, the diameter of $A\cup B$ has endpoints among those four. The farthest vertex from any vertex is a diameter endpoint. Centre = middle of a diameter (one vertex if its length $D$ is even, else two adjacent), radius $\lceil D/2\rceil$.
+	Centroid: every component after removal has size $\le n/2$; one or two (adjacent).
+
 	\kactlimport{BinaryLifting.h} % probably unnecessary
 	\kactlimport{LCA.h}
 	\kactlimport{VirtualTree.h}

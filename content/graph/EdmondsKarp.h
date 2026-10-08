@@ -5,6 +5,8 @@
  * Source: N/A
  * Description: Flow algorithm with guaranteed complexity $O(VE^2)$. To get edge flow values, compare
  * capacities before and after, and take the positive values only.
+ * Usage: vt<unordered_map<int, ll>> adj(n); adj[a][b] += cap;
+ * edmondsKarp(adj, s, t); // adj becomes the residual graph
  * Status: stress-tested
  */
 #pragma once

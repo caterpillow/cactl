@@ -14,7 +14,14 @@
 		G(\text{sum}) = G(P_1) \oplus G(P_2) \oplus \dots \oplus G(P_k)
 	\]
 	Green Hackenbush: a graph with some vertices on the ground; a move deletes an edge, then everything no longer connected to the ground disappears; last move wins. \\
-	A vertex's subtrees can be replaced by a single line of length $\bigoplus_{c \in \text{children}} (1 + \text{line}(c))$ (the connecting edge counts). A cycle can be contracted into a single node with contracted edges sticking out. 
+	A vertex's subtrees can be replaced by a single line of length $\bigoplus_{c \in \text{children}} (1 + \text{line}(c))$ (the connecting edge counts). A cycle can be contracted into a single node with its other edges sticking out; each cycle edge becomes a loop, worth a stalk of length 1. All ground vertices count as one. 
+
+	\subsection{Nim variants}
+	\textbf{Misere nim}: normal nim, unless all piles are $\le1$: then the first player wins iff the number of 1-piles is even.
+	\textbf{Staircase nim} (coins move from step $i$ to $i-1$, step 0 = ground): only odd steps count, nim on their XOR.
+	\textbf{Moore's Nim$_k$} (take from up to $k$ piles): losing iff for every bit the number of piles with that bit set is divisible by $k+1$.
+	\textbf{Wythoff} (take from one pile, or equally from both): P-positions $(\lfloor m\varphi\rfloor,\lfloor m\varphi\rfloor+m)$, $\varphi=\frac{1+\sqrt5}2$: $(0,0),(1,2),(3,5),(4,7),(6,10),\dots$
+	\textbf{Lasker's nim} (take, or split a pile in two): $G(4m{+}1)=4m{+}1$, $G(4m{+}2)=4m{+}2$, $G(4m{+}3)=4m{+}4$, $G(4m{+}4)=4m{+}3$.
 
 \section{Intervals}
 	\kactlimport{IntervalContainer.h}
@@ -28,6 +35,14 @@
 	\kactlimport{FastKnapsack.h}
 
 \section{Dynamic programming}
+	\subsection{DP optimisations}
+	\begin{itemize}[noitemsep]
+	\item $dp_i=\min_{j<i}dp_j+w(j,i)$ with $w$ Monge ($w(a,c)+w(b,d)\le w(a,d)+w(b,c)$ for $a\le b\le c\le d$, e.g.\ $g(S_i-S_j)$, $g$ convex, $S$ sorted): argmin is monotone. CDQ D\&C $O(n\log^2n)$, or a monotone deque with binary search $O(n\log n)$.
+	\item $dp_i=\min_jdp_j+b_ja_i$: CHT / Li Chao.
+	\item Layers $dp_{t,i}=\min_jdp_{t-1,j}+w(j,i)$: D\&C DP $O(kn\log n)$.
+	\end{itemize}
+	\textbf{Aliens trick}: $f(k)$ = optimum with exactly $k$ items, $f$ convex. Solve the relaxed DP $g(\lambda)=\min_k\,(f(k)+\lambda k)$, returning the item count $c(\lambda)$ with ties broken to the smallest. Binary search the smallest integer $\lambda$ with $c(\lambda)\le k$ (range $\pm\max|f(i+1)-f(i)|$); then $f(k)=g(\lambda)-\lambda k$.
+
 	\kactlimport{KnuthDP.h}
 	\kactlimport{DivideAndConquerDP.h}
 
@@ -36,7 +51,7 @@
 		\item \verb@signal(SIGSEGV, [](int) { _Exit(0); });@ converts segfaults into Wrong Answers.
 			Similarly one can catch SIGABRT (assertion failures) and SIGFPE (zero divisions).
 			\verb@_GLIBCXX_DEBUG@ failures generate SIGABRT (or SIGSEGV on gcc 5.4.0 apparently).
-		\item \verb@feenableexcept(29);@ kills the program on NaNs (\texttt 1), 0-divs (\texttt 4), infinities (\texttt 8) and denormals (\texttt{16}).
+		\item \verb@feenableexcept(29);@ kills the program on NaNs (\texttt 1), 0-divs (\texttt 4), infinities (\texttt 8) and underflows (\texttt{16}).
 	\end{itemize}
 	\kactlimport{LeakSanitizer.h}
 

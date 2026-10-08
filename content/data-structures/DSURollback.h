@@ -10,26 +10,26 @@
 #pragma once
 
 struct DSU {
-    int n;
-    vt<int> e;
-    vt<vt<pi>> stk;
-    void init(int _n) { n = _n; e.resize(n + 1, -1); e[n] = n; }
-    void push() { stk.pb({}); }
-    void pop() {
-        reverse(all(stk.back()));
-        for (auto [i, v] : stk.back()) e[i] = v;
-        stk.pop_back();
-    }
-    void upd(int i, int v) { stk.back().pb({i, e[i]}); e[i] = v; }
+    vi e, stk;
+    vt<pi> upds;
+    DSU(int n) : e(n, -1) {}
     int find(int x) { return e[x] < 0 ? x : find(e[x]); }
-    bool unite(int x, int y) {
+    int unite(int x, int y) {
         x = find(x), y = find(y);
         if (x == y) return 0;
         if (e[x] < e[y]) swap(x, y);
-        upd(y, e[x] + e[y]);
-        upd(x, y);
-        upd(n, e[n] - 1);
+        upds.pb({x, e[x]});
+        e[y] += e[x];
+        e[x] = y;
         return 1;
     }
-    int comps() { return e[n]; }
+    void push() { stk.pb(size(upds)); }
+    void pop() {
+        ROF (i, stk.back(), size(upds)) {
+            auto [x, sz] = upds[i];
+            e[e[x]] -= sz, e[x] = sz;
+        }
+        upds.resize(stk.back());
+        stk.pop_back();
+    }
 };

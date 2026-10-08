@@ -13,6 +13,9 @@
  *  ts.force(2); // var 2 is true
  *  ts.at_most_one({0,\tilde1,2}); // <= 1 of vars 0, \tilde1 and 2 are true
  *  ts.solve(); // returns the assignment; empty iff unsatisfiable
+ *  ts.implies(a, b); ts.tie(a, b); // a => b; a == b
+ *  ts.exactly_one(a, b); ts.nand(a, b); // a xor b; not both
+ *  int v = ts.add(); // new variable id
  * Time: O(N+E), where N is the number of boolean variables, and E is the number of clauses.
  * Status: stress-tested
  */

@@ -5,7 +5,7 @@
  * Description: Finds the distinct real roots in $[xmin,xmax]$.
  * With double, use well-scaled inputs and simple roots separated
  * by $\gg 10^{-8}\max(1,|x|)$. Multiple roots are unsafe.
- * Usage: poly_roots({{2,-3,1}},-1e9,1e9)
+ * Usage: poly_roots({{2,-3,1}},-1e9,1e9) // x^2-3x+2 = 0
  * Time: $O(n^3)$, where $n$ is the degree.
  */
 #pragma once
@@ -36,7 +36,7 @@ vt<db> poly_roots(Poly p, db xmin, db xmax) {
         if (fl == 0 || fh == 0 || (fl < 0) == (fh < 0))
             continue; // <hash>
         db l = xs[i], h = xs[i + 1];
-        F0R (it, 60) {
+        F0R (it, 100) {
             db m = l / 2 + h / 2;
             if (m == l || m == h) break;
             db fm = p(m);

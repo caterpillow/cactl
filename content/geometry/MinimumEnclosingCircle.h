@@ -4,6 +4,7 @@
  * License: CC0
  * Source: folklore
  * Description: Computes the minimum circle that encloses a set of points.
+ * ps must be non-empty. Returns the pair (center, radius).
  * Time: expected O(n)
  * Status: stress-tested
  */

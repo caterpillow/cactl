@@ -1,8 +1,11 @@
 /**
  * Author: Benq
- * Description: Minkowski sum of two convex polygons given in CCW order.
+ * Description: Minkowski sum of two convex polygons given in CCW order
+ * with no collinear points (e.g. convex\_hull output).
  * Uses Point's default (lexicographic) operator< for min\_element.
  * Time: O(N)
+ * Usage: in_hull(minkowski_sum(a, nb), P{0, 0}, 0)
+ *  // nb = -b; a and b meet iff true
  * Source: https://cp-algorithms.com/geometry/minkowski.html#implementation
  * Status: stress-tested
  */

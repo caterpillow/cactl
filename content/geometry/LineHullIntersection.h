@@ -3,8 +3,8 @@
  * Date: 2019-05-07
  * License: Boost Software License
  * Source: https://github.com/AlCash07/ACTL/blob/master/include/actl/geometry/algorithm/intersect/line_convex_polygon.hpp
- * Description: Line-convex polygon intersection. The polygon must be ccw and have no collinear points.
- * lineHull(line, poly) returns a pair describing the intersection of a line with the polygon:
+ * Description: Line-convex polygon intersection. The polygon must be ccw and have no collinear points. Exact for ll with $|coord| \le 10^9$.
+ * lineHull(a, b, poly) returns a pair of vertex indices describing the intersection of line $ab$ with the polygon:
  *  \begin{itemize*}
  *    \item $(-1, -1)$ if no collision,
  *    \item $(i, -1)$ if touching the corner $i$,
@@ -34,6 +34,8 @@ template <class P> int extrVertex(vt<P>& poly, P dir) {
     }
     return lo;
 }
+#undef cmp
+#undef extr
 
 #define cmpL(i) sgn(a.cross(poly[i], b))
 template <class P>

@@ -14,7 +14,7 @@ The extremum is given by $x = -b/2a$.
 
 In general, given an equation $Ax = b$, the solution to a variable $x_i$ is given by
 \[x_i = \frac{\det A_i'}{\det A} \]
-where $A_i'$ is $A$ with the $i$'th column replaced by $b$.
+where $A_i'$ is $A$ with the $i$'th column replaced by $b$ ($\det A\neq0$).
 
 \section{Recurrences}
 If $a_n = c_1 a_{n-1} + \dots + c_k a_{n-k}$, and $r_1, \dots, r_k$ are distinct roots of $x^k - c_1 x^{k-1} - \dots - c_k$, there are $d_1, \dots, d_k$ s.t.
@@ -31,7 +31,7 @@ Non-distinct roots $r$ become polynomial factors, e.g. $a_n = (d_1n + d_2)r^n$.
 \sin v+\sin w&{}=2\sin\dfrac{v+w}{2}\cos\dfrac{v-w}{2}\\
 \cos v+\cos w&{}=2\cos\dfrac{v+w}{2}\cos\dfrac{v-w}{2}
 \end{align*}
-\[ (V+W)\tan(v-w)/2{}=(V-W)\tan(v+w)/2 \]
+\[ (V+W)\tan\frac{v-w}{2}=(V-W)\tan\frac{v+w}{2} \]
 where $V, W$ are lengths of sides opposite angles $v, w$.
 \begin{align*}
 	a\cos x+b\sin x&=r\cos(x-\phi)\\
@@ -42,18 +42,21 @@ where $r=\sqrt{a^2+b^2}, \phi=\operatorname{atan2}(b,a)$.
 \section{Geometry}
 
 \subsection{Triangles}
-Side lengths: $a,b,c$\\
+Side lengths: $a,b,c$, opposite angles $\alpha,\beta,\gamma$\\
 Semiperimeter: $p=\dfrac{a+b+c}{2}$\\
 Area: $A=\sqrt{p(p-a)(p-b)(p-c)}$\\
+Stable ($a\ge b\ge c$): $A=\frac14\sqrt{(a+(b+c))(c-(a-b))(c+(a-b))(a+(b-c))}$\\
 Circumradius: $R=\dfrac{abc}{4A}$\\
 Inradius: $r=\dfrac{A}{p}$\\
+Incenter: $\frac{aP_a+bP_b+cP_c}{a+b+c}$, centroid: $\frac{P_a+P_b+P_c}{3}$ ($P_a$ opposite $a$)\\
 Length of median (divides triangle into two equal-area triangles): $m_a=\tfrac{1}{2}\sqrt{2b^2+2c^2-a^2}$\\
 Length of bisector (divides angles in two): $s_a=\sqrt{bc\left[1-\left(\dfrac{a}{b+c}\right)^2\right]}$\\
 Law of sines: $\dfrac{\sin\alpha}{a}=\dfrac{\sin\beta}{b}=\dfrac{\sin\gamma}{c}=\dfrac{1}{2R}$\\
 Law of cosines: $a^2=b^2+c^2-2bc\cos\alpha$\\
-Law of tangents: $\dfrac{a+b}{a-b}=\dfrac{\tan\dfrac{\alpha+\beta}{2}}{\tan\dfrac{\alpha-\beta}{2}}$
+Law of tangents: $\dfrac{a+b}{a-b}=\dfrac{\tan\dfrac{\alpha+\beta}{2}}{\tan\dfrac{\alpha-\beta}{2}}$\\
+Pick (lattice polygon): $A = I + B/2 - 1$ ($I$ interior, $B$ boundary points, $B=\sum\gcd(|dx|,|dy|)$ over edges)\\
+Circle, angle $\theta$: sector $\frac{r^2\theta}{2}$, segment $\frac{r^2(\theta-\sin\theta)}{2}$, chord $2r\sin\frac{\theta}{2}$
 
-% this subsection bricks the latex
 \subsection{Quadrilaterals}
 
 With side lengths $a,b,c,d$, diagonals $e, f$, diagonals angle $\theta$, area $A$ and
@@ -62,7 +65,7 @@ magic flux $F=b^2+d^2-a^2-c^2$:
 \[ 4A = 2ef \cdot \sin\theta = F\tan\theta = \sqrt{4e^2f^2-F^2} \]
 
 For cyclic quadrilaterals the sum of opposite angles is $180^\circ$, 
-$ef = ac + bd$, and $A = \sqrt{(p-a)(p-b)(p-c)(p-d)}$. 
+$ef = ac + bd$, and $A = \sqrt{(p-a)(p-b)(p-c)(p-d)}$, $p=\frac{a+b+c+d}{2}$.
 
 \subsection{Spherical coordinates}
 \begin{center}
@@ -101,7 +104,7 @@ Area: $A = \oint_C x\,dy = \frac12\oint_C (x\,dy - y\,dx)$, the shoelace formula
 \subsection{Divergence theorem}
 \[ \oint_C \mathbf{F}\cdot\mathbf{n}\,ds = \iint_D \nabla\cdot\mathbf{F}\,dA \]
 \[ \iint_{\partial V} \mathbf{F}\cdot\mathbf{n}\,dS = \iiint_V \nabla\cdot\mathbf{F}\,dV \]
-Polyhedron volume from its CCW triangles ($\mathbf{F} = \mathbf{x}/3$): $V = \frac16\sum \mathbf{a}\cdot(\mathbf{b}\times\mathbf{c})$.
+Polyhedron volume from its triangles, CCW seen from outside ($\mathbf{F} = \mathbf{x}/3$): $V = \frac16\sum \mathbf{a}\cdot(\mathbf{b}\times\mathbf{c})$.
 
 \section{Sums}
 \[ c^a + c^{a+1} + \dots + c^{b} = \frac{c^{b+1} - c^a}{c-1}, c \neq 1 \]
@@ -125,6 +128,11 @@ Let $X$ be a discrete random variable with probability $p_X(x)$ of assuming the 
 Expectation is linear:
 \[\mathbb{E}(aX+bY) = a\mathbb{E}(X)+b\mathbb{E}(Y)\]
 For independent $X$ and $Y$, \[V(aX+bY) = a^2V(X)+b^2V(Y).\]
+\subsection{Useful expectations}
+$n$ i.i.d.\ $\mathrm U(0,1)$: the $k$-th smallest has mean $\frac k{n+1}$. Random permutation: expected cycles $=$ left-to-right maxima $=H_n$.
+Coupon collector, $n$ types: $nH_n$. Probabilities $p_i$: $\mathbb E\max_iT_i=\sum_{S\ne\emptyset}(-1)^{|S|+1}\mathbb E\min_{i\in S}T_i=\sum_S(-1)^{|S|+1}/\sum_{i\in S}p_i$.
+Birthday: $k$ draws from $N$ values collide w.p.\ $\approx1-e^{-k^2/2N}$.
+
 
 \subsection{Discrete distributions}
 
@@ -167,7 +175,7 @@ The time between events in a Poisson process is $\textrm{Exp}(\lambda),\,\lambda
 \subsubsection{Normal distribution}
 Most real random values with mean $\mu$ and variance $\sigma^2$ are well described by $\mathcal{N}(\mu,\sigma^2),\,\sigma>0$.
 \[ f(x) = \frac{1}{\sqrt{2\pi\sigma^2}}e^{-\frac{(x-\mu)^2}{2\sigma^2}} \]
-If $X_1 \sim \mathcal{N}(\mu_1,\sigma_1^2)$ and $X_2 \sim \mathcal{N}(\mu_2,\sigma_2^2)$ then
+If $X_1 \sim \mathcal{N}(\mu_1,\sigma_1^2)$ and $X_2 \sim \mathcal{N}(\mu_2,\sigma_2^2)$ are independent, then
 \[ aX_1 + bX_2 + c \sim \mathcal{N}(a\mu_1+b\mu_2+c,a^2\sigma_1^2+b^2\sigma_2^2) \]
 
 \section{Markov chains}
@@ -194,3 +202,7 @@ $\lim_{k\rightarrow\infty}\mathbf{P}^k = \pi\mathbf{1}^T$.
 A Markov chain is an A-chain if the states can be partitioned into two sets $\mathbf{A}$ and $\mathbf{G}$, such that all states in $\mathbf{A}$ are absorbing ($p_{ii}=1$), and all states in $\mathbf{G}$ leads to an absorbing state in $\mathbf{A}$.
 The probability for absorption in state $i\in\mathbf{A}$, when the initial state is $j$, is $a_{ij} = p_{ij}+\sum_{k\in\mathbf{G}} a_{ik}p_{kj}$.
 The expected time until absorption, when the initial state is $i$, is $t_i = 1+\sum_{k\in\mathbf{G}}p_{ki}t_k$.
+
+\subsubsection{Random walks}
+Gambler's ruin on $0..N$, start $i$, step $+1$ w.p.\ $p$, $q=1-p$, $\rho=q/p\ne1$: $\Pr[\text{reach }N]=\frac{1-\rho^i}{1-\rho^N}$, expected duration $\frac{i}{q-p}-\frac N{q-p}\cdot\frac{1-\rho^i}{1-\rho^N}$. If $p=\frac12$: $\frac iN$ and $i(N-i)$. Symmetric walk from 0 to $\pm a$: $a^2$ steps.
+Simple walk on a graph: hitting time $h_v=1+\frac1{\deg v}\sum_{u\sim v}h_u$ ($h_t=0$). Commute time $h_{uv}+h_{vu}=2mR_{uv}$, with effective resistance (unit resistors) $R_{uv}=\tau(G/uv)/\tau(G)=(e_u-e_v)^TL^+(e_u-e_v)$, $G/uv$ merging $u,v$.

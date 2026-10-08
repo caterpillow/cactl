@@ -6,6 +6,7 @@
  * Returns IEEE -inf if there is no solution, +inf if there are arbitrarily good solutions, or the maximum value of $c^T x$ otherwise.
  * The input vector is set to an optimal $x$ (or in the unbounded case, an arbitrary solution fulfilling the constraints).
  * Numerical stability is not guaranteed. For better performance, define variables such that $x = 0$ is viable.
+ * To minimise, negate $c$ and the result. Equality: two rows, $ax \le b$ and $-ax \le -b$. Free $x$: $x^+ - x^-$.
  * Usage:
  * vvd A = {{1,-1}, {-1,1}, {-1,-2}};
  * vd b = {1,1,-4}, c = {-1,-1}, x;
@@ -74,3 +75,6 @@ struct LPSolver {
         return ok ? D[m][n + 1] : linf;
     }
 };
+
+#undef mp
+#undef ltj

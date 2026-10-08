@@ -5,6 +5,7 @@
  * Description: Computes virtual tree.
  *  Needs a global \texttt{pos} (dfs entry time) and callable
  *  \texttt{lca(u, v)} in scope; returns pairs of \texttt{(par, child)}.
+ *  Overwrites \texttt{nodes} with the virtual nodes; root is \texttt{nodes[0]}.
  * Time: $O(|S| \log |S|)$
  * Status: Tested at CodeForces
  */

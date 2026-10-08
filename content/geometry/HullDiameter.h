@@ -6,6 +6,7 @@
  * Description: Returns the two points with max distance on a convex hull (ccw,
  * no duplicate/collinear points).
  * Status: stress-tested, tested on kattis:roberthood
+ * Usage: auto [p, q] = hull_diameter(convex_hull(pts));
  * Time: O(n)
  */
 #pragma once

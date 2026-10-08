@@ -11,6 +11,7 @@
  * the one case it cannot decide. Returns the max; for the min negate
  * $m$, $c$ and the result. The cross is $\Delta m \cdot \Delta c$: if that
  * can exceed $9 \cdot 10^{18}$ use Point<\_\_int128>.
+ * Usage: add(m, c), m non-decreasing; query(x), x non-decreasing, = max mx+c.
  * Time: O(1) amortized
  * Status: stress-tested
  */

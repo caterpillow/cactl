@@ -5,6 +5,8 @@
  * Description: Represents a forest of unrooted trees. You can add and remove
  * edges (as long as the result is still a forest), and check whether
  * two nodes are in the same tree.
+ * Usage: LinkCut lc(N); lc.link(u, v); lc.cut(u, v); // 0-indexed
+ *  lc.makeRoot(\&lc.node[u]); // makeRoot, access take Node*
  * Time: All operations take amortized O(\log N).
  * Status: Stress-tested a bit for N <= 20
  */
@@ -91,6 +93,8 @@ struct LinkCut {
     } // <hash>
     Node* access(Node* u) { /// Move u to root aux tree. Return the root of the root aux tree.
         u->splay();
+        if (Node* r = u->c[1]) // drop deeper path
+            r->p = 0, r->pp = u, u->c[1] = 0, u->fix();
         while (Node* pp = u->pp) {
             pp->splay(); u->pp = 0;
             if (pp->c[1]) {

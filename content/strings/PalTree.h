@@ -2,7 +2,7 @@
  * Author: Benq
  * Description: Used 
    infrequently. Palindromic tree computes 
- * number of occurrences of each palindrome within string.
+ * number of occurrences \texttt{d[v].oc} of each palindrome within string, valid after calling \texttt{numOc()} once. Only a-z.
  * \texttt{ans[i][0]} stores min even $x$ such that 
  * the prefix $s[1..i]$ can be split into exactly $x$
  * palindromes, \texttt{ans[i][1]} does the same for odd $x.$

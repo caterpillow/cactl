@@ -4,6 +4,10 @@
  * Source: me
  * Description: Treap with too many operations 
  * Time: $O(\log N)$
+ * Usage: ptr t = 0; every mutator returns the new root. Range
+ *  update/query: split, set the piece's lazy / read its agg, merge.
+ *  push(n) before reading a node's fields. order(x) = index of x,
+ *  valid right after find/findi.
  * Status: stress-tested
  */
 #pragma once
@@ -41,7 +45,7 @@ using ptr = struct Node*;
 struct Node {
     int pri;
     K key;
-    ptr l, r;
+    ptr l, r, par;
     int sz;
 
     Value val, agg;
@@ -50,7 +54,7 @@ struct Node {
     Node(K key, Value val) : key(key), val(val), agg(val) {
         sz = 1;
         pri = mt();
-        l = r = 0;
+        l = r = par = 0;
         lazy = LID;
     }
 
@@ -81,12 +85,15 @@ ptr pull(ptr n) {
     push(l), push(r);
     n->sz = sz(l) + 1 + sz(r);
     n->agg = agg(l) + n->val + agg(r);
+    if (n->l) n->l->par = n;
+    if (n->r) n->r->par = n;
     return n;
 }
 
 pair<ptr, ptr> split(ptr n, K k) {
     if (!n) return {n, n};
     push(n);
+    n->par = 0;
     if (k <= n->key) {
         auto [l, r] = split(n->l, k);
         n->l = r;
@@ -101,6 +108,7 @@ pair<ptr, ptr> split(ptr n, K k) {
 pair<ptr, ptr> spliti(ptr n, int i) {
     if (!n) return {n, n};
     push(n);
+    n->par = 0;
     if (i <= sz(n->l)) {
         auto [l, r] = spliti(n->l, i);
         n->l = r;
@@ -121,25 +129,10 @@ ptr merge(ptr l, ptr r) {
     return pull(t);
 }
 
-ptr ins(ptr n, K k, Value val) { // insert k
-    auto [l, r] = split(n, k);
-    return merge(l, merge(new Node(k, val), r));
-}
-
-ptr insi(ptr n, int i, K k, Value val) { // insert before i
-    auto [l, r] = spliti(n, i);
-    return merge(l, merge(new Node(k, val), r));
-}
-
 ptr del(ptr n, K k) { // delete one copy of k, if present
     auto a = split(n, k), b = spliti(a.s, 1);
     if (b.f && b.f->key != k) // k was absent; reattach
         return merge(a.f, merge(b.f, b.s));
-    return merge(a.f, b.s);
-}
-
-ptr deli(ptr n, int i) {
-    auto b = spliti(n, i + 1), a = spliti(b.f, i);
     return merge(a.f, b.s);
 }
 
@@ -157,43 +150,18 @@ ptr findi(ptr n, int i) {
     else return findi(n->r, i - 1 - sz(n->l));
 }
 
-ptr upd(ptr n, K lo, K hi, Lazy nv) {
-    if (lo > hi) return n;
-    auto [lhs, r] = split(n, hi + 1);
-    auto [l, m] = split(lhs, lo);
-    if (m) m->lazy += nv;
-    return merge(l, merge(m, r));
-}
-
-ptr updi(ptr n, int lo, int hi, Lazy nv) {
-    if (lo > hi) return n;
-    auto [lm, r] = spliti(n, hi + 1);
-    auto [l, m] = spliti(lm, lo);
-    if (m) m->lazy += nv;
-    return merge(l, merge(m, r));
-}
-
-Value query(ptr &n, K lo, K hi) {
-    auto [lm, r] = split(n, hi + 1);
-    auto [l, m] = split(lm, lo);
-    Value res = agg(m);
-    n = merge(l, merge(m, r));
-    return res;
-}
-
-Value queryi(ptr &n, int lo, int hi) {
-    auto [lm, r] = spliti(n, hi + 1);
-    auto [l, m] = spliti(lm, lo);
-    Value res = agg(m);
-    n = merge(l, merge(m, r));
-    return res;
-}
-
-int mn(ptr n) {
+K mn(ptr n) {
     assert(n);
     push(n);
     if (n->l) return mn(n->l);
     else return n->key;
+}
+
+int order(ptr n, ptr from = nullptr) {
+    if (!n) return -1;
+    int res = order(n->par, n);
+    if (from == n->r || !from) res += sz(n->l) + 1;
+    return res;
 }
 
 ptr unite(ptr l, ptr r) {

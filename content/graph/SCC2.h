@@ -6,6 +6,7 @@
  * Description: Finds strongly connected components in a
  * directed graph. \texttt{comps} lists one representative per
  * SCC in topological order (condensation edges go left to right).
+ * Usage: SCC sc(n, adj); // sc.comp[v] = representative of v
  * Time: O(E + V)
  * Status: stress-tested
  */

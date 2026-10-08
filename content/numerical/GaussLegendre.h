@@ -4,7 +4,8 @@
  * License: CC0
  * Description: n-point Gauss--Legendre quadrature on $[a, b]$: exact for
  * polynomials of degree $< 2n$, converges very fast for smooth $f$.
- * Nodes are found by Newton on $P_n$, so keep $n \le 60$ or so.
+ * Oscillating $f$ needs about 2 nodes per half-period: raise $n$ or split $[a,b]$.
+ * No error estimate. $n \le 500$ is fine.
  * Usage: gauss(0, 1, [](db x) { return x * x; }, 20)
  * Time: O(n^2) setup, n evaluations
  * Status: stress-tested

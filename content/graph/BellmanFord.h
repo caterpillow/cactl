@@ -6,6 +6,8 @@
  * Description: Calculates shortest paths from $s$ in a graph that might have negative edge weights.
  * Unreachable nodes get dist = INF; nodes reachable through negative-weight cycles get dist = -INF.
  * Assumes $V^2 \max |w_i| < \tilde{} 2^{63}$.
+ * Usage: vt<Node> nd(n); vt<Ed> eds = {{a, b, w}}; // directed
+ *  bellmanFord(nd, eds, s); // dist in nd[v].dist
  * Time: O(VE)
  * Status: Tested on kattis:shortestpath3
  */

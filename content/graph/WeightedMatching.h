@@ -9,6 +9,8 @@
  * cost[N][M], where cost[i][j] = cost for L[i] to be matched with R[j] and
  * returns (min cost, match), where L[i] is matched with
  * R[match[i]]. Negate costs for max cost. Requires $N \le M$.
+ * Costs must be $<$ \texttt{INF}; forbid a pair with e.g. $10^{12}$.
+ * Usage: auto [cost, match] = hungarian(a); // a is vt<vl>
  * Time: O(N^2M)
  * Status: Tested on kattis:cordonbleu, stress-tested
  */

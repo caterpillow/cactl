@@ -5,6 +5,8 @@
  * Source: https://cp-algorithms.com/graph/dinic.html
  * Description: Flow algorithm with complexity $O(VE\log U)$ where $U = \max |\text{cap}|$.
  * $O(\min(E^{1/2}, V^{2/3})E)$ if $U = 1$; $O(\sqrt{V}E)$ for bipartite matching.
+ * Usage: init(n); ae(a, b, c, rcap = 0); // rcap = c: undirected
+ *  calc(s, t) once per graph.
  * Status: Tested on SPOJ FASTFLOW and SPOJ MATCHING, stress-tested
  */
 #pragma once

@@ -5,7 +5,7 @@
  * Source: http://en.wikipedia.org/wiki/Circumcircle
  * Description:\\
 \begin{minipage}{75mm}
-The circumcirle of a triangle is the circle intersecting all three vertices. ccRadius returns the radius of the circle going through points A, B and C and ccCenter returns the center of the same circle.
+The circumcircle of a triangle is the circle intersecting all three vertices. \texttt{cc\_radius} returns the radius of the circle going through points A, B and C and \texttt{cc\_center} returns the center of the same circle. A, B, C must not be collinear.
 \end{minipage}
 \begin{minipage}{15mm}
 \vspace{-2mm}

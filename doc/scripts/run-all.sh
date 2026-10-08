@@ -19,7 +19,9 @@ for test in $tests; do
     echo "$(basename $test): "
     start=`date +%s.%N`
     # stdin is closed so a test that reads input fails instead of hanging
-    g++ -Wall -Wfatal-errors -Wconversion -std=c++17 -O2 $test && ./a.out </dev/null
+    # a test may opt into a newer standard with a "// -std=c++20" comment
+    std=$(grep -o -m1 -- '-std=c++[0-9a-z]*' "$test" || echo -std=c++17)
+    g++ -Wall -Wfatal-errors -Wconversion $std -O2 $test && ./a.out </dev/null
     retCode=$?
     if (($retCode != 0)); then
         echo "Failed with $retCode"

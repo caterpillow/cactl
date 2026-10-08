@@ -1,7 +1,8 @@
 /**
  * Author: David Rydh, Per Austrin
  * Date: 2003-03-16
- * Description:
+ * Description: $\sum a_i x^i$, \texttt{a[i]} the coefficient of $x^i$.
+ * \texttt{diff} and \texttt{divroot(x0)} (divide by $x-x_0$) work in place.
  */
 #pragma once
 

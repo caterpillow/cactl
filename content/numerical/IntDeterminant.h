@@ -6,6 +6,7 @@
  * Modulos can also be removed to get a pure-integer version.
  * Pass entries already reduced into $(-mod, mod)$ and keep
  * $mod < \tilde{}3e9$: intermediates reach $mod^2$.
+ * Works for composite $mod$. Destroys the matrix.
  * Time: $O(N^3)$
  * Status: bruteforce-tested for N <= 3, mod <= 7
  */

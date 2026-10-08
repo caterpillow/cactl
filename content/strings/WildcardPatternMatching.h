@@ -8,7 +8,9 @@
  * $\sum_j r(p_j)(r(p_j) - r(t_{i+j})) = 0$, which two convolutions
  * evaluate for all $i$. A mismatch survives with probability $\le 2/mod$
  * per alignment, so \tilde{}$2N/mod$ overall; to square that, run again
- * with fresh random values (re-seed rng) or another wpm\_mod and AND.
+ * with fresh random values (each call) or another wpm\_mod and AND.
+ * Usage: string r = wildcard_pattern_matching(t, p, '?');
+ *  t, p same type, p nonempty; r has |t|-|p|+1 chars
  * Time: $O(N \log N)$
  */
 

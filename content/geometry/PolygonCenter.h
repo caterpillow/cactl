@@ -3,7 +3,8 @@
  * Date: 2009-04-08
  * License: CC0
  * Source:
- * Description: Returns the center of mass for a polygon.
+ * Description: Area centroid of a polygon (needs nonzero area):
+ * $C = \frac{1}{6A}\sum (p_i + p_{i+1})(p_i \times p_{i+1})$, $A$ the signed area.
  * Time: O(n)
  * Status: Tested
  */

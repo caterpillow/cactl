@@ -1,7 +1,6 @@
 /**
  * Author: BenQ
- * Description: Counts number of primes up to $N$. Can also count 
- 	* sum of primes. 
+ * Description: Counts number of primes up to $N$.
  * Time: $O(N^{3/4}/\log N)$, ~60ms for $N=10^{11}$, ~2.5s for $N=10^{13}$
  * Source: https://old.yosupo.jp/submission/7976
  */

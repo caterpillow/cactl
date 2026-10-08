@@ -11,9 +11,14 @@
  * The \texttt{lcp} array contains longest common prefixes for
  * neighbouring strings in the suffix array:
  * \texttt{lcp[i] = lcp(sa[i], sa[i-1])}, \texttt{lcp[0] = 0}.
+ * For $i<j$, \texttt{lcp(sa[i], sa[j])} is the min of \texttt{lcp[i+1..j]}.
  * The input string must not contain any nul chars. For integer
- * input pass lim > max value; values must be in [1, lim)
+ * input pass lim > max value (costs O(lim)); values in [1, lim)
  * (bytes >= 128 under signed char also break the counting sort).
+ * Distinct substrings: $n(n+1)/2 - \sum$ lcp; longest repeated
+ * substring: max lcp. Longest common substring of $a$, $b$: build on
+ * $a + \texttt{'\textbackslash 1'} + b$ and take the max lcp of adjacent
+ * suffixes starting in different strings (not at the separator).
  * Time: O(N \log N)
  * Status: stress-tested
  */
@@ -21,7 +26,7 @@
 
 struct SuffixArray {
     vi sa, lcp;
-    SuffixArray(string s, int lim = 256) { // or vi
+    SuffixArray(string s, int lim = 256) { // vi s for ints
         s.pb(0); int n = size(s), k = 0, a, b;
         vi x(all(s)), y(n), ws(max(n, lim));
         sa = lcp = y, iota(all(sa), 0);

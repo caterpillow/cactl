@@ -6,7 +6,7 @@
    Accuracy bound from http://www.daemonology.net/papers/fft.pdf
  * Description: fft(a) computes $\hat f(k) = \sum_x a[x] \exp(2\pi i \cdot k x / N)$ for all $k$. N must be a power of 2.
    Useful for convolution:
-   \texttt{conv(a, b) = c}, where $c[x] = \sum a[i]b[x-i]$.
+   \texttt{conv(a, b) = c}, where $c[x] = \sum a[i]b[x-i]$ (doubles: round with \texttt{llround}).
    For convolution of complex numbers or more than two vectors: FFT, multiply
    pointwise, divide by n, reverse(start+1, end), FFT back.
    Rounding is safe if $(\sum a_i^2 + \sum b_i^2)\log_2{N} < 9\cdot10^{14}$

@@ -6,6 +6,7 @@
  * Description: Given a list of edges representing an undirected flow graph,
  * returns edges of the Gomory-Hu tree. The max flow between any pair of
  * vertices is given by minimum edge weight along the Gomory-Hu tree path.
+ * Usage: gomoryHu(N, {{a, b, w}, ...}) returns {v, parent, w} edges
  * Time: $O(V)$ Flow Computations
  * Status: Tested on CERC 2015 J, stress-tested
  *

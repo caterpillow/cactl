@@ -32,7 +32,7 @@ void example() {
     F0R (i, 5) r.push_back(i);       // 0 1 2 3 4
     r.insert(1, 9);                  // 0 9 1 2 3 4
     r.erase(2, 3);                   // 0 9 4 (3 elements from 2)
-    Rope<int> t = r.substr(1, 2);    // 9 4
+    Rope<int> t = r.substr(1, 2);    // 9 4 (2 elements from 1)
     r = t + r; r.insert(1, t);       // 9 9 4 4 0 9 4
     r.mutable_reference_at(0) = 7;   // assignment: r[0] = 7; t is unchanged
     r.replace(0, 7);                 // same as above but copies the path

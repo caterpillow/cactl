@@ -2,11 +2,16 @@
  * Author: caterpillow
  * Date: 2025-09-23
  * Source: me
- * Description: some random number generators
+ * Description: Mersenne twister (same output as \texttt{mt19937}).
+ * Usage: RNG r(seed);
+ *  r.next(n) // [0, n)
+ *  r.next(a, b) // [a, b)
+ *  r.next_double() // (0, 1)
+ *  r.next() // any int
+ *  splitmix64() // global, 64-bit
  */
 #pragma once
 
-#define inline   inline __attribute__ ((always_inline))
 
 struct RNG {
     unsigned int MT[624];

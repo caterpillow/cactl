@@ -4,8 +4,8 @@
  * License: CC0
  * Source: https://vlecomte.github.io/cp-geo.pdf
  * Description: Returns true if p lies within the polygon. If strict is true,
- * it returns false for points on the boundary. The algorithm uses
- * products in intermediate steps so watch out for overflow.
+ * it returns false for points on the boundary. Exact for ll with
+ * $|coord| \le 10^9$.
  * Time: O(n)
  * Usage:
  * vt<P> v = {P{4,4}, P{1,2}, P{2,1}};
@@ -16,7 +16,6 @@
 
 #include "Point.h"
 #include "OnSegment.h"
-#include "SegmentDistance.h"
 
 template<class P>
 bool in_polygon(vt<P> &p, P a, bool strict = true) {

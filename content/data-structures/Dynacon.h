@@ -3,7 +3,8 @@
  * Date: 2016-8-24
  * License: CC0
  * Source: me
- * Description: Dynamic connectivity. Alternatively use IncrementalMST, and weight edges by deletion time (Q if never deleted).
+ * Description: Dynamic connectivity; answers are component counts
+ * (for u--v connectivity queries see DynaconMST).
  * Time: O(N \log^2 N)
  * Usage: init(n, q) with q >= total toggle() + query() calls
  * (each consumes one time slot). toggle(u, v) adds or removes
@@ -19,11 +20,11 @@ struct DynaCon {
     int n, q, t = 0;
     vt<vt<pi>> seg;
     map<pi, int> eds;
-    DSU dsu;
+    DSU dsu{0};
     void init(int _n, int _q) {
         for (q = 1; q < _q; q *= 2);
         seg.resize(2 * q);
-        dsu.init(n = _n);
+        dsu = DSU(n = _n);
     }
     void toggle(int u, int v, bool erase = true) {
         if (u > v) swap(u, v);
@@ -35,11 +36,11 @@ struct DynaCon {
             if (erase) eds.erase({u, v});
         } else eds[{u, v}] = t++;
     }
-    void query() { seg[q + t++].pb({-1, -1}); }
+    void query() { assert(t < q); seg[q + t++].pb({-1, -1}); }
     void dfs(int i, vi &ans) {
         dsu.push();
         for (auto [u, v] : seg[i]) {
-            if (u == -1) ans.pb(dsu.comps());
+            if (u == -1) ans.pb(n - size(dsu.upds));
             else dsu.unite(u, v);
         }
         if (i < q) dfs(2 * i, ans), dfs(2 * i + 1, ans);

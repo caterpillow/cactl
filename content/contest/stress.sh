@@ -3,11 +3,11 @@
 # as command line arg. Usage: './stress.sh' (bash, not sh)
 for((i = 1; ; ++i)); do
     echo $i
-    ./gen $i > int
+    ./gen $i > in
     # Remember to compile!!!
-    ./A < int > out1
-    ./B < int > out2
+    ./A < in > out1
+    ./B < in > out2
     diff -w out1 out2 || break
-    # diff -w <(./A < int) <(./B < int) || break
-    # ./A < int > out || break
+    # diff -w <(./A < in) <(./B < in) || break
+    # ./A < in > out || break
 done

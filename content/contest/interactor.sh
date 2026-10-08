@@ -8,6 +8,8 @@
 # write. A side that hangs is killed after T seconds (rc 124); the
 # script exits nonzero if either side does, so in a stress loop:
 #   ./gen $i > in; ./interactor.sh J S in || break
+# JUDGE's stdout is SOL's stdin: report WA by exit code (+ cerr),
+# not by printing. T=5 ./interactor.sh ... raises the time limit.
 T=${T:-1}
 rm -f pipe; mkfifo pipe
 timeout $T $1 $3 < pipe | timeout $T $2 > pipe

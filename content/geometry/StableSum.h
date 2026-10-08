@@ -7,6 +7,7 @@
  * precision than a running sum: a binary counter of partial sums, so only
  * numbers of similar magnitude are ever added together.
  * Time: O(\log N) amortised per +=
+ * Usage: StableSum t; t += x; db r = t.val();
  * Status: stress-tested
  */
 

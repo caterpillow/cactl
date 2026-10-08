@@ -6,5 +6,6 @@
  *  one can solve intervals in increasing order of length, and search $k = p[i][j]$ for $a[i][j]$ only between $p[i][j-1]$ and $p[i+1][j]$.
  *  This is known as Knuth DP. Sufficient criteria for this are if $f(b,c) \le f(a,d)$ and $f(a,c) + f(b,d) \le f(a,d) + f(b,c)$ for all $a \le b \le c \le d$.
  *  Consider also: LineContainer (ch. Data structures), monotone queues, ternary search.
+ *  Take $p[i][i+1] = i+1$ and search $k \in [p[i][j-1], \min(j-1, p[i+1][j])]$.
  * Time: O(N^2)
  */

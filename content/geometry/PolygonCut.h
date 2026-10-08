@@ -14,7 +14,7 @@
 \end{minipage}
  * Usage:
  * 	vt<P> p = ...;
- * 	p = polygonCut(p, P(0,0), P(1,0));
+ * 	p = polygonCut(p, P{0,0}, P{1,0});
  * Status: tested but not extensively
  */
 #pragma once

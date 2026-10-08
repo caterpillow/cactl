@@ -1,6 +1,7 @@
-// Tests DSURollback.h: randomized unite/push/pop vs brute DSU rebuilt from
-// scratch; checks unite()'s bool return, comps(), and pairwise connectivity.
-// written by Claude (audit)
+// Tests DSURollback.h (constructor + flat update log with checkpoints, 2026-10):
+// random unite/push/pop against a stack of brute-force DSU snapshots; checks
+// unite()'s return value, component count n - size(upds), and pairwise
+// connectivity after every operation. written by Claude (audit)
 #include "../utilities/template.h"
 #include "../../content/data-structures/DSURollback.h"
 
@@ -14,35 +15,28 @@ struct Brute {
         e[x] = y;
         return 1;
     }
+    int comps() { int c = 0; for (int v : e) c += v < 0; return c; }
 };
 
 int main() {
     mt19937 rng(1234);
-    F0R(cs, 20000) {
-        int n = rng() % 8 + 1;
-        DSU dsu;
-        dsu.init(n);
-        dsu.push();
-        vt<vt<pi>> layers(1); // edges united per stack layer
-        F0R(op, 40) {
-            int c = rng() % 6;
-            if (c == 0) { dsu.push(); layers.pb({}); }
-            else if (c == 1 && size(layers) > 1) { dsu.pop(); layers.pop_back(); }
-            else {
-                int u = rng() % n, v = rng() % n;
-                Brute b(n);
-                for (auto& l : layers) for (auto [x, y] : l) b.unite(x, y);
-                bool exp = b.unite(u, v);
-                assert(dsu.unite(u, v) == exp);
-                if (exp) layers.back().pb({u, v});
+    F0R(it, 400) {
+        int n = (int) (rng() % 12) + 1;
+        DSU d(n);
+        vt<Brute> snap; // snap.back() = brute state at the last push
+        Brute cur(n);
+        F0R(op, 400) {
+            int r = (int) (rng() % 10);
+            if (r < 6) {
+                int x = (int) (rng() % n), y = (int) (rng() % n);
+                assert(d.unite(x, y) == cur.unite(x, y));
+            } else if (r < 8) {
+                d.push(); snap.pb(cur);
+            } else if (!snap.empty()) {
+                d.pop(); cur = snap.back(); snap.pop_back();
             }
-            // verify comps + connectivity vs brute
-            Brute b(n);
-            int comps = n;
-            for (auto& l : layers) for (auto [x, y] : l) comps -= b.unite(x, y);
-            assert(dsu.comps() == comps);
-            F0R(u, n) FOR(v, u + 1, n)
-                assert((dsu.find(u) == dsu.find(v)) == (b.find(u) == b.find(v)));
+            assert(n - size(d.upds) == cur.comps());
+            F0R(a, n) F0R(b, n) assert((d.find(a) == d.find(b)) == (cur.find(a) == cur.find(b)));
         }
     }
     cout << "Tests passed!" << endl;

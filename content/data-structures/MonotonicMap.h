@@ -1,13 +1,15 @@
 /**
  * Author: caterpillow
  * Date: 2025-10-21
- * Description: A data structure for performing prefix/suffix min/max queries with insertions. Useful replacement for sparse segtrees. 
+ * Description: Prefix/suffix min/max over keys with insertions, a replacement for sparse segtrees.
+ * Usage: RangeQuery<less<>, less_equal<>> m; // suffix min
+ *  m.ins(1e9, INF); // sentinel past all keys
+ *  m.ins(k, v); m.query(k); // min v over keys >= k
+ *  prefix: greater<>, sentinel ins(-1e9, INF); max: greater_equal<>, sentinel -INF.
  * Time: O(\log N)
  */
 #pragma once
 
-// dir = less<> for suffix queries, greater<> for prefix
-// cmp = less_equal<> for min, greater_equal<> for max
 template<class dir, class cmp>
 struct RangeQuery {
     map<int, ll, dir> data;
@@ -16,7 +18,7 @@ struct RangeQuery {
         auto it = data.insert_or_assign(k, v).f;
         while (it != data.begin() && cmp{}(v, prev(it)->s)) data.erase(prev(it));
     }
-    ll query(int k) { // inclusive: careful UB, insert infinity value
+    ll query(int k) { // inclusive
         return data.lower_bound(k)->s;
     }
 };

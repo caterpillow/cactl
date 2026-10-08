@@ -3,7 +3,9 @@
  * Date: 2020-04-12
  * License: CC0
  * Description: Prime sieve for generating all primes smaller than LIM.
+ * Usage: vi pr = eratosthenes(); // also sets isPrime
  * Time: LIM=1e9 $\approx$ 1.5s
+ * Memory: LIM/8 + 4 per prime bytes ($\approx$325MB at 1e9)
  * Status: Stress-tested
  * Details: Despite its n log log n complexity, segmented sieve is still faster
  * than other options, including bitset sieves and linear sieves. This is

@@ -10,7 +10,7 @@ int main() {
 	F0R (it, 500000) {
 		int p = rng() % 1000000, q = rng() % 1000000 + 1;
 		if (it < 100) { p = it % 10; q = it / 10 + 1; } // small edge cases incl p=0
-		vi a = cont_frac(p, q);
+		vl a = cont_frac(p, q);
 		assert(!a.empty());
 		// terms after the first must be positive; last term > 1 unless whole cf is [x]
 		FOR (i, 1, size(a)) assert(a[i] >= 1);

@@ -11,6 +11,7 @@
 
 #include "Point.h"
 
+using P = Point<ll>;
 pair<P, P> closest(vt<P> v) {
     assert(size(v) > 1);
     set<P> S;

@@ -1,3 +1,7 @@
+
+	\subsection{Ballot and reflection}
+	Paths with $a$ up- and $b$ down-steps, $a\ge b$, never below 0: $\binom{a+b}a-\binom{a+b}{a+1}$; strictly above 0 after the start ($a>b$): $\frac{a-b}{a+b}\binom{a+b}a$.
+	Touching the line $y=-k$ ($k>0$, $a-b>-k$): $\binom{a+b}{b-k}$ paths (reflect the part before the first touch).
 \chapter{Combinatorial}
 
 \section{Permutations}
@@ -12,6 +16,7 @@
 	\subsection{Derangements}
 		Permutations of a set such that none of the elements appear in their original position.
 		\[ \mkern-2mu D(n) = (n-1)(D(n-1)+D(n-2)) = n D(n-1)+(-1)^n = \left\lfloor\frac{n!}{e}\right\rceil \]
+		$D(0)=1,\ D(1)=0$; the rounded form holds for $n \ge 1$.
 
 	\subsection{Burnside's lemma}
 		Given a group $G$ of symmetries and a set $X$, the number of elements of $X$ \emph{up to symmetry} equals
@@ -21,10 +26,13 @@
 		 If $f(n)$ counts ``configurations'' (of some sort) of length $n$, we can ignore rotational symmetry using $G = \mathbb Z_n$ to get
 		 \[ g(n) = \frac 1 n \sum_{k=0}^{n-1}{f(\text{gcd}(n, k))} = \frac 1 n \sum_{k|n}{f(k)\phi(n/k)}. \]
 
+	\subsection{Necklaces and bracelets}
+	$k$ colours, length $n$. Necklaces (rotations): $N=\frac1n\sum_{d|n}\phi(d)k^{n/d}$. Bracelets (also reflections): $\frac12(N+k^{(n+1)/2})$ for odd $n$, $\frac12\big(N+\frac{k+1}2k^{n/2}\big)$ for even $n$. Aperiodic necklaces (Lyndon words): $\frac1n\sum_{d|n}\mu(d)k^{n/d}$.
+
 \section{Partitions and subsets}
 	\subsection{Partition function}
 		Number of ways of writing $n$ as a sum of positive integers, disregarding the order of the summands.
-		\[ p(0) = 1,\ p(n) = \sum_{k \in \mathbb Z \setminus \{0\}}{(-1)^{k+1} p(n - k(3k-1) / 2)} \]
+		\[ p(0) = 1,\ p(m<0) = 0,\ p(n) = \sum_{k \in \mathbb Z \setminus \{0\}}{(-1)^{k+1} p(n - k(3k-1) / 2)} \]
 		\[ p(n) \sim 0.145 / n \cdot \exp(2.56 \sqrt{n}) \]
 
 		\begin{center}
@@ -35,10 +43,24 @@
 		\end{center}
 
 	\subsection{Lucas' Theorem}
-		Let $n,m$ be non-negative integers and $p$ a prime. Write $n=n_kp^k+...+n_1p+n_0$ and $m=m_kp^k+...+m_1p+m_0$. Then $\binom{n}{m} \equiv \prod_{i=0}^k\binom{n_i}{m_i} \pmod{p}$.
+		Let $n,m$ be non-negative integers and $p$ a prime. Write $n=n_kp^k+...+n_1p+n_0$ and $m=m_kp^k+...+m_1p+m_0$ in base $p$. Then $\binom{n}{m} \equiv \prod_{i=0}^k\binom{n_i}{m_i} \pmod{p}$.
+	\subsection{Inclusion--exclusion}
+	With $s_i=\sum_{|S|=i}|\bigcap_{S}A|$, the number of elements in \emph{exactly} $j$ sets is $\sum_{i\ge j}(-1)^{i-j}\binom ij s_i$.
+	Binomial inversion: $g_n=\sum_k\binom nkf_k\iff f_n=\sum_k(-1)^{n-k}\binom nkg_k$, e.g.\ surjections $[n]\to[k]$: $\sum_j(-1)^{k-j}\binom kjj^n$.
+	$x_1+\dots+x_k=n$ with $0\le x_i\le u$: $\sum_j(-1)^j\binom kj\binom{n-j(u+1)+k-1}{k-1}$.
+	$\sum_{k\le m}(-1)^k\binom nk=(-1)^m\binom{n-1}m$.
+
 
 	\subsection{Binomials}
 		\kactlimport{multinomial.h}
+		$\binom nk = \binom{n-1}{k-1} + \binom{n-1}{k}$; hockey stick $\sum_{i=r}^{n}\binom ir = \binom{n+1}{r+1}$;
+		Vandermonde $\sum_j \binom mj \binom n{k-j} = \binom{m+n}k$;
+		stars and bars: $\binom{n+k-1}{k-1}$ solutions of $x_1+\dots+x_k=n$, $x_i \ge 0$.
+
+	\subsection{Lindstr\"om--Gessel--Viennot}
+	Acyclic digraph, sources $a_1..a_k$, sinks $b_1..b_k$, $M_{ij}$ = number of paths $a_i\to b_j$ (or sum of weights):
+	\[\det M=\sum_{\sigma}\mathrm{sgn}(\sigma)\cdot\#\{\text{vertex-disjoint tuples }a_i\to b_{\sigma(i)}\}.\]
+	If disjointness forces $\sigma=\mathrm{id}$ (e.g.\ sources and sinks on the boundary of a planar grid in matching order), $\det M$ counts the disjoint tuples. Grid paths: $M_{ij}=\binom{\Delta x+\Delta y}{\Delta x}$.
 
 \section{General purpose numbers}
 	\subsection{Bernoulli numbers}
@@ -76,6 +98,11 @@
 		$$S(n,k) = S(n-1,k-1) + k S(n-1,k)$$
 		$$S(n,1) = S(n,n) = 1$$
 		$$S(n,k) = \frac{1}{k!}\sum_{j=0}^k (-1)^{k-j}\binom{k}{j}j^n$$
+	\subsection{Stirling identities}
+	$x^n=\sum_kS(n,k)\,x^{\underline k}$, $x^{\overline n}=\sum_kc(n,k)x^k$, $x^{\underline n}=\sum_k(-1)^{n-k}c(n,k)x^k$.
+	$\sum_{i<N}i^m=\sum_kS(m,k)\frac{N^{\underline{k+1}}}{k+1}$; $S(n,2)=2^{n-1}-1$; $c(n,2)=(n-1)!H_{n-1}$.
+	Row $S(n,\cdot)$: convolve $j^n/j!$ with $(-1)^i/i!$; row $c(n,\cdot)$: $\prod_{i<n}(x+i)$ by divide and conquer.
+
 
 	\subsection{Bell numbers}
 		Total number of partitions of $n$ distinct elements. $B(n) =$
@@ -88,7 +115,7 @@
 		\# with degrees $d_i$: $(n-2)! / ((d_1-1)! \cdots (d_n-1)!)$
 
 	\subsection{Pr\"ufer codes}
-		Labeled trees on $n$ vertices $\leftrightarrow$ sequences in $\{1..n\}^{n-2}$ (a bijection, hence $n^{n-2}$ trees); vertex $v$ appears $\deg(v)-1$ times.
+		Labeled trees on $n$ vertices $\leftrightarrow$ sequences in $\{0..n-1\}^{n-2}$ (a bijection, hence $n^{n-2}$ trees); vertex $v$ appears $\deg(v)-1$ times.
 		Encode: repeatedly remove the smallest leaf and append its neighbour. Decode: the leaf removed at step $i$ is the smallest label that is not yet removed and does not occur in $a_i, \dots, a_{n-2}$; join it to $a_i$; finally join the two survivors. Both $O(n)$ with a pointer walk (\texttt{PruferCode.h}).
 		Rooted forests with $k$ trees rooted at $1..k$: $k\,n^{n-k-1}$. Uniform random tree: random sequence, decode.
 		\kactlimport{PruferCode.h}

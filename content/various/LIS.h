@@ -1,7 +1,7 @@
 /**
  * Author: Johan Sannemo
  * License: CC0
- * Description: Compute indices for the longest increasing subsequence.
+ * Description: \texttt{lis\_dp} gives the strictly increasing LIS length ending at each index, \texttt{lis\_construct} the indices of one LIS.
  * Time: $O(N \log N)$
  * Status: Tested on kattis:longincsubseq, stress-tested
  */
@@ -9,11 +9,10 @@
 
 vi lis_dp(const vi &a) {
     int n = size(a);
-    vi ans(n), dp(n + 1, inf); // n+1: j can reach n
-    dp[0] = -inf;
+    vi ans(n), dp(n, INT_MAX);
     F0R (i, n) {
-        int j = ans[i] = lower_bound(all(dp), a[i]) - dp.begin(); // strictly increasing
-        dp[j] = min(dp[j], a[i]);
+        int j = lower_bound(all(dp), a[i]) - dp.begin(); // strict
+        dp[j] = a[i], ans[i] = j + 1;
     }
     return ans;
 }

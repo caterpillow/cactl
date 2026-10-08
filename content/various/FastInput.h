@@ -2,8 +2,8 @@
  * Author: chilli
  * License: CC0
  * Source: Own work
- * Description: Read an integer from stdin. Usage requires your program to pipe in
- * input from file.
+ * Description: Read an \texttt{int} (32-bit, no EOF check) from stdin. Usage requires your program to pipe in
+ * input from file; don't mix with \texttt{cin}.
  * Usage: ./a.out < input.txt
  * Time: About 5x as fast as cin/scanf.
  * Status: tested on SPOJ INTEST, unit tested

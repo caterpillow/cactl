@@ -2,6 +2,8 @@
  * Author: Benq
  * Description: $K$-th shortest walk from \texttt{src} to \texttt{des} in digraph. 
  * All edge weights must be non-negative.
+ * Usage: solve() reads N M src des K, then M lines u v w (0-indexed);
+ * prints K lengths, -1 when fewer walks exist
  * Time: O((M+N)\log N+K\log K)
  * Memory: O((M+N)\log N+K)
  * Source: https://judge.yosupo.jp/submission/11843

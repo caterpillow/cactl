@@ -23,6 +23,7 @@ Whitespace/case insensitivity in output
 Return values from main
 Printing to stderr
 Source code limit
+Compiler version, -std, flags; extc++.h, __int128 work
 Is it possible to submit and read from non-source files?
 SIMD support on machine and judge
 Benchmark local vs judge runtime
@@ -44,6 +45,6 @@ All judge errors:
     Compile time limit exceeded
     Compile memory limit exceeded
     Too late
-	Listing all available binaries
-        echo $PATH | tr ':' ' ' | xargs ls | grep -v /
-        | sort | uniq | tr '\n' ' ' > path.txt
+Listing all available binaries
+        echo $PATH | tr ':' ' ' | xargs ls | grep -v / |
+        sort | uniq | tr '\n' ' ' > path.txt

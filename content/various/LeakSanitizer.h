@@ -3,7 +3,7 @@
  * Date: 2025-10-24
  * License: CC0
  * Source: caterpillow
- * Description: tspmo
+ * Description: Disables the leak check under \texttt{-fsanitize=address}.
  * Status: tested
  */
 

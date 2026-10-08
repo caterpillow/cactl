@@ -7,6 +7,8 @@
  * the first ending position of such a string, \texttt{lnk}
  * corresponds to the longest suffix that is in a different class.
  * Suffix links correspond to suffix tree of the reversed string!
+ * Usage: S.init(s); S.genIlnk(); S.allOccur(t); // start idx
+ *  Online use: p = 0; p = S.add(p, c). Root is state 0.
  * Time: O(N\log \sum)
  * Source: *
  */

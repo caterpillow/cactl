@@ -4,7 +4,7 @@
  * License: CC0
  * Source: https://github.com/RamchandraApte/OmniTemplate/blob/master/src/number_theory/modulo.hpp
  * Description: Calculate $a\cdot b\bmod c$ (or $a^b \bmod c$) for $0 \le a, b \le c \le 7.2\cdot 10^{18}$.
- * Time: O(1) for \texttt{modmul}, O(\log b) for \texttt{modpow}
+ * Time: O(1) for \texttt{mmul}, O(\log b) for \texttt{mpow}
  * Status: stress-tested, proven correct
  * Details:
  * This runs ~2x faster than the naive (__int128_t)a * b % M.

@@ -1,6 +1,7 @@
 /**
  * Author: Benq
- * Description: Persistent meldable heap.
+ * Description: Persistent meldable heap. Empty heap is \texttt{ph h = 0},
+ * min is \texttt{h->v}; old versions stay valid.
  * Time: O(\log N) per meld
  * Memory: O(\log N) per meld
  * Source:

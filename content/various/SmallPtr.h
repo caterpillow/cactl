@@ -4,6 +4,8 @@
  * License: CC0
  * Source: me
  * Description: A 32-bit pointer that points into BumpAllocator memory.
+ * Usage: struct Node { ptr<Node> l, r; }; ptr<Node> p = new Node;
+ * Compare with a.ind == b.ind; null is ind 0 (if (p)).
  * Status: tested
  */
 #pragma once

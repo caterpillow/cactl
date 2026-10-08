@@ -1,4 +1,5 @@
 // Tests various/STL.h: with a concrete T, set/map iterate ascending and
+// -std=c++20 (STL.h contains a C++20 defaulted operator<=>)
 // priority_queue with the "a < b" comparator is a max-heap (the "// max"
 // comment is correct); struct S orders lexicographically via tie. Checked vs sort().
 // written by Claude (audit)

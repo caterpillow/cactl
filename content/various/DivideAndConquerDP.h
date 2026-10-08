@@ -6,6 +6,7 @@
  * optimal $k$ increases with $i$, computes $a[i]$ for $i = L..R-1$.
  * lo/hi are half-open; solve(L, R) fills $[L, R)$. store gets the
  * minimal optimal $k$ (needs monotone argmin, e.g. quadrangle inequality).
+ * Usage: DP d; d.solve(0, n); // res[i] = {value, argmin}
  * Time: O((N + (hi-lo)) \log N)
  * Status: tested on http://codeforces.com/contest/321/problem/E
  */

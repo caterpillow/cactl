@@ -6,9 +6,14 @@
  * Description: Recovers any $n$-order linear recurrence relation from the first
  * $2n$ terms of the recurrence.
  * Useful for guessing linear recurrences after brute-forcing the first terms.
- * Should work on any field, but numerical stability for floats is not guaranteed.
- * Output will have size $\le n$.
+ * Output $C$ (size $\le n$): $s[i] = \sum_j C[j]\,s[i-j-1]$ for $i \ge |C|$; the
+ * $s[0 \ldots |C|-1]$ are the initial values. Needs $\ge 2|C|$ terms, the prime
+ * global mod (ModPow.h) and every s[i] in $[0, mod)$.
+ * Matrix form: $M$ is $n \times n$ with first row $C$ and $M_{i,i-1} = 1$
+ * below it, $v = (s[n-1], \ldots, s[0])$; $s[k]$ is the last entry of
+ * $M^k v$. $O(n^3 \log k)$, versus $O(n^2 \log k)$ for linearRec.
  * Usage: berlekampMassey({0, 1, 1, 3, 5, 11}) // {1, 2}
+ *  linearRec(s, berlekampMassey(s), k) // s[k]
  * Time: O(N^2)
  * Status: bruteforce-tested mod 5 for n <= 5 and all s
  */

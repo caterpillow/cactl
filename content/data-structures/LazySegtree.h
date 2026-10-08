@@ -65,6 +65,7 @@ struct Lazyseg {
         return query(lo, hi, 2 * i, l, m)
             + query(lo, hi, 2 * i + 1, m, r);
     }
+    // valid before any upd (then build()); after, query(i, i + 1)
     Node& operator[] (int i) {
         return seg[i + sz];
     }

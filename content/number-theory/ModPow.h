@@ -3,7 +3,7 @@
  * Date: 2019-04-24
  * License: CC0
  * Source: folklore
- * Description:
+ * Description: $b^e$ mod \texttt{mod}; \texttt{mpow(b)} is $b^{-1}$ for prime \texttt{mod}.
  * Status: tested
  */
 #pragma once

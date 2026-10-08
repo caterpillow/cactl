@@ -5,6 +5,9 @@
  * Source: Wikipedia, tinyKACTL
  * Description: Push-relabel using the highest label selection rule and the gap heuristic. Quite fast in practice.
  *  To obtain the actual flow, look at positive values only.
+ * Usage: PushRelabel<> D; D.init(n); D.ae(a, b, cap, rcap);
+ *  D.calc(s, t); // once per graph
+ *  D.leftOfMinCut(v); // v on source side of a min cut
  * Time: $O(V^2\sqrt E)$
  * Status: Tested on Kattis and SPOJ, and stress-tested
  */

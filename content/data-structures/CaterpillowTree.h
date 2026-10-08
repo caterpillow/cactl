@@ -3,9 +3,11 @@
  * Date: 2025-10-26
  * License: CC0
  * Source: me
- * Description: 64-ary set
+ * Description: 64-ary set of ints in [0, sz), sz = $2^{18}$ (raise depth for more).
  * Time: O(\log_{64} N).
- * Usage: bruh
+ * Usage: Tree t; t.insert(x); t.erase(x); t[x];
+ *  next(x) = min elem >= x (sz if none), prev(x) = max elem <= x
+ *  (-1 if none); min() / max() = sz / -1 if empty().
  * Status: migrated from code-library - untested
  */
 #pragma once

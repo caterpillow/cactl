@@ -10,6 +10,7 @@
  * At most $n$ pushes; the kernel is cut/padded to length $n$.
  * Any linear \texttt{conv} mod \texttt{mod} works in place of NTT's.
  * Values must be in $[0, \text{mod})$.
+ * Usage: OnlineFFT o(n, kernel); o.push(x);
  * Time: O(N \log^2 N)
  * Status: stress-tested
  */

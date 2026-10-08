@@ -4,6 +4,8 @@
  * License: CC0
  * Source: idk yosupo probably
  * Description: Matching for general graphs. 1-indexed!
+ * Usage: Blossom b; b.init(n); b.ae(u, v); // once per edge
+ *  b.solve() = matching size; b.mate[v] = partner, 0 if none.
  * Time: O(NM)
  * Status: stress-tested
  */

@@ -4,7 +4,7 @@
  * License: CC0
  * Source: extrVertex in LineHullIntersection.h
  * Description: Tangents from a point $p$ strictly outside a ccw convex
- * polygon with no collinear points, coordinates up to $10^9$. Returns
+ * polygon with no collinear points, $|coord| \le 10^9$. Returns
  * $\{a, b\}$: the polygon lies to the right of the ray $p \to a$ and to
  * the left of $p \to b$, so the ccw walk from $a$ to $b$ is the side of
  * the hull facing $p$. A tangent is $(i, -1)$ if it touches only vertex
@@ -12,6 +12,7 @@
  * $(i, i+1)$. For doubles use the eps side\_of (sideOf.h) as in the
  * comment; every vertex not on a tangent must then be further than eps
  * from it.
+ * Visible chain: ccw from \texttt{a.s} (\texttt{a.f} if \texttt{a.s} $= -1$) to \texttt{b.f}.
  * Time: O(\log n)
  * Status: stress-tested
  */
@@ -37,3 +38,5 @@ pair<pi, pi> hull_tangents(vt<P>& poly, P p) {
     };
     return {go(1), go(-1)};
 }
+#undef ang
+#undef tang

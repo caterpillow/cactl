@@ -5,6 +5,8 @@
  * Source: modified the original kactl 
  * Description: Class to handle points in the plane.
  * 	T can be e.g. double or long long. (Avoid int.)
+ * 	unit, normal, rotate need T = double.
+ *  This struct does not implement a custom comma operator. 
  * Status: there's no way this is broken
  */
 #pragma once
@@ -13,7 +15,7 @@ template <class T> int sgn(T x) { return (x > 0) - (x < 0); }
 template<class T>
 struct Point {
     using P = Point<T>;
-    T x, y;
+    T x = 0, y = 0;
     #define op1(o) P operator o (P p) const { return {x o p.x, y o p.y}; }
     op1(+) op1(-)
     #define op2(o) P operator o (T z) const { return {x o z, y o z}; }
@@ -23,7 +25,7 @@ struct Point {
     #define op3(o) T o (P a, P b) const { return (a - *this). o (b - *this); }
     op3(dot) op3(cross)
     #define op4(o) bool operator o (P p) const { return tie(x, y) o tie(p.x, p.y); }
-    op4(<) op4(==)
+    op4(<) op4(==) op4(!=)
     int half() const { return y < 0 || (y == 0 && x < 0); }
     // radial
     // bool operator<(P p) const {
@@ -36,6 +38,7 @@ struct Point {
     P unit() const { return *this / dist(); }
     P perp() const { return {-y, x}; } // rotate 90 degrees left
     P normal() const { return perp().unit(); }
+    // ccw by a radians about origin
     P rotate(db a) const {
         return P{x * cos(a) - y * sin(a), x * sin(a) + y * cos(a)};
     }

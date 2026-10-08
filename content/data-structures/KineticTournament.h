@@ -8,10 +8,10 @@
  * (asserted). \texttt{heaten} advances $t$ (never back), \texttt{upd}
  * moves a point, fine mid-sweep. \texttt{mt[i]} is the first direction at
  * which node $i$'s winner can change; a subtree is rebuilt only once $t$
- * reaches it. For argmax flip the \texttt{<} in combine. Needs Point's
- * radial \texttt{<} and a sweep inside angles $[0, 180)$: elsewhere
- * certificates wrap past $0$ and the tree recomputes needlessly (still
- * correct). Lines $ax+b$ at increasing $x$: point $(-a,b)$, t0 $(B,1)$,
+ * reaches it. For argmax flip the \texttt{<} in combine and use
+ * \texttt{(p - q).perp()} for e. Needs Point's radial \texttt{<} and a
+ * sweep inside angles $[0, 180)$ (rotate points and t by perp() to
+ * fit). Lines $ax+b$ at increasing $x$: point $(-a,b)$, t0 $(B,1)$,
  * heaten $(-x,1)$, tn $(-B,1)$. Safe for $|coord|, |t| \le 10^9$ (a cross
  * of two certificates reaches $8 \cdot 10^{18}$); Point<\_\_int128> beyond.
  * Time: O(\log n) per upd. A node's winner changes at most (subtree

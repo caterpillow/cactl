@@ -5,6 +5,7 @@
  * Description: Given N non-negative integer weights w and a non-negative target t,
  * computes the maximum S <= t such that S is the sum of some subset of the weights.
  * Time: O(N \max(w_i))
+ * Memory: O(\max(w_i))
  * Status: Tested on kattis:eavesdropperevasion, stress-tested
  */
 #pragma once

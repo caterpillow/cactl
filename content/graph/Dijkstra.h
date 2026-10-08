@@ -6,6 +6,7 @@
  * Description: Decrease-key keeps exactly one entry per vertex. 
  * 1.2--1.4x faster on dense graphs and when a vertex is relaxed often, 
  * up to 1.4x slower on sparse random and grid graphs. 
+ * Usage: dijkstra(s) returns d; needs w >= 0, INF if unreachable
  * Time: O(E + V \log V)
  * Status: stress-tested
  */

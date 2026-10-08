@@ -1,6 +1,8 @@
 /**
  * Author: Benq
- * Description: stack
+ * Description: Finds a directed cycle with a DFS stack.
+ * Usage: DirCyc<N> g; g.adj[u].pb(v); vi c = g.init(n);
+ * // c: cycle in order (c.back() -> c[0]), empty if acyclic
  * Source: https://www.geeksforgeeks.org/detect-cycle-in-a-graph/
  */
 

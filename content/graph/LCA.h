@@ -4,8 +4,9 @@
  * License: CC0
  * Source: Folklore
  * Description: Data structure for computing lowest common ancestors in a tree
- * (with 0 as root). C should be an adjacency list of the tree, either directed
+ * (with 0 as root). adj is an adjacency list of the tree, either directed
  * or undirected.
+ * Usage: LCA lca(adj); lca(u, v);
  * Time: $O(N \log N + Q)$
  * Status: stress-tested
  */
@@ -18,8 +19,10 @@ struct LCA {
     vi time, path, ret;
     RMQ<int> rmq;
 
-	// n == 1: ret is empty and RMQ asserts; special-case it
-    LCA(vt<vi>& adj) : time(size(adj)) { dfs(0, -1, adj); rmq.init(ret); }
+    LCA(vt<vi>& adj) : time(size(adj)) {
+        dfs(0, -1, adj);
+        if (size(ret)) rmq.init(ret);
+    }
     void dfs(int u, int p, vt<vi> &adj) {
         time[u] = t++;
         for (int v : adj[u]) if (v != p) {

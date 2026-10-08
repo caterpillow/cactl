@@ -6,10 +6,10 @@
  *  To convert to a "normal" mcmf, add an edge from \text{t -> s} of big
  *  capacity and cost below $-(V \cdot \max|cost|)$ (NOT -1e18: costs
  *  multiply flows and accumulate into duals). Add it back onto the answer!
- *  If you don't necessarily need to maximise flow, add free edge from \text{s -> t}.
- *  Edge $i$ (one indexed) is \text{ns.edges[2 * i]]}.
+ *  If you don't need max flow, give the \text{t -> s} edge cost 0.
+ *  Edge $i$ (one indexed) is \text{ns.edges[2 * i]}, its flow is \text{ns.edges[2 * i + 1].cap}.
  *  Works with negative cost cycles.
- *  Flow is int; set Flow = ll if capacities/flows exceed 2\ensuremath{^{31}}.
+ *  Flow is int (infinite capacity: inf). Set Flow = ll and use INF if capacities/flows exceed 2\ensuremath{^{31}}.
  *  Total |cost x flow| must fit in ll.
  * Status: stress-tested (random circulations + mcmf vs MCMF)
  * Time: $O(VE)$ on average maybe

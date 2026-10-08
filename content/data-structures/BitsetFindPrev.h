@@ -3,7 +3,8 @@
  * Date: 2025-09-12
  * License: CC0
  * Source: nyaan
- * Description: Implements find\_prev for bitsets.
+ * Description: Adds \texttt{\_Find\_prev(i)} (last set index $< i$, $-1$ if none)
+ * and \texttt{\_Find\_last()} to bitset; \texttt{\_Find\_next} returns N if none.
  * Status: just works
  */
 #pragma once

@@ -61,8 +61,9 @@ math.perm(n, k)                # n! / (n - k)!
 math.gcd(a, b), math.lcm(a, b) # lcm is 3.9+
 math.isqrt(n)                  # floor(sqrt(n)), exact
 pow(a, b, m)                   # pow(a, -1, m): inverse (3.8+)
-divmod(a, b)                   # (a // b, a % b)
+divmod(a, b)                   # (a // b, a % b), floored
 math.log2(x), math.log10(x), math.log(x, base)
-math.floor(x), math.ceil(x), round(x, 2)
+math.floor(x), math.ceil(x), round(x, 2) # half to even
 math.hypot(x, y), math.atan2(y, x)
 math.inf, math.pi, math.e
+# >4300-digit print: sys.set_int_max_str_digits(0)

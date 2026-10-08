@@ -34,5 +34,5 @@ ll lagrange(vl &y, ll x) { // y[i] = f(i), i in [0, n]
 			* ifac[i] % mod * ifac[n - i] % mod;
 		res = (res + ((n - i) & 1 ? mod - t : t)) % mod;
 	}
-	return res;
+	return (res + mod) % mod;
 }

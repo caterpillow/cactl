@@ -16,7 +16,7 @@
 	Imprecisions on $x$ in $\sqrt{x}$ are typically bad, particularly near $0$. (3) \\
 
 	Note that $\frac{1}{x}$ and $\sqrt{x}$ perform poorly on imprecise inputs: when working with exact inputs, the \texttt{IEEE 754} standard guarantees a relative error of $\epsilon$/absolute error of $M\epsilon$. \\ 
-	In particular, circle/line/circle-line intersections on exact coordinates have relative error proportional to $\epsilon$/absolute error proportional to $M\epsilon$.
+	Circle intersections take $\sqrt{r^2-d^2}$, so near tangency the error is about $M\sqrt{\epsilon}$ (use an eps).
 
 	(1) subtracting two large imprecise values can blow up relative errors \\
 	(2) division by a value near $0$ can result in an arbitrarily large error in both positive and negative \\
@@ -32,6 +32,11 @@
 		\[ b = q_x - p_x \]
 		\[ c = p \times q \]
 		\normalsize
+
+	\subsection{Center of mass of a polygon}
+		For a simple polygon $p_0, \dots, p_{n-1}$ (either orientation, $p_n = p_0$), with signed area $A = \frac12 \sum_i p_i \times p_{i+1}$:
+		\[ C = \frac{1}{6A} \sum_{i=0}^{n-1} (p_i + p_{i+1})\,(p_i \times p_{i+1}) \]
+		(\texttt{PolygonCenter.h}). This is the centroid of the filled region. For the boundary (a uniform wire), weight each edge midpoint by its length; for point masses at the vertices, take the average of the vertices. These three differ in general.
 
 \section{Geometric primitives}
 	\kactlimport{Point.h}
@@ -58,6 +63,7 @@
 	\kactlimport{PolygonArea.h}
 	\kactlimport{PolygonCenter.h}
 	\kactlimport{PolygonCut.h}
+	\kactlimport{HalfPlane.h}
 	\kactlimport{PolygonUnion.h}
 	\kactlimport{ConvexHull.h}
 	\kactlimport{IncrementalHull.h}

@@ -8,6 +8,7 @@
  * 1 if the circles are tangent to each other (in which case .first = .second and the tangent line is perpendicular to the line between the centers).
  * .first and .second give the tangency points at circle 1 and 2 respectively.
  * To find the tangents of a circle with a point set r2 to 0.
+ * P is intended to be Point<double>.
  * Status: tested
  */
 #pragma once

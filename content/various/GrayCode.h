@@ -2,7 +2,7 @@
  * Author: caterpillow
  * License: CC0
  * Source: cp algorithms
- * Description: Gray codes 
+ * Description: \texttt{g(i)} is the $i$-th Gray code, \texttt{rev\_g} its inverse. \texttt{g(i)} and \texttt{g(i+1)} differ in bit $\mathrm{ctz}(i+1)$ only.
  */
 #pragma once
 int g(int n) { return n ^ (n >> 1); }

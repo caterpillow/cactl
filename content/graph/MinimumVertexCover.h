@@ -5,6 +5,8 @@
  * Description: Finds a minimum vertex cover in a bipartite graph.
  *  The size is the same as the size of a maximum matching, and
  *  the complement is a maximum independent set.
+ * Usage: vi c = cover(g, n, m); // g[i]: right nbrs of left i
+ *  // n, m = left, right sizes; right j is returned as n + j
  * Status: stress-tested
  */
 #pragma once

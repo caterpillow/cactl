@@ -6,6 +6,9 @@
  * Description: Answer interval or tree path queries by finding an approximate TSP through the queries,
  * and moving from one query to the next by adding/removing points at the ends.
  * If values are on tree edges, change \texttt{step} to add/remove the edge $(a, c)$ and remove the initial \texttt{add} call (but keep \texttt{in}).
+ * Usage: mo: Q = {l, r} half-open. moTree: Q = {a, b} nodes, ed = adjacency
+ * lists, path a..b with both ends and the LCA. add/del(ind, end): end 0 = left,
+ * 1 = right. Set blk to about N / sqrt(Q) in both.
  * Time: O(N \sqrt Q)
  * Status: stress-tested
  */
@@ -16,7 +19,7 @@ void del(int ind, int end) { ... } // remove a[ind]
 int calc() { ... } // compute current answer
 
 vi mo(vt<pi> Q) {
-    int L = 0, R = 0, blk = 350; // ~N/sqrt(Q)
+    int L = 0, R = 0, blk = 350; // set to N/sqrt(Q)
     vi s(size(Q)), res = s;
 #define K(x) pi(x.first/blk, x.second ^ -(x.first/blk & 1))
     iota(all(s), 0);
@@ -33,7 +36,7 @@ vi mo(vt<pi> Q) {
 }
 
 vi moTree(vt<array<int, 2>> Q, vt<vi>& ed, int root = 0) {
-    int N = size(ed), pos[2] = {}, blk = 350; // ~N/sqrt(Q)
+    int N = size(ed), pos[2] = {}, blk = 350; // set to N/sqrt(Q)
     vi s(size(Q)), res = s, I(N), L(N), R(N), in(N), par(N);
     add(0, 0), in[0] = 1;
     auto dfs = [&] (int x, int p, int dep, auto& f) -> void {
@@ -60,3 +63,5 @@ vi moTree(vt<array<int, 2>> Q, vt<vi>& ed, int root = 0) {
     }
     return res;
 }
+#undef K
+#undef step

@@ -6,6 +6,7 @@
  */
 #pragma once
 
+// cmp is a strict order; ties are the same key
 auto cmp = [] (T a, T b) { return a < b; };
 set<T, decltype(cmp)> s(cmp);
 map<T, int, decltype(cmp)> m(cmp);
@@ -18,7 +19,10 @@ struct S { // comparators for structs: tie = lexicographic
         return tie(a, b) < tie(o.a, o.b); }
     bool operator==(const S &o) const {
         return tie(a, b) == tie(o.a, o.b); }
-    // C++20: auto operator<=>(const S &) const = default;
+};
+struct S2 { // C++20: all of < <= > >= == != at once
+    int a, b;
+    auto operator<=>(const S2 &) const = default;
 };
 vt<S> w; // ad hoc order without operators:
-sort(all(w), [] (S &x, S &y) { return x.a < y.a; });
+sort(all(w), [] (S x, S y) { return x.a < y.a; });

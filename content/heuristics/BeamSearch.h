@@ -2,7 +2,9 @@
  * Author: caterpillow
  * Date: 2025-09-23
  * Source: me
- * Description: example beam search solution
+ * Description: Beam search example: split $a_i>0$ into $k$ buckets
+ *  maximising the product of bucket sums. Edit \texttt{State}, the
+ *  transitions and \texttt{calc\_score}; set \texttt{TIME\_LIMIT}.
  */
 #pragma once
 
@@ -177,7 +179,7 @@ signed main() {
             F0R (_, neighbours) {
                 // n > k: some bucket has 2+ els, else Swap's ctor spins
                 if (k > 1 && n > k) transitions.emplace_back(make_unique<Swap>(st));
-                if (n > 1) transitions.emplace_back(make_unique<Move>(st));
+                if (k > 1 && n > 1) transitions.emplace_back(make_unique<Move>(st));
             }
         }
 
@@ -193,5 +195,6 @@ signed main() {
         states = std::move(new_states);
     }
 
+    for (auto &st : states) if (st.value > best.value) best = st;
     best.print();
 }

@@ -6,7 +6,8 @@
  * Description: Generic static range query for associative operations.
  * Queries are half-open: query(l, r) folds over $[l, r)$.
  * Time: O(N \log N) build, O(1) query.
- * Usage: Define the desired operation
+ * Usage: edit comb and id (the identity); build(all(v)); query(l, r) needs r > l.
+ * Memory: O(N \log N), about 220MB for $N = 2^{20}$ with 8-byte T.
  * Status: stress-tested
  */
 #pragma once

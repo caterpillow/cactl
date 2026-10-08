@@ -12,7 +12,7 @@
  * neighbour of $v$, the other later neighbours of $v$ must be adjacent
  * to $p$. If chordal: max clique $= \max_v 1 + |$later neighbours$|$ =
  * chromatic number, and greedy colouring from the back is optimal.
- * Simple graphs only.
+ * Simple undirected graphs only.
  * Usage: bool chordal = isPeo(g, mcs(g));
  * Time: O(V + E)
  * Status: stress-tested

@@ -14,8 +14,9 @@
  * Pass the matroid with more expensive add/clear operations to M1.
  * Time: $R^2N(M2.add + M1.check + M2.check) + R^3 M1.add + R^2 M1.clear + RN M2.clear$
  * Status: Tested on SWERC 2011D, Pick Your Own Nim
- * Usage:
- * Details:
+ * Usage: MatroidIsect<GraphMat, ColorMat> mi(GraphMat(V, e),
+ *  ColorMat(C, clr), m); vi a = mi.solve(); // chosen elements
+ *  // e[i] = {u, v} in [0, V), clr[i] in [0, C), m = \#elements
  */
 #include "../data-structures/UnionFind.h"
 

@@ -21,7 +21,7 @@ int matInv(vt<vt<db>>& A) {
         FOR (j, i, n) FOR (k, i, n)
             if (fabs(A[j][k]) > fabs(A[r][c]))
                 r = j, c = k;
-        if (fabs(A[r][c]) < 1e-12) return i;
+        if (fabs(A[r][c]) < 1e-12) return i; // absolute eps
         A[i].swap(A[r]); tmp[i].swap(tmp[r]);
         F0R (j, n)
             swap(A[j][i], A[j][c]), swap(tmp[j][i], tmp[j][c]);

@@ -9,11 +9,13 @@
  * if none was displaced); \texttt{find(u, w)} = representative of u's
  * component using only edges of weight $\le w$ (default: all), so
  * connectivity ``as of'' any threshold is a query, no deletions needed;
- * \texttt{max\_edge(u, v)} = vertex whose parent edge is the heaviest on
- * the u--v path (-1 if disconnected); \texttt{delete\_max\_edge(u, v, w)}
- * removes the edge of weight w, valid only if w is the current maximum
- * weight in the whole structure. Offline dynacon: weight = -deletion
+ * \texttt{max\_edge(u, v)} = vertex p whose parent edge (\texttt{weight[p]},
+ * to \texttt{par[p]}) is the heaviest on the u--v path (-1 if
+ * disconnected); \texttt{delete\_max\_edge(u, v, w)} removes the edge of
+ * weight w, valid only if w $\ge$ the weight of every live edge,
+ * including edges merge dropped. Offline dynacon: weight = -deletion
  * time, answer queries at time t with find(u, -t-1) == find(v, -t-1).
+ * Usage: DSU d(n); d.merge(u, v, {w, id}); // w < inf
  * Time: O(\log n) expected
  * Status: stress-tested
  */

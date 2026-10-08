@@ -6,6 +6,10 @@
  * Description: Computes sums a[i,j] for all i<I, j<J, and increases single elements a[i,j].
  *  Requires that the elements to be updated are known in advance (call fake\_update() before init()).
  * Time: $O(\log^2 N)$. (Use persistent segment trees for $O(\log N)$.)
+ * Usage: FT2 f(n); // 0 <= x < n
+ *  f.fake_update(x, y); // once per point you will update
+ *  f.init(); f.update(x, y, d); // a[x][y] += d
+ *  f.query(I, J); // sum of a[x][y] over x < I, y < J
  * Status: stress-tested
  */
 #pragma once
@@ -25,8 +29,11 @@ struct FT2 {
         return lower_bound(all(ys[x]), y) - ys[x].begin();
     }
     void update(int x, int y, ll dif) {
-        for (; x < size(ys); x |= x + 1)
-            ft[x].update(ind(x, y), dif);
+        for (; x < size(ys); x |= x + 1) {
+            int i = ind(x, y); // (x, y) must be fake_updated
+            assert(i < size(ys[x]) && ys[x][i] == y);
+            ft[x].update(i, dif);
+        }
     }
     ll query(int x, int y) {
         ll sum = 0;

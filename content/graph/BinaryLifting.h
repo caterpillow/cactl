@@ -6,6 +6,8 @@
  * Description: Calculate power of two jumps in a tree,
  * to support fast upward jumps and LCAs.
  * Assumes the root node points to itself.
+ * Usage: t = build_table(par); jump(t, u, k); lca(t, depth, a, b);
+ *  jump needs k <= depth[u]; depth[v] = distance from root.
  * Time: construction $O(N \log N)$, queries $O(\log N)$
  * Status: Tested at Petrozavodsk, also stress-tested via LCA.cpp
  */

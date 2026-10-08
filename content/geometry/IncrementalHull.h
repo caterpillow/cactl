@@ -5,7 +5,7 @@
  *  Returns minimal hull vertices CCW from the lexicographically smallest point,
  *  without repeating the first point. Handles empty input, duplicates and
  *  collinearity; an entirely collinear hull has at most two endpoints.
- *  T must be signed and wide enough for cross products; requires reliable signs.
+ *  T must be signed; ll needs $|coord| \le 10^9$. Requires reliable signs.
  * Usage: IncrementalHull<ll> h; h.add({x, y}); auto ps = h.hull();
  * Time: Amortized O(\log n) per insertion; O(h) to report h hull vertices.
  * Memory: O(h)

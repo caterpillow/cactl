@@ -3,6 +3,7 @@
  * Date: 2025-09-01
  * License: CC0
  * Description: Short algo for computing maximum flows with a bounded answer.
+ * Usage: adj[a][b] += cap; flow(s, t);
  * Time: O(FM)
  * Status: tested i think
  */

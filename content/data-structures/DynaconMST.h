@@ -5,7 +5,8 @@
  * gets weight $-$(deletion time), so at time $t$ exactly the edges with
  * weight $\le -t-1$ are alive and deletions cost nothing. Events are
  * processed in time order; simple graph (no parallel edges).
- * Usage: ev[t] = {0 add / 1 del / 2 query, u, v}; returns answers
+ * Usage: ev[t] = {0 add / 1 del / 2 query, u, v}, 0 <= u, v < n; each del
+ *  matches a live add. Returns one bool per query, in order: u, v connected.
  * Time: O((N + Q) \log N) expected
  * Status: stress-tested
  */

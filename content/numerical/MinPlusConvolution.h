@@ -7,6 +7,9 @@
  *  \texttt{min\_smawk(f,r,c)} returns a minimizing column for each row of the
  *  matrix f. Totally monotone means every submatrix's leftmost row-minimum
  *  indices are nondecreasing. The matrix is queried through f, not stored.
+ * Usage: c = min_plus_smawk(a, b); // b convex
+ *  c = min_plus_concave_one(a, b); // b concave
+ *  vi col = min_smawk(f, R, C); // f(r, c), R rows, C cols
  * Time: $O(N+M)$ convex, $O(N\log M+M)$ concave
  */
 #pragma once
@@ -47,27 +50,25 @@ vi min_smawk(Fn f, int r, int c) {
 } // <hash>
 
 // Compute min plus convolution c[k] = min{i+j=k}(a[i]+b[j]) for convex b. O(N + M)
-template<class V>
-vt<V> min_plus_smawk(const vt<V>& a, const vt<V>& b) {
+vl min_plus_smawk(const vl& a, const vl& b) {
     int n = size(a), m = size(b);
     if (!n || !m) return n ? a : b;
-    auto f = [&] (int r, int c) -> tuple<int, V, int> {
-        if (r < c) return {1, V{}, c};
-        if (r - c >= m) return {1, V{}, -c};
+    auto f = [&] (int r, int c) -> tuple<int, ll, int> {
+        if (r < c) return {1, 0ll, c};
+        if (r - c >= m) return {1, 0ll, -c};
         return {0, a[c] + b[r - c], 0};
     };
     vi cols = min_smawk(f, n + m - 1, n);
-    vt<V> d(n + m - 1);
+    vl d(n + m - 1);
     F0R (r, n + m - 1) d[r] = a[cols[r]] + b[r - cols[r]];
     return d;
 } // <hash>
 
 // Compute min plus convolution c[k] = min{i+j=k}(a[i]+b[j]) for concave b. O(N log M + M)
-template<class V>
-vt<V> min_plus_concave_one(const vt<V>& a, const vt<V>& b) {
+vl min_plus_concave_one(const vl& a, const vl& b) {
     int n = size(a), m = size(b), z = n + m - 1;
     if (!n || !m) return n ? a : b;
-    vt<V> c(z, INF); // V = ll
+    vl c(z, INF);
     auto solve = [&] (int l, int r, bool rev) {
         auto val = [&] (int j, int k) {
             if (rev) j = n - 1 - j, k = z - 1 - k;

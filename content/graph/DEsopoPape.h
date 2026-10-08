@@ -4,7 +4,7 @@
  * License: CC0
  * Source: https://cp-algorithms.com/graph/desopo_pape.html
  * Description: Mystery shortest path algorithm with exponential breaking cases. 
- *  Works with negative weights, but dies on negative cycles.
+ *  Works with negative weights; loops forever on a negative cycle.
  * Time: Linear to exponential, depending on how good data is. 
  * Status: looks like it works
  */

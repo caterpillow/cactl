@@ -6,7 +6,8 @@
  * such that $f(p/q)$ is true, and $p, q \le N$.
  * You may want to throw an exception from $f$ if it finds an exact solution,
  * in which case $N$ can be removed.
- * Usage: fracBS([](Frac f) { return f.p>=3*f.q; }, 10); // {1,3}
+ * Needs $f$ monotone with $f(1/1)$ true.
+ * Usage: fracBS([](Frac f) { return 3*f.p>=f.q; }, 10); // {1,3}
  * Time: O(\log(N))
  * Status: stress-tested for n <= 300
  */

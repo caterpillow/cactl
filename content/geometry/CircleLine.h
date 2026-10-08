@@ -5,6 +5,7 @@
  * Source: https://vlecomte.github.io/cp-geo.pdf
  * Description: Finds the intersection between a circle and a line.
  * Returns a vector of either 0, 1, or 2 intersection points.
+ * The line passes through a != b; two points are ordered from a to b.
  * P is intended to be Point<double>.
  * Status: unit tested
  */

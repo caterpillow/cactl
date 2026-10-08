@@ -2,16 +2,17 @@
  * Author: caterpillow
  * Date: 2025-10-25
  * Source: me
- * Description: segtree beats but treap
- * Time: $O(N \log N)$
- * Status: taken off byot
+ * Description: Segtree beats on a treap: range chmin/chmax/add and
+ *  range sum/min/max on half-open [lo, hi). Only updi/queryi: build
+ *  the tree yourself (new Node(Value::make(x)), pull(n)).
+ * Usage: updi(t, lo, hi, chmin_tag(x)); queryi(t, lo, hi).sum
+ * Time: $O(\log^2 N)$ amortized
+ * Status: review (overflow fixes 2026-10)
  */
 #pragma once
 
 struct Lazy {
-    int mn;
-    int mx;
-    int add;
+    ll mn, mx, add;
 
     void operator+=(const Lazy oth) {
         if (oth.mn - add <= mx) mn = mx = oth.mn - add;
@@ -24,7 +25,7 @@ struct Lazy {
     }
 };
 
-const Lazy lid = {1'000'000'000, -1'000'000'000, 0};
+const Lazy lid = {INF, -INF, 0};
 
 Lazy chmin_tag(ll x) { Lazy lazy = lid; lazy.mn = x; return lazy; }
 Lazy chmax_tag(ll x) { Lazy lazy = lid; lazy.mx = x; return lazy; }
@@ -33,12 +34,11 @@ Lazy add_tag(ll x) { Lazy lazy = lid; lazy.add = x; return lazy; }
 // You can implement your own monoid here for custom operations.
 struct Value {
     ll sum;
-    int mx, mxcnt, mx2;
-    int mn, mncnt, mn2;
+    ll mx, mxcnt, mx2;
+    ll mn, mncnt, mn2;
 
     static Value make(ll x, ll len = 1) {
-        int xi = x, li = len;
-        return {x * len, xi, li, -1'000'000'000, xi, li, 1'000'000'000};
+        return {x * len, x, len, -INF, x, len, INF};
     }
 
     bool can_break(const Lazy& lazy) {
@@ -80,7 +80,7 @@ struct Value {
     }
 };
 
-const Value vid = {0, -1'000'000'000, 0, -1'000'000'000, 1'000'000'000, 0, 1'000'000'000};
+const Value vid = {0, -INF, 0, -INF, INF, 0, INF};
 
 mt19937 mt(chrono::steady_clock::now().time_since_epoch().count());
 using ptr = struct Node*;

@@ -4,13 +4,14 @@
  * License: CC0
  * Description: Solves $A * x = b$. If there are multiple solutions, an arbitrary one is returned.
  *  Returns rank, or -1 if no solutions. Data in $A$ and $b$ is lost.
+ * Usage: vd x(m); int r = solveLinear(A, b, x);
  * Time: O(n^2 m)
  * Status: tested on kattis:equationsolver, and bruteforce-tested mod 3 and 5 for n,m <= 3
  */
 #pragma once
 
 using vd = vt<db>;
-const db eps = 1e-12;
+const db eps = 1e-12; // absolute, tune to entries
 
 int solveLinear(vt<vd>& A, vd& b, vd& x) {
     int n = size(A), m = size(x), rank = 0, br, bc;

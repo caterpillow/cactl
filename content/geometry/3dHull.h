@@ -6,8 +6,9 @@
  *  Returns outward triangles with original indices; later coplanarity and
  *  duplicates are allowed. May retain redundant boundary vertices.
  *  \texttt{hull3d\_vertices} returns only extreme vertex indices; faces are unchanged.
- *  Requires reliable orientation signs; use a sufficiently wide integer type
- *  for exact integer inputs. Floating-point roundoff can affect degeneracies.
+ *  Face F: indices a, b, c (ccw from outside), q = outward normal.
+ *  P3 is Point3D<db>; use Point3D<ll> for exact integer input.
+ *  Requires reliable orientation signs; roundoff can affect degeneracies.
  * Time: Hull: O(n^2) time and space. Vertices: O(n + m\log m), m = number of triangles.
  * Status: stress-tested
  */

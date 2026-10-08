@@ -7,8 +7,8 @@
  */
 #pragma once
 
-ll multinomial(vi& v) {
-    ll c = 1, m = v.empty() ? 1 : v[0];
+ll multinomial(const vi& v) {
+    __int128 c = 1; ll m = v.empty() ? 1 : v[0];
     FOR (i, 1, size(v)) F0R (j, v[i]) c = c * ++m / (j + 1);
     return c;
 }

@@ -19,6 +19,7 @@ using pi = pair<int, int>;
 using pl = pair<ll, ll>;
 const int inf = 1e9;
 const ll INF = 1e18;
+#define dbg(x) cerr << #x << " = " << (x) << endl
 
 int main() {
     cin.tie(0)->sync_with_stdio(0);

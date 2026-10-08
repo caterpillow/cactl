@@ -3,7 +3,7 @@
  * Date: 2015-03-15
  * License: CC0
  * Source: own work
- * Description: $2^{64} - 1$ mod int
+ * Description: Type H: integers mod $2^{64}-1$ with $+, -, *, ==, <$. Hash base C.
  * Status: stress-tested
  */
 #pragma once
@@ -24,5 +24,6 @@ struct H {
     #define op(o) bool operator o (H oth) const { return get() o oth.get(); }
     op(==) op(<)
 };
+#undef op
 
 static const H C = (ll) 1e11 + 3; // (order ~ 3e9; random also ok)

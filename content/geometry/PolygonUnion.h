@@ -5,7 +5,7 @@
  * Source: https://codeforces.com/gym/101673/submission/50481926
  * Description: Calculates the area of the union of $n$ polygons (not necessarily
  * convex). The points within each polygon must be given in CCW order.
- * (Epsilon checks may optionally be added to sideOf/sgn, but shouldn't be needed.)
+ * Collinearity uses \texttt{eps}.
  * Time: $O(N^2)$, where $N$ is the total number of points
  * Status: stress-tested, Submitted on ECNA 2017 Problem A
  */
@@ -15,6 +15,7 @@
 #include "sideOf.h"
 
 using P = Point<db>;
+const db eps = 1e-9;
 db rat(P a, P b) { return sgn(b.x) ? a.x / b.x : a.y / b.y; }
 db poly_union(vt<vt<P>>& poly) {
     db ret = 0;
@@ -24,7 +25,7 @@ db poly_union(vt<vt<P>>& poly) {
         F0R (j, size(poly)) if (i != j) {
             F0R (u, size(poly[j])) {
                 P C = poly[j][u], D = poly[j][(u + 1) % size(poly[j])];
-                int sc = side_of(A, B, C), sd = side_of(A, B, D);
+                int sc = side_of(A, B, C, eps), sd = side_of(A, B, D, eps);
                 if (sc != sd) {
                     db sa = C.cross(D, A), sb = C.cross(D, B);
                     if (min(sc, sd) < 0)

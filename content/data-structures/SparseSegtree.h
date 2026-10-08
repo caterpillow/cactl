@@ -5,7 +5,9 @@
  * Source: me
  * Description: Generic-ish sparse segment tree (point update, range query).
  * Time: O(\log N).
- * Usage: Choose appropriate identity element and merge function.
+ * Usage: ptr t = new Node{INF}; t->upd(i, v); t->query(l, r); upd assigns,
+ *  query is [l, r), 0 <= i < sz; the root value is ID.
+ * Memory: $\log_2 sz$ nodes per upd.
  * Status: stress-tested
  */
 #pragma once
@@ -24,8 +26,8 @@ struct Node {
         if (lo >= r || hi <= l) return ID;
         if (lo <= l && r <= hi) return val;
         int m = (l + r) / 2;
-        return func(get(lc)->query(lo, hi, l, m),
-            get(rc)->query(lo, hi, m, r));
+        return func(lc ? lc->query(lo, hi, l, m) : ID,
+            rc ? rc->query(lo, hi, m, r) : ID);
     }
 
     ll upd(int i, ll nval, int l = 0, int r = sz) {
@@ -33,7 +35,7 @@ struct Node {
         int m = (l + r) / 2;
         if (i < m) get(lc)->upd(i, nval, l, m);
         else get(rc)->upd(i, nval, m, r);
-        return val = func(get(lc)->val, get(rc)->val); // creates extra
+        return val = func(lc ? lc->val : ID, rc ? rc->val : ID);
     }
     #undef ID
     #undef func

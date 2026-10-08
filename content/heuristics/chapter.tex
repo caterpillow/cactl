@@ -2,8 +2,8 @@
 
 \section{Tips}
 	\subsection{Simulated Annealing}
-	Default temperature schedule for SA: $t = t_0 \cdot (\frac{t_n}{t_0})^{\text{time\_passed}}, \text{time\_passed} \in [0, 1]$
-	Acceptance function: $RNG() < \operatorname{exp}((\text{cur} - \text{new}) / t)$
+	Default temperature schedule for SA: $t = t_0 \cdot (\frac{t_n}{t_0})^{\text{time\_passed}}, \text{time\_passed} \in [0, 1]$ \\
+	Acceptance function: $\text{RNG}() < \exp((\text{cur} - \text{new}) / t)$ (minimising; swap cur and new to maximise) \\
 	A good schedule should have a slowly decreasing acceptance rate. 
 	Priorities:
 	\begin{itemize}
@@ -25,7 +25,7 @@
 		\item Add an additional scoring component based on number of collisions
 		\item Do many short SA runs with high temp on partial subsolutions
 	\end{itemize}
-	If your eval is very fast, make sure RNG, exp and cur\_time are not bottlenecks.
+	If your eval is very fast, make sure RNG, exp and elapsed() are not bottlenecks.
 	When SA is bad:
 	\begin{itemize}
 		\item Very easy to get stuck in local optima
@@ -38,6 +38,8 @@
 	If results do not align with intuition, investigate.
 	Merge N-dimensional coordinates into 1D.
 	Memory allocation is slow.
+	\subsection{Beam search}
+	Dedupe states by hash; the top-$W$ often share a parent. Use nth\_element, not a full sort. Evaluate incrementally. Choose $W$ from the time of one generation.
 
 \kactlimport{RNG.h}
 \kactlimport{SimAnneal.h}

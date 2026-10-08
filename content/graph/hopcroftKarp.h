@@ -4,7 +4,9 @@
  * License: CC0
  * Source: i forgot
  * Description: Fast incremental bipartite matching. Zero-indexed.
- * Usage: operator[] for the pair of right node i, n is the size of the rhs, add(v) to add adjacency list of node on lhs
+ * Usage: Matching M(m); // m = size of rhs
+ *  M.add(nbrs); // next lhs node (0, 1, ..); 1 if matching grew
+ *  M[j]; // lhs node matched to rhs j, or -1
  * Time: O(\sqrt{V}E)
  * Status: tested i thinks
  */

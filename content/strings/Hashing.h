@@ -3,8 +3,15 @@
  * Date: 2015-03-15
  * License: CC0
  * Source: own work
- * Description: Self-explanatory methods for string hashing.
+ * Description: Substring hashes of a string or vector of values $\ge 0$.
  *  Skip the stuff that starts with r if you don't care about reverse hashes etc.
+ * Usage:
+ *  HashInterval h(s); // s is an lvalue
+ *  h.hash_interval(l, r); // hash of s[l, r)
+ *  h.rhash_interval(l, r); // hash of reversed s[l, r)
+ *  // s[l, r) is a palindrome iff the two are equal
+ *  get_hashes(s, len); // hashes of all windows of length len
+ *  hash_string(s);
  * Status: stress-tested
  */
 #pragma once
@@ -25,7 +32,7 @@ struct HashInterval {
     H hash_interval(int l, int r) { // hash [l, r)
         return ha[r] - ha[l] * pw[r - l];
     }
-    H rhash_interval(int l, int r) { // hash [l, rf) from right to left
+    H rhash_interval(int l, int r) { // hash of reversed [l, r)
         return rha[l] - rha[r] * pw[r - l];
     }
 };

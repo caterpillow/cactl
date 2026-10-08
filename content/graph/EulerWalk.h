@@ -9,6 +9,9 @@
  * For undirected graphs, a tour exists when all nodes have even degree.
  * For directed graphs, a tour exists when all nodes have equal in and out degree.
  * For trails, the condition is the same as if you added an edge from t -> s.
+ * Usage: adj.assign(n, {}); used.assign(m, 0);
+ * adj[u].pb({v, id}); // id in [0, m), undirected: add both ends
+ * dfs(s); reverse(all(ret)); // walk from s, s = trail start
  * Time: O(V + E)
  * Status: no way this doesn't work
  */

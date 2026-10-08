@@ -4,7 +4,7 @@
  * License: CC0
  * Description: pfun[x] computes the length of the longest prefix of s that ends at x,
  * other than s[0...x] itself (abacaba -> 0010123).
- * Can be used to find all occurrences of a string.
+ * match(s, pat) returns the start of each occurrence of pat in s; pat nonempty.
  * Time: O(n)
  * Status: Tested on kattis:stringmatching
  */

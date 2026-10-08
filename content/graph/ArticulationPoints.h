@@ -1,7 +1,8 @@
 /**
  * Author: caterpillow
  * Date: 2025-10-30
- * Description: Finds all articulation points in a graph.
+ * Description: Finds all articulation points of an undirected graph.
+ * Usage: Arts a(n, adj); // a[u] == 1 iff u is a cut vertex
  * Time: O(E + V)
  * Status: tested on orac
  */

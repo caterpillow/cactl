@@ -3,9 +3,12 @@
  * Date: 2025-10-23
  * License: CC0
  * Description: Rotating sweep: visits the points sorted by projection onto
- * every direction, one angle at a time. Needs Point's radial operator<
+ * every direction, one angle at a time. Needs Point<ll> with the
+ * radial operator< in place of the lexicographic one,
  * and distinct points. Two variants: first assumes no three points colinear. 
- * Example use: min/max triangle area over all triples.
+ * Example use: min/max of twice the triangle area over all triples.
+ * Time: O(n^2 \log n)
+ * Memory: O(n^2)
  * Status: stress-tested vs brute force (both variants)
  */
 

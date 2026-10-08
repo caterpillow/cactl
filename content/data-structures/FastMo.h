@@ -3,7 +3,10 @@
  * Date: 2025-09-13
  * License: CC0
  * Source: nyaan
- * Description: Faster mo's probably.
+ * Description: Mo's algorithm, queries are half-open [l, r).
+ * Usage: Fast_Mo m(N, Q); m.insert(l, r) Q times; m.run(addL,
+ *  addR, delL, delR, rem): add/del take an element index, rem(q)
+ *  answers the q-th insert. State starts empty; run once.
  * Time: O(N \sqrt Q) but faster?
  * Status: stress-tested
  */
@@ -44,7 +47,7 @@ struct Fast_Mo {
 
  private:
   void sort() {
-    assert(size(order) == Q);
+    assert(size(L) == Q); // insert() exactly Q times
     vi cnt(N + 1), buf(Q);
     for (int i = 0; i < Q; i++) cnt[R[i]]++;
     for (int i = 1; i < size(cnt); i++) cnt[i] += cnt[i - 1];

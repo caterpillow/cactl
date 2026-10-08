@@ -6,6 +6,7 @@
  * Description: Higher precision FFT, can be used for convolutions modulo arbitrary integers
  * as long as $N\log_2N\cdot \text{mod} < 8.6 \cdot 10^{14}$ (in practice $10^{16}$ or higher).
  * Inputs must be in $[0, \text{mod})$.
+ * Usage: convMod<M>(a, b) // M = the modulus
  * Time: O(N \log N), where $N = |A|+|B|$ (twice as slow as NTT or FFT) (but seemed +10\% on yosupo?)
  * Status: stress-tested
  * Details: An in-depth examination of precision for both FFT and FFTMod can be found
