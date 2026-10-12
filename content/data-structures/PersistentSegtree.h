@@ -5,7 +5,7 @@
  * Source: me
  * Description: Generic-ish persistent segment tree (point update, range query).
  * Time: O(\log N).
- * Usage: edit func/ID. ptr r = new Node{inf}; r->lc = r->rc = r; // all-ID
+ * Usage: edit func/ID. Initialization trick: ptr r = new Node{inf}; r->lc = r->rc = r; // all-ID
  *  r = r->upd(i, v); r->query(l, r) on [l, r).
  * Memory: $\log_2 sz + 1$ nodes per upd, never freed.
  * Status: stress-tested

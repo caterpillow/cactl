@@ -1,10 +1,15 @@
 set cin aw ai is et ts=4 sw=4 sts=4 ttm=50 nu noeb ru cul bs=2 mouse=a noswf
 sy on | ino <A-[> <Esc>
 for k in split('h j k l o') | exe 'ino <A-'.k.'> <C-o>'.k | exe 'nno <A-'.k.'> '.k | endfor
+" y/d/p use the system clipboard. "E519: Option not supported" on
+" startup = vim lacks +clipboard: delete this line
+set cb=unnamedplus
 
 " F5: save, compile with sanitizers, run (paste the input, then Ctrl-D):
 nno <F5> :w<CR>:!g++ -D_GLIBCXX_DEBUG -Wall -Wextra -Wfatal-errors -fsanitize=address,undefined -g -Og % -o %< && ./%<<CR>
 nno <F6> :w<CR>:!g++ -D_GLIBCXX_DEBUG -Wall -Wextra -Wfatal-errors -fsanitize=address,undefined -g -Og % -o %< && ./%< < in<CR>
+" F7: same, then type the input file name and Enter
+nno <F7> :w<CR>:!g++ -D_GLIBCXX_DEBUG -Wall -Wextra -Wfatal-errors -fsanitize=address,undefined -g -Og % -o %< && ./%< <<Space>
 
 " Select region and then type :Hash to hash your selection.
 ca Hash w !cpp -dD -P -fpreprocessed \| tr -d '[:space:]' \| md5sum \| cut -c-6

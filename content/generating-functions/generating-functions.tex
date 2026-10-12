@@ -1,0 +1,41 @@
+% Standalone supplement: `make gf` builds generating-functions.pdf.
+% The chapter itself is content/generating-functions/chapter.tex; to merge it
+% into the notebook add \kactlchapter{generating-functions} to kactl.tex (the
+% "From the main notebook" section below is only for this standalone copy).
+\documentclass[9pt, a4paper, notitlepage]{extreport}
+\usepackage{kactlpkg}
+\usepackage{array} % ragged table cells in chapter.tex (add to kactl.tex when merging)
+% Never hyphenate \texttt names: DejaVuSansMono's .fd leaves hyphenation on.
+% Load the .fd now, then re-declare the family (NFSS would not reload it).
+\makeatletter
+\input{T1DejaVuSansMono-TLF.fd}
+\DeclareFontFamily{T1}{DejaVuSansMono-TLF}{\hyphenchar\font=\m@ne}
+\makeatother
+\kactlcontentdir{content}
+
+\university{UNSW}{ }{unsw}
+\team{(╯°□°)╯︵ ┻━┻}{Miles Conway, Alex Wang, Yiheng You}
+\contest{\ }{\today}
+\enablecolors
+\kactlhighlight{minted}
+\kactlmargins{0.5cm}{0.5cm}{1.1cm}{0.4cm}
+
+\begin{document}
+	\begin{multicols*}{3}
+	\kactlchapter{generating-functions}
+
+	\section{From the main notebook}
+	Dependencies of the code above, and the recurrence tools it refers to.
+	\kactlimport{number-theory/ModPow.h}
+	\kactlimport{numerical/NumberTheoreticTransform.h}
+	\kactlimport{numerical/LinearRecurrenceNTT.h}
+	\columnbreak
+	\kactlimport{numerical/LinearRecurrence.h}
+	\columnbreak
+	\kactlimport{numerical/BerlekampMassey.h}
+	\kactlimport{numerical/LagrangeInterpolation.h}
+
+	\section{Treap (temporary, not for the notebook)}
+	\kactlimport[-l rawcpp]{generating-functions/Treap.cpp}
+	\end{multicols*}
+\end{document}

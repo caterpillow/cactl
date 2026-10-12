@@ -1,42 +1,29 @@
-/**
- * Author: caterpillow
- * Date: 2026-03-03
- * License: CC0
- * Source: me
- * Description: Things to test
- */
-
-Keyboard layouts
-bashrc
-vimrc
+vimrc/hash shortcut, F5/F6/F7, clipboard (y in vim, paste outside)
+sanitizers/gdb
 template.cpp
 Python
 Printing
 Sending clarifications
-Hash script
--fsanitize doesn't randomly brick
-gdb works
-Keybinds don't cause computer to turn off
-Check available documentation
-Submit script
-Whitespace/case insensitivity in output
+Keybinds don't turn off computer
+Whitespace/case/stderr insensitivity in output
+Do WA on samples count towards penalty?
 Return values from main
-Printing to stderr
+Long double/long size (LDBL_MANT_DIG == 64, sizeof(long))
+Check pragmas
+Check available documentation
+Submit script (?)
 Source code limit
 Compiler version, -std, flags; extc++.h, __int128 work
 Is it possible to submit and read from non-source files?
 SIMD support on machine and judge
 Benchmark local vs judge runtime
-How long do array accesses take on machine resp. judge?
     ORAC: ~0.8s for N = 2e6 min segtree with Q = 2e6 loops of query + update
-How long do small operations take on machine resp. judge?
-Does clock() work?
-Do WA on samples count towards penalty?
+Does clock() work? If not, try Timer.h
 All judge errors:
     Accepted
     WA
     Presentation Error
-    RTE (what results in RTE?)
+    RTE (what results in RTE? Does MLE exist?)
     TLE
     Memory limit, both stack and heap
     Output limit

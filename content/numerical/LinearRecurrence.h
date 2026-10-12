@@ -9,7 +9,7 @@
  * Faster than matrix multiplication.
  * Useful together with Berlekamp--Massey.
  * Usage: linearRec({0, 1}, {1, 1}, k) // k'th Fibonacci number
- *  vl s; F0R (i, 40) s.pb(brute(i) % mod); // >= 2n terms
+ *  vl s; F0R (i, 40) s.pb(brute(i) \% mod); // >= 2n terms
  *  vl c = berlekampMassey(s); // check 2 size(c) < size(s)
  *  ll x = linearRec(s, c, k); // s[k], k up to 1e18
  * Time: O(n^2 \log k)

@@ -7,7 +7,8 @@
  * Time: O(1) for \texttt{mmul}, O(\log b) for \texttt{mpow}
  * Status: stress-tested, proven correct
  * Details:
- * This runs ~2x faster than the naive (__int128_t)a * b % M.
+ * KACTL claimed this to run ~2x faster than the naive (__int128_t)a * b % M. Seems to 
+ * only be true for independent products with runtime modulus, otherwise naive faster. 
  * A proof of correctness is in doc/modmul-proof.tex. An earlier version of the proof,
  * from when the code used a * b / (long double)M, is in doc/modmul-proof.md.
  * The proof assumes that long doubles are implemented as x87 80-bit floats; if they

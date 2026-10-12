@@ -61,3 +61,11 @@ struct Node {
         } else pq.push(dist2(p, lo)), pq.pop();
     }
 };
+// Degenerate input (many equal x or y): rotate all points and
+// queries by p -> {3x - 4y, 4x + 3y}. M^T M = 25 I, so dist
+// scales by 5 and dist2 by exactly 25 (divide b by 25). Needs
+// |x|, |y| <= 1.4e8: rotated coords <= 7 max|x| must fit inf.
+// ~8x fewer nodes visited on equal-x input, same on random.
+// Other 2D: {a, -b; b, a}, a^2 + b^2 = s^2, scale s:
+// (5, 12, 13), (20, 21, 29).
+// 3D, scale 7: rows (3, -2, 6), (6, 3, -2), (-2, 6, 3)

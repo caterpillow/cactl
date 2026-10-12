@@ -1,0 +1,402 @@
+\chapter{Generating functions}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+% Standalone supplement for now (content/generating-functions/generating-functions.tex,
+% `make gf`); to merge, add \kactlchapter{generating-functions} to kactl.tex.
+
+\section{Which tool}
+	\begin{center}\small\renewcommand{\arraystretch}{1.3}
+	\begin{tabular}{@{}L{3.55cm}@{\ \ }L{5.1cm}@{}}
+	problem shape & model $\to$ method \\ \hline
+	amounts per type, total $n$ & product of per-type series $\to$ expand numerator / DP / \texttt{conv} \\
+	ordered sequence of parts & $\frac1{1-S(x)}$ $\to$ recurrence or \texttt{polyInv} \\
+	multiset of parts & $\prod_k(1-x^k)^{-a_k}$ $\to$ \texttt{mset}; distinct: \texttt{pset} \\
+	trees, brackets, paths & split at root / first return $\to$ equation $\to$ quadratic formula or Lagrange \\
+	labelled atoms, strings with letter counts & EGF $\to$ $n![x^n]$ \\
+	linear recurrence, huge $n$ & $P/Q$ $\to$ \texttt{linearRecNTT} \\
+	no formula, brute force & $2d$ terms ($s$-state DP: $d\le s$) $\to$ \texttt{berlekampMassey} \\
+	parameter $=k$, $\equiv r \bmod m$, parity & mark with $u$ (bivariate) \\
+	``no bad feature'' & count (object, subset of bad) pairs, $u\to u-1$ \\
+	coin counts, huge $n$ & quasi-polynomial (per class $n\bmod L$) $\to$ \texttt{lagrange} \\
+	\end{tabular}
+	\end{center}
+	$S(x)=\sum_{s\in S}x^s$ ($S$ = allowed part sizes); $a_k$ = number of part types of size $k$; $d$ = recurrence order plus irregular prefix ($L$ in Facts).
+
+\section{Formal power series}
+	\subsection{The object}
+	A \emph{formal power series} over a ring $R$ ($\mathbb Z$, $\mathbb Q$, $\mathbb Z_p$) is an infinite array $(a_0,a_1,\dots)$. $A(x)=\sum_n a_nx^n$ is only notation: the exponent of $x$ is the index, and $[x^n]A=a_n$ reads entry $n$. $x$ is never evaluated, so convergence never matters; $A=B$ iff every coefficient agrees.
+
+	\textbf{Rule:} an operation is defined iff every output coefficient is a \emph{finite} expression in the inputs that only divides by invertible elements.
+	\begin{center}\small\renewcommand{\arraystretch}{1.3}
+	\begin{tabular}{@{}l@{\ \ }L{4.2cm}@{\ \ }L{2.5cm}@{}}
+	op & result & defined iff \\ \hline
+	$A\pm B$ & $a_n\pm b_n$ & always \\
+	$AB$ & $\sum_{k=0}^n a_kb_{n-k}$ (\texttt{conv}) & always \\
+	$1/A$ & $b_0=a_0^{-1}$, $b_n=-a_0^{-1}\sum_{k=1}^n a_kb_{n-k}$ & $a_0$ invertible in $R$ \\
+	$A(B)$ & $\sum_k a_k\,[x^n]B^k$ (only $k\le n$ if $b_0=0$) & $b_0=0$, or $A$ a polynomial \\
+	$A'$ & $(n+1)a_{n+1}$ & always \\
+	$\int A$ & $a_{n-1}/n$, constant $0$ & $1..n$ invertible \\
+	$e^A$ & $\sum_k A^k/k!$ & $a_0=0$; $1..n$ invertible \\
+	$\log A$ & $-\sum_{k\ge1}(1-A)^k/k$ & $a_0=1$; $1..n$ invertible \\
+	\end{tabular}
+	\end{center}
+	$\frac1{1-x}=\sum x^n$ \emph{means}: $(1-x)B=1$ forces $b_0=1$, $b_n-b_{n-1}=0$. It is an inverse in the ring, and the inverse recurrence is literally the DP. $1/x$ is not a power series ($a_0=0$). Mod $p$: $\frac1{1-2x}$ is fine, $\frac1{p+x}$ is not; $e^A$, $\log A$, $\int A$ need $1/k$ for $k\le n$, so $n<p$.
+	Calculus identities ($e^x$, $\log$, $\sqrt{1-4x}$, $(1+x)^r$) hold formally (Taylor coefficients are unique) as long as each side is a legal formal operation.
+	Substitution needs $b_0=0$ unless $A$ is a polynomial: otherwise $[x^0]A(B)=\sum_k a_kb_0^k$ is an infinite sum, which has no value in the ring.
+
+	\subsection{Truncation}
+	Sums, products, $1/A$, $A(B)$ with $b_0=0$, $e^A$, $\log A$ are \emph{causal}: output coefficient $n$ uses only input coefficients $\le n$. So compute everything mod $x^{N+1}$: degrees $0..N$ stay exact.
+	Not causal: dividing by $x^k$ (needs $k$ extra input terms) and $A'$ (needs one). Keep that margin.
+	Truncating the degree (mod $x^{N+1}$) and reducing the values (mod $p$) are independent.
+	Code: \texttt{PowerSeries.h} ($O(n\log n)$, NTT) and \texttt{PowerSeriesSlow.h} ($O(n^2)$, any prime).
+
+\section{Ordinary generating functions}
+	The OGF of $(a_n)$ is $A(x)=\sum a_nx^n$. Check any row by comparing $[x^n]$ of both sides:
+	\begin{center}\small\renewcommand{\arraystretch}{1.3}
+	\begin{tabular}{@{}l@{\ \ }l@{}}
+	sequence & series \\ \hline
+	$c_n=a_{n-k}$ (shift right, pad with $0$) & $x^kA$ \\
+	$c_n=a_{n+k}$ (drop the first $k$) & $\big(A-\sum_{i<k}a_ix^i\big)/x^k$ \\
+	$c_n=\sum_{i\le n}a_i$ (prefix sum) & $A\cdot\frac1{1-x}$ \\
+	$c_n=a_n-a_{n-1}$ (difference) & $(1-x)A$ \\
+	$c_n=r^na_n$ & $A(rx)$ \\
+	$c_n=na_n$ & $xA'(x)$ \\
+	$c_n=\sum_ka_kb_{n-k}$ (convolution) & $AB$ \\
+	$c_{dn}=a_n$, other $c_m=0$ & $A(x^d)$ \\
+	$c_n=a_n$ for even $n$, else $0$ & $\frac12\big(A(x)+A(-x)\big)$ \\
+	\end{tabular}
+	\end{center}
+	\textbf{Counting meaning.} If $a_n$ ($b_n$) counts objects of type $\alpha$ ($\beta$) of size $n$: $AB$ counts \emph{ordered pairs} $(\alpha,\beta)$ by total size; $A+B$ counts the disjoint union. Independent choices multiply, separate cases add. E.g.\ $k$ choices $x_i\ge0$: $[x^n](1-x)^{-k}=\binom{n+k-1}{k-1}$ (stars and bars).
+
+	\textbf{Workflow.}
+	\begin{enumerate}[nosep,leftmargin=*]
+	\item Say exactly what $[x^n]$ counts: what is an object, what is its size.
+	\item Build the series from the structure (multiply parts, add cases).
+	\item Simplify into pieces on this sheet: numerator = finite list of shifts, denominator = table lookup.
+	\item Extract. Negative indices give $0$; that is where small-$n$ exceptions come from.
+	\item Brute-force $n\le5$ and compare.
+	\end{enumerate}
+	Example: $a+b+c=n$, $a,b,c\ge0$, $a\le2$: $\frac{1+x+x^2}{(1-x)^2}$, so $[x^n]=(n+1)+n[n\ge1]+(n-1)[n\ge2]$ ($[P]=1$ if $P$ holds, else $0$), i.e.\ $1$ for $n=0$ and $3n$ for $n\ge1$: only $n\le\deg P-\deg Q=0$ is special.
+
+\section{Linear recurrences}
+	\subsection{Recurrence to $P/Q$}
+	$a_n=c_1a_{n-1}+\dots+c_da_{n-d}+f_n$ for $n\ge m$ ($m\ge d$). Multiply by $x^n$, sum over exactly $n\ge m$, and rewrite each shifted sum keeping the missing initial terms:
+	\[\textstyle\sum_{n\ge m}a_{n-j}x^n=x^j\big(A-\sum_{i<m-j}a_ix^i\big).\]
+	\textbf{Shortcut.} With $Q=1-c_1x-\dots-c_dx^d$, $[x^n](QA)=f_n$ for $n\ge m$, so
+	\[A=\frac{P+\sum_{n\ge m}f_nx^n}{Q},\qquad P=(Q\cdot A)\bmod x^m\]
+	where $P$ comes from the initial values.
+	Fibonacci: $Q=1-x-x^2$, $P=F_0+(F_1-F_0)x=x$.
+
+	E.g.\ $a_0=0$, $a_n=2a_{n-1}+1$ ($n\ge1$): $A=\frac{x}{(1-x)(1-2x)}=\frac1{1-2x}-\frac1{1-x}$, so $a_n=2^n-1$.
+	\begin{center}\small\renewcommand{\arraystretch}{1.3}
+	\begin{tabular}{@{}L{2.9cm}@{\ \ }L{5.75cm}@{}}
+	recurrence & generating function \\ \hline
+	coefficients $c_1..c_d$ & $Q=1-\sum c_jx^j=\prod_i(1-\alpha_ix)^{r_i}$: the characteristic polynomial $t^d-c_1t^{d-1}-\dots-c_d$ reversed, $\alpha_i$ its roots \\
+	holds for $n\ge m$ & $\deg P<m$; conversely $QA=P$ gives the recurrence for $n>\deg P$ (and $n\ge d$) \\
+	characteristic root $\alpha$ ($Q(1/\alpha)=0$), multiplicity $r$ & term $(\text{poly of degree}<r\text{ in }n)\cdot\alpha^n$, valid for $n>\deg P-\deg Q$ \\
+	forcing $f_n$, GF $P_f/Q_f$ & denominator $QQ_f$: one homogeneous recurrence of order $\deg Q+\deg Q_f$, valid for $n\ge\max(m+\deg Q_f,\deg P_f+1)$ (seed that many terms; pad \texttt{tr} with zeros to that length) \\
+	\end{tabular}
+	\end{center}
+	Forcing denominators: $1\to1-x$; $n^k\to(1-x)^{k+1}$; $r^n\to1-rx$; $n^kr^n\to(1-rx)^{k+1}$.
+
+	\subsection{Facts}
+	\begin{itemize}[nosep,leftmargin=*]
+	\item Rational GF $\iff$ constant-coefficient linear recurrence. Sums and convolutions (order $\le d_1+d_2$), prefix sums ($d+1$) and the termwise product $a_nb_n$ ($d_1d_2$; its GF is \emph{not} $AB$) stay linear recurrences. A DP with $s$ states and fixed transitions has order $\le s$.
+	\item \texttt{berlekampMassey} needs $2L$ terms, $L=\max(\deg Q,\deg P+1)$ (order plus irregular prefix): feed twice a safe bound, prime modulus only, and check the result predicts extra terms.
+	\item $\deg P\ge\deg Q=d$: the recurrence only holds for $n>\deg P$. For \texttt{linearRec}/\texttt{linearRecNTT}, pad \texttt{tr} with zeros to length $\deg P+1$ and pass $a_0..a_{\deg P}$.
+	\item A coefficient on $a_n$ ($c_0a_n=\dots$) makes $Q(0)=c_0$: it must be invertible.
+	\item Non-constant coefficients (e.g.\ $a_n=na_{n-1}$) give a differential equation for $A$; try an EGF (rules in Extras).
+	\end{itemize}
+
+	\subsection{Methods}
+	\begin{center}\small\renewcommand{\arraystretch}{1.3}
+	\begin{tabular}{@{}L{2.75cm}@{\ \ }L{3.65cm}@{\ \ }l@{}}
+	want & method & cost \\ \hline
+	$a_0..a_N$ & run it / \texttt{invSlow} & $O(Nd)$ \\
+	$a_0..a_N$, large $d$ & \texttt{polyInv}, \texttt{conv} & $O(N\log N)$ \\
+	one $a_n$, $n\le10^{18}$ & \texttt{linearRecNTT} (Bostan--Mori) & $O(d\log d\log n)$ \\
+	same, any prime & \texttt{linearRec} (Kitamasa) & $O(d^2\log n)$ \\
+	same, small $d$ & matrix power & $O(d^3\log n)$ \\
+	unknown recurrence & $\ge2L$ brute-force terms, \texttt{berlekampMassey} & $O(L^2)$ \\
+	closed form & partial fractions (nice roots) & \\
+	\end{tabular}
+	\end{center}
+	\textbf{Bostan--Mori.} $\frac{P(x)}{Q(x)}=\frac{P(x)Q(-x)}{Q(x)Q(-x)}$ and $Q(x)Q(-x)=V(x^2)$ is even. Write $P(x)Q(-x)=U_0(x^2)+xU_1(x^2)$; then $[x^n]\frac PQ=[x^{\lfloor n/2\rfloor}]\frac{U_{n\bmod2}}{V}$. Recurse; at $n=0$ the answer is $P(0)/Q(0)$. That is $\log n$ rounds of two degree-$d$ products. \texttt{linearRecNTT} builds $P=(A\cdot Q)\bmod x^d$ from $a_0..a_{d-1}$, i.e.\ the shortcut above.
+
+\section{Coefficient extraction}
+	\subsection{Standard expansions}
+	\begin{center}\small\renewcommand{\arraystretch}{1.3}
+	\begin{tabular}{@{}l@{\ \ }L{5.25cm}@{}}
+	series & $[x^n]$ \\ \hline
+	$\frac1{1-ax}$ & $a^n$ \\
+	$\frac1{(1-ax)^k}$ & $\binom{n+k-1}{k-1}a^n$ \quad ($k\ge1$) \\
+	$(1+x)^r$ & $\binom rn=\frac{r(r-1)\cdots(r-n+1)}{n!}$, any $r$ (negative, fractional, symbolic) \\
+	& $\binom{-k}n=(-1)^n\binom{n+k-1}{n}$, so row 2 is row 3 \\
+	$\frac{x}{(1-x)^2}$,\ $\frac{x(1+x)}{(1-x)^3}$ & $n$,\ $n^2$ \\
+	$\ln\frac1{1-x}$,\ $\frac1{1-x}\ln\frac1{1-x}$ & $\frac1n$ ($n\ge1$),\ $H_n=\sum_{i\le n}\frac1i$ \\
+	$\frac1{1-x-x^2}$ & $F_{n+1}$ ($F_0=0,F_1=1$) \\
+	$\frac1{\sqrt{1-4x}}$ & $\binom{2n}n$ \\
+	$B=\frac{1-\sqrt{1-4x}}{2x}$ & $C_n=\frac1{n+1}\binom{2n}n$ (Catalan); $\sqrt{1-4x}=1-2xB$ \\
+	$B^k$ & $\frac{k}{2n+k}\binom{2n+k}n$ \quad ($k\ge1$) \\
+	$B^k/\sqrt{1-4x}$ & $\binom{2n+k}n$ \\
+	$e^{ax}$ & $a^n/n!$ \\
+	\end{tabular}
+	\end{center}
+
+	\subsection{Moving coefficients}
+	\begin{center}\small\renewcommand{\arraystretch}{1.3}
+	\begin{tabular}{@{}l@{\ \ }l@{}}
+	rule & comment \\ \hline
+	$[x^n]\,x^kF=[x^{n-k}]F$ & $0$ if $n<k$ \\
+	$[x^n]\,F(ax)=a^n[x^n]F$ & \\
+	$[x^n]\,F(x^d)=[x^{n/d}]F$ & $0$ unless $d\mid n$ \\
+	$[x^n]\,P(x)F(x)=\sum_jp_j[x^{n-j}]F$ & short polynomial $P$ \\
+	$[x^n]\,\frac{F}{1-x}=\sum_{j\le n}[x^j]F$ & prefix sum \\
+	\end{tabular}
+	\end{center}
+	\textbf{Bounded choices.} $0\le x_i\le b$ has GF $1+x+\dots+x^b=\frac{1-x^{b+1}}{1-x}$, so the number of solutions of $x_1+\dots+x_k=n$ is
+	\[[x^n]\frac{(1-x^{b+1})^k}{(1-x)^k}=\sum_{j\ge0}(-1)^j\binom kj\binom{n-j(b+1)+k-1}{k-1},\]
+	a term being $0$ once $n-j(b+1)<0$. Expand the numerator, shift, look up the denominator: inclusion--exclusion without reasoning about events. $O(\min(k,n/b))$ terms.
+
+	\subsection{Partial fractions}
+	$Q=\prod_i(1-\alpha_ix)^{r_i}$.
+	\begin{enumerate}[nosep,leftmargin=*]
+	\item If $\deg P\ge\deg Q$, divide: $P/Q=W(x)+R/Q$, $\deg R<\deg Q$. $W$ only changes $n\le\deg W=\deg P-\deg Q$, so the closed form can be wrong only there.
+	\item Shape: $\frac RQ=\sum_i\sum_{j=1}^{r_i}\frac{c_{ij}}{(1-\alpha_ix)^j}$, so $[x^n]=\sum_{i,j}c_{ij}\binom{n+j-1}{j-1}\alpha_i^n$: each root gives $(\text{poly of degree}<r_i)\cdot\alpha_i^n$.
+	\item Constants. Cover-up (highest power of each factor only): multiply by $(1-\alpha_ix)^{r_i}$ and set $x=1/\alpha_i$. Or fit: compute $\deg Q$ terms with $n>\deg P-\deg Q$ by DP and solve the linear system for the unknowns (the basis $n^j\alpha^n$ is independent).
+	\end{enumerate}
+	Example: $[x^n]\frac{x^3}{(1-2x)(1-x)^2}$. $G=\frac1{(1-2x)(1-x)^2}=\frac{4}{1-2x}-\frac{2}{1-x}-\frac{1}{(1-x)^2}$ (cover-up gives $4$ and $-1$, then $G(0)=1$ gives $-2$), so $[x^m]G=2^{m+2}-m-3$ and $[x^n]=2^{n-1}-n$ for $n\ge1$ (guaranteed for $n>\deg P-\deg Q=0$; it gives the true $0$ at $n=1,2$), while $n=0$ gives $\frac12$ instead of $0$.
+
+	\textbf{Roots of unity $\to$ periodic terms.} Coins $1,2$: $\frac1{(1-x)(1-x^2)}=\frac1{(1-x)^2(1+x)}$ gives $\frac n2+\frac34+\frac14(-1)^n=\lfloor n/2\rfloor+1$; the root $-1$ is the parity effect.
+
+	\textbf{Quasi-polynomial} (one polynomial per residue class) \textbf{shortcut.} Coins $c_1..c_k$, $L=\operatorname{lcm}(c_i)$: on each class $n=r+Lt$ ($0\le r<L$), $f(n)=[x^n]\prod_i\frac1{1-x^{c_i}}$ is a polynomial in $t$ of degree $\le k-1$, for all $n\ge0$ (numerator degree $<$ denominator degree). DP $f$ below $kL$, then \texttt{lagrange} in $t$. Same for any $P/Q$ with $\deg P<\deg Q$ and $Q\mid(1-x^L)^k$.
+
+	\subsection{Choosing a method}
+	\begin{center}\small\renewcommand{\arraystretch}{1.3}
+	\begin{tabular}{@{}L{3.6cm}@{\ \ }L{5.05cm}@{}}
+	situation & method \\ \hline
+	one coefficient, short polynomial numerator & expand the numerator, look up each shifted term \\
+	one coefficient of $P/Q$, huge $n$ & \texttt{linearRecNTT}, or partial fractions if the roots are nice \\
+	irrational/complex roots (Fibonacci's $\sqrt5$), answer mod~$p$ & no partial fractions: Bostan--Mori or matrix power \\
+	$[x^0..x^N]$ of a product of many series & DP, or \texttt{conv} (multiply small ones first) \\
+	$\prod_i\frac1{1-x^{v_i}}$, $\prod_i(1+x^{v_i})$ & \texttt{mset}/\texttt{pset} with $a_k$ = number of factors with $v_i=k$ (log, harmonic sum, \texttt{polyExp}); opposite exponent: pass \texttt{mod}$-a_k$ \\
+	powers $A^k$ & \texttt{polyPow}; \texttt{powSlow} is $O(n\deg A)$ \\
+	implicit $F=x\varphi(F)$, e.g.\ $F=B-1=x(1+F)^2$ & quadratic formula if possible, else Lagrange inversion \\
+	\end{tabular}
+	\end{center}
+	\textbf{Mod $p$.} Binomials from factorial tables need $n<p$ (else Lucas). $\binom{n+k-1}{k-1}$ with huge $n$ and small $k$: $\frac{(n+1)\cdots(n+k-1)}{(k-1)!}$; reducing $n\bmod p$ first is fine (it is a polynomial in $n$ and $(k-1)!$ is invertible). $\binom{1/2}n$ and square roots need $2$ invertible.
+
+\section{Atoms, classes, constructions}
+	\subsection{Model}
+	A \emph{class} is a set of objects with a size, finitely many of each size; its GF is $A(x)=\sum_{\alpha}x^{|\alpha|}$, so $a_n$ counts objects of size $n$. An \emph{atom} is what contributes $1$ to the size: a node, a unit of money, a letter, a step. The atom class $\mathcal Z$ has GF $x$; the empty object $\varepsilon$ has GF $1$.
+	Recipe: let size be what $n$ is in the question, describe every object \emph{uniquely} as built from atoms by the constructions below, and the GF follows mechanically.
+
+	\textbf{Unlabelled} (atoms interchangeable: coins, parts, tree shapes) $\to$ OGF. \textbf{Labelled} (atoms carry distinct labels $1..n$: people, numbered vertices, permutations, \emph{positions in a string} when only letter counts matter) $\to$ EGF. A string is also a \textsc{Seq} of letters (OGF): use that view for adjacency or pattern constraints. Test: does swapping two atoms' identities give a different object?
+
+	\subsection{Unlabelled constructions (OGF)}
+	\begin{center}\small\renewcommand{\arraystretch}{1.3}
+	\begin{tabular}{@{}l@{\ \ }L{2.75cm}@{\ \ }l@{}}
+	construction & meaning & GF \\ \hline
+	$\mathcal A+\mathcal B$ & either (disjoint union) & $A+B$ \\
+	$\mathcal A\times\mathcal B$ & ordered pair, sizes add & $AB$ \\
+	$\textsc{Seq}_k(\mathcal A)$ & sequence of exactly $k$ & $A^k$ \\
+	$\textsc{Seq}(\mathcal A)$ & sequence, any length & $\frac1{1-A}$ \\
+	$\textsc{Seq}_{\ge1}(\mathcal A)$ & nonempty sequence & $\frac{A}{1-A}$ \\
+	$\textsc{MSet}(\mathcal A)$ & multiset: unordered, repeats & $\prod_{n\ge1}(1-x^n)^{-a_n}$ \\
+	$\textsc{PSet}(\mathcal A)$ & powerset: subset, no repeats & $\prod_{n\ge1}(1+x^n)^{a_n}$ \\
+	$\textsc{MSet}_2(\mathcal A)$ & 2-multiset (may repeat) & $\frac12\big(A(x)^2+A(x^2)\big)$ \\
+	$\textsc{PSet}_2(\mathcal A)$ & 2-subset & $\frac12\big(A(x)^2-A(x^2)\big)$ \\
+	\end{tabular}
+	\end{center}
+	Subscript = number of components.
+	Why: an object of size $n$ used $m\ge0$ times contributes $\sum_mx^{mn}=\frac1{1-x^n}$, one independent factor per object. Taking $\log$: $-a_n\ln(1-x^n)=a_n\sum_{k\ge1}x^{nk}/k$; summing over $n$, $\textsc{MSet}=\exp\big(\sum_{k\ge1}A(x^k)/k\big)$; with $\ln(1+y)$, $\textsc{PSet}=\exp\big(\sum_{k\ge1}(-1)^{k-1}A(x^k)/k\big)$. Code: \texttt{mset}, \texttt{pset}.
+
+	\textbf{Conditions.} $\times$ needs every object to split \emph{uniquely}. \textsc{Seq}, \textsc{MSet} need $a_0=0$: a size-$0$ part can be repeated for free (infinitely many objects). \textsc{PSet} stays finite, but each size-$0$ object doubles every count: set $a_0=0$, apply the formula (or \texttt{pset}), multiply by $2^{a_0}$. The formulas do not warn you: $a_0=1$ makes $1-A$ non-invertible, $a_0=2$ gives a meaningless $\frac1{1-A}$, and \texttt{mset}/\texttt{pset} ignore $a_0$.
+
+	\subsection{Choosing the decomposition}
+	\begin{itemize}[nosep,leftmargin=*]
+	\item Split at the \emph{first} thing met (root, first step, first return to the axis, first occurrence of a pattern): ``first'' makes the split unique.
+	\item Splitting at an \emph{arbitrary} occurrence counts (object, marked occurrence) pairs. Strings with at least one $1$: $\textsc{Seq}(0)\,1\,\textsc{Seq}(\{0,1\})$ gives $\frac{x}{(1-x)(1-2x)}$, i.e.\ $2^n-1$; $\textsc{Seq}(\{0,1\})\,1\,\textsc{Seq}(\{0,1\})$ gives $\frac{x}{(1-2x)^2}$, i.e.\ $n2^{n-1}$, the total number of $1$s.
+	\item Ordered or not: do two arrangements of the same parts count as different? Yes: \textsc{Seq}. No: \textsc{MSet} (\textsc{PSet} if no repeats).
+	\item Combinations of types: one factor per type, in a fixed order (that fixed order is what removes the permutations).
+	\end{itemize}
+
+	\subsection{Standard unlabelled examples}
+	\begin{center}\small\renewcommand{\arraystretch}{1.3}
+	\begin{tabular}{@{}L{3.45cm}@{\ \ }l@{\ \ }l@{}}
+	objects & GF & $[x^n]$ \\ \hline
+	coins $1,2$, combinations & $\frac1{(1-x)(1-x^2)}$ & $\lfloor n/2\rfloor+1$ \\
+	coins $1,2$, ordered & $\frac1{1-x-x^2}$ & $F_{n+1}$ \\
+	compositions (ordered, parts $\ge1$) & $\frac{1-x}{1-2x}$ & $2^{n-1}$ ($n\ge1$) \\
+	compositions, parts in $S$ & $\frac1{1-S(x)}$ & \\
+	\ldots{} exactly $k$ parts & $S(x)^k$ & \\
+	partitions (unordered) & $\prod_{k\ge1}\frac1{1-x^k}$ & $p(n)$ \\
+	\ldots{} parts $\le k$ (= at most $k$ parts) & $\prod_{i=1}^k\frac1{1-x^i}$ & \\
+	\ldots{} exactly $k$ parts & $x^k\prod_{i=1}^k\frac1{1-x^i}$ & \\
+	\ldots{} distinct parts (= odd parts) & $\prod_k(1+x^k)$ & \\
+	binary strings without $11$ & $\frac{1+x}{1-x-x^2}$ & $F_{n+2}$ \\
+	binary trees, $n$ internal nodes & $B=1+xB^2$ & $C_n$ \\
+	Dyck paths ($\pm1$ steps, never below $0$), length $2n$ & $D=1+xD^2$ & $C_n$ \\
+	plane trees (children ordered), $n$ nodes & $T=\frac{x}{1-T}=xB$ & $C_{n-1}$ ($n\ge1$) \\
+	unary-binary trees, $n$ nodes & $M=x(1+M+M^2)$ & Motzkin$_{n-1}$ ($n\ge1$) \\
+	\end{tabular}
+	\end{center}
+	Young diagram: part $i$ as a row of boxes. Transposing it (the conjugate) swaps the number of parts and the largest part, so parts $\le k$ = at most $k$ parts. Exactly $k$ parts: delete the first column (one from each part) to get a partition of $n-k$ into at most $k$ parts. Distinct = odd: $1+x^k=\frac{1-x^{2k}}{1-x^k}$ and the even factors cancel. No $11$: $\textsc{Seq}(\{0,10\})\times\{\varepsilon,1\}$. Motzkin: $1,1,2,4,9,21,51,\dots$
+
+	Pentagonal theorem: $\prod_{k\ge1}(1-x^k)=\sum_{j\in\mathbb Z}(-1)^jx^{j(3j-1)/2}$ ($O(\sqrt n)$ terms), so $p(n)$ in $O(n\sqrt n)$: \texttt{partitions} (any modulus $<2^{61}$), or \texttt{mset} of all ones.
+
+	\subsection{Recursive classes}
+	Split at the root or first return, check uniqueness, translate to an equation, solve, take the branch that is a power series (no negative powers of $x$: the numerator must vanish as fast as the denominator), extract. $B=1+xB^2\Rightarrow B=\frac{1\pm\sqrt{1-4x}}{2x}$: the $+$ branch has a $\frac1x$ term, so take $-$; $[x^n]B=C_n$ from the table. $M=x(1+M+M^2)\Rightarrow M=\frac{1-x-\sqrt{1-2x-3x^2}}{2x}$. Not quadratic: Lagrange inversion, or Newton iteration on series.
+
+\section{Marking a parameter}
+	$F(x,u)=\sum f_{n,k}x^nu^k$, $f_{n,k}$ = objects of size $n$ whose marked parameter is $k$. $u$ is a second array index; products are 2D convolutions.
+	\begin{center}\small\renewcommand{\arraystretch}{1.3}
+	\begin{tabular}{@{}L{3.1cm}@{\ \ }L{5.55cm}@{}}
+	want & take \\ \hline
+	all objects & $F(x,1)$ \\
+	parameter exactly $k$ & $[u^k]F$; e.g.\ $[u^k]\frac1{1-uA}=A^k$, $[u^k]e^{u\hat A}=\hat A^k/k!$ \\
+	total of the parameter over size $n$ & $[x^n]\,\partial_uF|_{u=1}$ (EGF: $n![x^n]$); mean: $[x^n]\,\partial_uF|_{u=1}\big/[x^n]F(x,1)$ (OGF or EGF) \\
+	\#even $k$ $-$ \#odd $k$ & $F(x,-1)$ \\
+	only $k\equiv r\pmod m$ & $\frac1m\sum_{j<m}\omega^{-jr}F(x,\omega^j)$, where $\omega^m=1$ and $\omega^j\ne1$ for $0<j<m$, so $\frac1m\sum_{j<m}\omega^{j(k-r)}=[k\equiv r]$ \\
+	no marked feature & $F(x,0)$ \\
+	\end{tabular}
+	\end{center}
+	Mod $p$ such an $\omega$ may not exist: mod $998244353$, $\omega=3^{(p-1)/m}$ ($3$ generates $\mathbb Z_p^*$) needs $m\mid p-1$. Instead keep the $u$-dimension mod $u^m-1$ (index $k\bmod m$, cyclic products): a DP with an extra ``$k\bmod m$'' state. ``$k\le K$'': truncate mod $u^{K+1}$. The cost is a factor $m$ (or $K$) when each step shifts $k$ by a fixed amount; multiplying two general series in $u$ costs $m^2$ ($K^2$).
+
+	\textbf{Inclusion--exclusion by substitution.} If you can count (object, chosen subset of its bad features) with $t$ marking chosen features, as $G(x,t)$, then an object with exactly $k$ bad features contributes $(1+t)^k$, so $G(x,t)=F(x,1+t)$:
+	\[F(x,u)=G(x,u-1),\qquad\text{no bad feature: }F(x,0)=G(x,-1).\]
+	Several size variables: $[x^ay^b]\frac1{1-x-y}=\binom{a+b}a$ (lattice paths). Diagonals $[x^ny^n]$ are hard in general.
+
+\section{Exponential generating functions}
+	\subsection{Labelled product}
+	EGF $\hat A(x)=\sum a_n\frac{x^n}{n!}$; the count is $a_n=n![x^n]\hat A$. A labelled product $\mathcal A\star\mathcal B$ on labels $1..n$ chooses which $k$ labels go to the $\mathcal A$ part ($\binom nk$ ways), then relabels each part $1,2,\dots$ keeping their order:
+	\[c_n=\sum_k\binom nka_kb_{n-k}\iff\frac{c_n}{n!}=\sum_k\frac{a_k}{k!}\frac{b_{n-k}}{(n-k)!}\iff\hat C=\hat A\hat B.\]
+
+	\subsection{Labelled constructions}
+	\begin{center}\small\renewcommand{\arraystretch}{1.3}
+	\begin{tabular}{@{}l@{\ \ }l@{\ \ }l@{\ \ }l@{}}
+	construction & meaning & EGF & condition \\ \hline
+	$\mathcal A+\mathcal B$ & either & $\hat A+\hat B$ & \\
+	$\mathcal A\star\mathcal B$ & labelled pair & $\hat A\hat B$ & \\
+	$\textsc{Seq}(\mathcal A)$ & sequence & $\frac1{1-\hat A}$ & $a_0=0$ \\
+	$\textsc{Set}(\mathcal A)$ & set (unordered) & $\exp\hat A$ & $a_0=0$ \\
+	$\textsc{Set}_k(\mathcal A)$ & set of $k$ & $\hat A^k/k!$ & $a_0=0$ \\
+	$\textsc{Cyc}(\mathcal A)$ & cycle (rotations equal) & $\ln\frac1{1-\hat A}$ & $a_0=0$ \\
+	$\textsc{Cyc}_k(\mathcal A)$ & cycle of $k$ & $\hat A^k/k$ & $a_0=0$ \\
+	\end{tabular}
+	\end{center}
+	Why $/k!$: $\hat A^k$ counts ordered $k$-tuples of components with the labels split among them; disjoint \emph{nonempty} label sets make the components distinct, so each set appears in exactly $k!$ orders. Labels remove all symmetry, hence the clean $\exp$ (unlabelled \textsc{MSet} needed the product).
+
+	\subsection{Standard labelled examples}
+	\begin{center}\small\renewcommand{\arraystretch}{1.3}
+	\begin{tabular}{@{}L{3.1cm}@{\ \ }l@{\ \ }l@{}}
+	objects & EGF & count \\ \hline
+	permutations & $\exp\ln\frac1{1-x}=\frac1{1-x}$ & $n!$ \\
+	cycles ($k$-cycle: $(k-1)!$) & $\ln\frac1{1-x}$ & $(n-1)!$ ($n\ge1$) \\
+	perms, cycle lengths in $S$ & $\exp\sum_{k\in S}\frac{x^k}k$ & \\
+	involutions & $\exp(x+x^2/2)$ & $1,1,2,4,10,26,76$ \\
+	derangements & $\frac{e^{-x}}{1-x}$ & $n!\sum_{j\le n}\frac{(-1)^j}{j!}$ \\
+	set partitions & $\exp(e^x-1)$ & Bell $B_n$ \\
+	\ldots{} block sizes in $S$ & $\exp\sum_{k\in S}\frac{x^k}{k!}$ & \\
+	\ldots{} into $k$ blocks & $(e^x-1)^k/k!$ & $S(n,k)$ (Stirling 2nd) \\
+	ordered set partitions & $\frac1{2-e^x}$ & $1,1,3,13,75$ \\
+	surjections $1..n\to1..k$ & $(e^x-1)^k$ & $k!\,S(n,k)$ \\
+	rooted labelled trees & $T=xe^T$ & $n^{n-1}$ ($n\ge1$) \\
+	graphs & $G=\sum2^{\binom n2}\frac{x^n}{n!}$ & $2^{\binom n2}$ \\
+	connected graphs & $\ln G$ & $0,1,1,4,38,728$ \\
+	\end{tabular}
+	\end{center}
+	Sequences of numbers start at $n=0$. Derangements: permutation $=$ \textsc{Set}(fixed points) $\star$ derangement, so $\frac1{1-x}=e^xD$. With $u$ marking fixed points: $\frac{e^{(u-1)x}}{1-x}$ (the $u\to u-1$ trick); $u=0$ gives $D$.
+	Mixed (EGF in labels, OGF in a weight): $u$ marking cycles gives $(1-x)^{-u}$, and $n![x^n](1-x)^{-u}=u(u+1)\cdots(u+n-1)=\sum_kc(n,k)u^k$, $c(n,k)$ = number of permutations of $1..n$ with $k$ cycles (unsigned Stirling, first kind).
+
+	\subsection{Strings are labelled}
+	Positions are the labels. Strings of length $n$ where letter $i$ occurs a number of times in $S_i$:
+	\[n!\,[x^n]\prod_i\Big(\sum_{k\in S_i}\frac{x^k}{k!}\Big)\quad\Big(=\sum\tfrac{n!}{k_1!\cdots k_m!}\text{ over allowed counts}\Big).\]
+	E.g.\ over $\{a,b,c\}$ with an even number of $a$: $n![x^n]\cosh(x)e^{2x}=\frac{3^n+1}2$ ($\cosh$ = the $u=\pm1$ parity filter on $e^x$). The OGF $\prod_i\sum_{k\in S_i}x^k$ instead counts the allowed count vectors (multisets of letters), not strings.
+
+	\subsection{exp/log in $O(n^2)$}
+	If $\hat F=\exp\hat A$, split by the component containing label $1$ ($k-1$ other labels join it):
+	\[f_0=1,\qquad f_n=\sum_{k=1}^n\binom{n-1}{k-1}a_kf_{n-k};\]
+	log solves the same equation for $a_n$, e.g.\ connected graphs $c_n=g_n-\sum_{k=1}^{n-1}\binom{n-1}{k-1}c_kg_{n-k}$. No division: any modulus $\le3\cdot10^9$, prime or not, even $n\ge p$ (\texttt{labelledExp}, \texttt{labelledLog}). Pitfall: $\sum_k\binom nkc_kg_{n-k}$ counts each graph once per component.
+	OGF analogue (divides by $n$: prime $p>n$): $F=e^A\iff f_0=1,\ nf_n=\sum_{k=1}^nka_kf_{n-k}$ (\texttt{expSlow}).
+	$n![x^n]$ needs $n<p$; for small $p$, stay with counts and binomial recurrences (Pascal, Lucas).
+
+\section{Lagrange inversion}
+	If $F=x\,\varphi(F)$ (so $F(0)=0$) with $\varphi(0)\ne0$, then for $n\ge1$ (mod $p$: $n<p$):
+	\[[x^n]F^k=\frac kn[t^{n-k}]\varphi(t)^n,\qquad[x^n]H(F)=\frac1n[t^{n-1}]H'(t)\varphi(t)^n.\]
+	Get $\varphi^n$ with \texttt{polyPow} or \texttt{powSlow} ($O(n\deg\varphi)$).
+	\begin{itemize}[nosep,leftmargin=*]
+	\item Binary trees: $F=B-1=x(1+F)^2$, $[x^n]F=\frac1n\binom{2n}{n-1}=C_n$.
+	\item Plane trees: $T=\frac{x}{1-T}$, $[x^n]T=\frac1n\binom{2n-2}{n-1}=C_{n-1}$.
+	\item Ternary trees: $F=x(1+F)^3$, $[x^n]F=\frac1n\binom{3n}{n-1}=\frac{1}{2n+1}\binom{3n}n$.
+	\item Rooted labelled trees: $T=xe^T$, $[x^n]T=\frac{n^{n-1}}{n!}$, so $n^{n-1}$ trees.
+	\end{itemize}
+
+\section{Pitfalls}
+	\begin{itemize}[nosep,leftmargin=*]
+	\item Closed forms can fail for $n\le\deg P-\deg Q$: check small $n$ against brute force.
+	\item Size-$0$ parts: \textsc{Seq}/\textsc{MSet}/\textsc{Cyc} counts are infinite; \textsc{PSet} and labelled \textsc{Set} get a factor $2^{a_0}$ that the formulas drop. Every formula assumes $a_0=0$, but the algebra may still return a number.
+	\item Overcount: the decomposition must be unique (split at the first occurrence).
+	\item Ordered vs unordered (\textsc{Seq} vs \textsc{MSet}); unlabelled vs labelled (OGF vs EGF).
+	\item Square-root branch: the one that is a power series (no negative powers of $x$).
+	\item Truncation margin for $\div x^k$ and derivatives.
+	\item Recurrence range: if $\deg P\ge\deg Q$, seed $\deg P+1$ terms; \texttt{berlekampMassey} needs $2L$ terms and a check.
+	\item Mod $p$: NTT code needs $998244353$; $1/k!$ needs $k<p$; $\frac12$ needs odd $p$; partial fractions with irrational roots need roots in $\mathbb Z_p$ (avoid).
+	\end{itemize}
+
+\section{Extras}
+	Beyond the lessons; every formula here was checked numerically against brute force.
+
+	\subsection{Recurrences}
+	\textbf{Transfer matrix.} A DP $v_{n+1}=Mv_n$ with $s$ states and fixed transitions (tilings of a $k\times n$ board, strings fed through a KMP/Aho--Corasick automaton) has answers $\ell^\top M^nv$ with GF $\frac{\text{poly of degree}<s}{\det(I-xM)}$, so order $\le s$. Brute-force $2s$ terms ($2(s+r)$ if the first $r$ answers are special cases) and run \texttt{berlekampMassey}. E.g.\ $3\times n$ dominoes: $8$ states, order $4$.
+
+	\textbf{EGF rules for polynomial coefficients.}
+	\begin{center}\small\renewcommand{\arraystretch}{1.3}
+	\begin{tabular}{@{}l@{\ \ }l@{\qquad}l@{\ \ }l@{}}
+	sequence & EGF & sequence & EGF \\ \hline
+	$c_n=a_{n+1}$ & $\hat A'$ & $c_n=na_n$ & $x\hat A'$ \\
+	$c_n=na_{n-1}$ & $x\hat A$ & $c_n=\sum_k\binom nka_k$ & $e^x\hat A$ \\
+	\end{tabular}
+	\end{center}
+	Polynomial coefficients become a differential equation: $a_{n+1}=\sum_k\binom nka_kb_{n-k}\iff\hat A'=\hat A\hat B\iff\hat A=a_0\exp\int\hat B$ (Bell: $b_n=1$, $\exp(e^x-1)$); $D_n=nD_{n-1}+(-1)^n\iff\hat D=x\hat D+e^{-x}$.
+
+	\subsection{Unlabelled counting}
+	\textbf{Avoiding a word.} $w$ of length $k$ over $m$ letters; autocorrelation $c(x)=\sum_{j<k}c_jx^j$, $c_j=1$ iff $w$ matches itself shifted by $j$ ($c_0=1$; $w=11$: $1+x$). Strings without $w$: $\frac{c(x)}{x^k+(1-mx)c(x)}$. Expected number of uniform random letters until $w$ first appears: $m^kc(1/m)=\sum_bm^{|b|}$ over the borders $b$ of $w$ (prefixes that are also suffixes, $b=w$ included; $HH$: $6$, $HT$: $4$, $HTH$: $10$). Several words: automaton and transfer matrix.
+
+	\textbf{Runs.} Words in which every maximal run of letter $i$ has length in $L_i$: $\big(1-\sum_i\frac{R_i}{1+R_i}\big)^{-1}$, $R_i=\sum_{\ell\in L_i}x^\ell$ (words with no two equal neighbours have GF $\big(1-\sum_i\frac{y_i}{1+y_i}\big)^{-1}$ with $y_i$ marking letter $i$; replace each letter by a run). $m$ letters, all runs $<k$: $\frac{1-x^k}{1-mx+(m-1)x^k}$.
+
+	\textbf{Irreducible pieces} (invert the construction). \textsc{Seq}: $I=1-\frac1A$ (indecomposable permutations, no proper prefix is a permutation of $1..j$: $A=\sum n!x^n$ gives $1,1,3,13,71,461$ for $n\ge1$); \textsc{MSet}: $I=\sum_{k\ge1}\frac{\mu(k)}k\ln A(x^k)$ ($\mu$: M\"obius); labelled \textsc{Set}: $\ln\hat A$.
+
+	\textbf{Exactly $k$ distinct parts}: $x^{\binom{k+1}2}\prod_{i=1}^k\frac1{1-x^i}$; $k$-subsets of $1..N$ by sum: $x^{\binom{k+1}2}\prod_{i=1}^k\frac{1-x^{N-k+i}}{1-x^i}$. Subtracting $k-1,\dots,1,0$ from the sorted parts shows $k\le\sqrt{2n}$, and $q_k(n)=q_k(n-k)+q_{k-1}(n-k)$ (smallest part $\ge2$, or $=1$ and removed) is an $O(n\sqrt n)$ DP.
+
+	\textbf{Inversions.} Permutations of $1..n$ by number of inversions: $\prod_{i=1}^n\frac{1-x^i}{1-x}$ (the $i$-th entry has $0..i-1$ larger entries before it); multiply factor by factor with a prefix sum, $O(nk)$. For $k\le n$: $[x^k]=\sum_j(-1)^j\binom{n-1+k-g_j}{n-1}$ over $g_j=\frac{j(3j-1)}2\le k$, $j\in\mathbb Z$.
+
+	\textbf{Unlabelled rooted trees} $T=x\,\textsc{MSet}(T)=x\exp\sum_{k\ge1}\frac{T(x^k)}k$: $1,1,2,4,9,20,48,115$ ($n\ge1$); $(n-1)t_n=\sum_{k=1}^{n-1}\big(\sum_{d\mid k}d\,t_d\big)t_{n-k}$, $O(n^2)$. Unrooted (Otter): $T-\frac12\big(T^2-T(x^2)\big)$: $1,1,1,2,3,6,11,23$ ($n\ge1$).
+
+	\myneedspace{10\baselineskip}
+	\subsection{Labelled counting}
+	\begin{center}\small\renewcommand{\arraystretch}{1.3}
+	\begin{tabular}{@{}L{3.3cm}@{\ \ }l@{\ \ }l@{}}
+	objects & EGF & count \\ \hline
+	rooted labelled trees & $T=xe^T$ & $n^{n-1}$ ($n\ge1$) \\
+	forests of rooted trees & $e^T$ & $(n+1)^{n-1}$ \\
+	unrooted trees & $U=T-T^2/2$ & $n^{n-2}$ ($n\ge1$) \\
+	forests (acyclic graphs) & $e^U$ & $1,1,2,7,38,291$ \\
+	maps $1..n\to1..n$ & $\frac1{1-T}$ & $n^n$ \\
+	connected maps & $\ln\frac1{1-T}$ & $0,1,3,17,142,1569$ \\
+	\end{tabular}
+	\end{center}
+	Maps $=\textsc{Set}(\textsc{Cyc}(T))$; cycle lengths in $S$: $\exp\sum_{k\in S}T^k/k$; connected with cycle length $k$: $n![x^n]\frac{T^k}k=\frac{(n-1)!\,n^{n-k}}{(n-k)!}$ (Lagrange).
+
+	\textbf{Vertex subsets} ($n\le17$). Same split at $\min S$: $c(S)=g(S)-\sum_{\min S\in X\subsetneq S}c(X)\,g(S\setminus X)$ in $O(3^n)$; $g(S)=2^{e(S)}$ ($e(S)$ = edges inside $S$) gives the connected spanning subgraphs of the induced graph on $S$. Bipartite: a connected bipartite graph has exactly $2$ colourings, so connected bipartite $=\frac12\ln\hat B$ and all bipartite $=\sqrt{\hat B}$, where $b_n=\sum_k\binom nk2^{k(n-k)}$ counts 2-coloured graphs (on subsets: $h(S)=\sum_{X\subseteq S}2^{e(X,S\setminus X)}$, edges between $X$ and $S\setminus X$, then halve $c$).
+
+	\subsection{Sums and moments}
+	\textbf{Power sums, all $k$ at once.} $s_k=\sum_{i=1}^na_i^k$: $\sum_ks_kx^k=\sum_i\frac1{1-a_ix}=n-\frac{xQ'}{Q}$, $Q=\prod_i(1-a_ix)$ (divide-and-conquer product, then \texttt{polyInv}); back: $\prod_i(1+a_ix)=\exp\sum_{k\ge1}\frac{(-1)^{k-1}s_k}kx^k$. Range: $\sum_{i=0}^{N-1}i^k=k![x^k]\frac{e^{Nx}-1}{e^x-1}$ (cancel the common $x$ before \texttt{polyInv}).
+
+	\textbf{Moments.} $\mathbb E[X^k]=k![t^k]\sum_x\Pr[X=x]\,e^{xt}$, and independent summands multiply these series: $\mathrm{Bin}(n,q)$ has $\mathbb E[X^k]=k![t^k](1-q+qe^t)^n$ (\texttt{polyPow}, $n$ may be huge); counting version $\sum_{X\subseteq\{1..n\}}|X|^k=k![t^k](1+e^t)^n$. PGF $P(x)=\mathbb E[x^X]$: $\mathbb E\binom Xj=[t^j]P(1+t)$, so $\mathbb E X=P'(1)$, $\operatorname{Var}X=P''(1)+P'(1)-P'(1)^2$. Same for a marked parameter: $\sum_{\text{size }n}\binom kj=[x^nt^j]F(x,1+t)$. Stopping time $\tau\ge0$: $\mathbb E\tau=\sum_{n\ge0}\Pr[\tau>n]$.
+
+\section{Code}
+	\kactlimport{PowerSeries.h}
+	\kactlimport{PowerSeriesSlow.h}
+	\kactlimport{EulerTransform.h}
+	\kactlimport{PartitionNumbers.h}
+	\kactlimport{LabelledExp.h}

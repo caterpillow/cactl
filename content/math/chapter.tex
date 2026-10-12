@@ -80,10 +80,30 @@ z = r\cos\theta & \phi = \textrm{atan2}(y,x)
 \section{Derivatives/Integrals}
 \begin{align*}
 	\dfrac{d}{dx}\arcsin x = \dfrac{1}{\sqrt{1-x^2}} &&& \dfrac{d}{dx}\arccos x = -\dfrac{1}{\sqrt{1-x^2}} \\
-	\dfrac{d}{dx}\tan x = 1+\tan^2 x &&& \dfrac{d}{dx}\arctan x = \dfrac{1}{1+x^2} \\
-	\int\tan ax = -\dfrac{\ln|\cos ax|}{a} &&& \int x\sin ax = \dfrac{\sin ax-ax \cos ax}{a^2} \\
+	\dfrac{d}{dx}\tan x = 1+\tan^2 x &&& \dfrac{d}{dx}\arctan x = \dfrac{1}{1+x^2}
+\end{align*}
+Constants omitted; for $f(ax)$ divide the result by $a$.
+\begin{align*}
+	\int\sin x = -\cos x &&& \int\cos x = \sin x \\
+	\int\tan x = -\ln|\cos x| &&& \int\cot x = \ln|\sin x| \\
+	\int\sec x = \ln|\sec x+\tan x| &&& \int\csc x = \ln|\tan\tfrac x2| \\
+	\int\sin^2 x = \tfrac x2-\tfrac{\sin 2x}4 &&& \int\cos^2 x = \tfrac x2+\tfrac{\sin 2x}4 \\
+	\int\tan^2 x = \tan x-x &&& \int\cot^2 x = -\cot x-x \\
+	\int\sec^2 x = \tan x &&& \int\csc^2 x = -\cot x \\
+	\int\sin^3 x = \tfrac{\cos^3 x}3-\cos x &&& \int\cos^3 x = \sin x-\tfrac{\sin^3 x}3 \\
+	\int x\sin ax = \dfrac{\sin ax-ax \cos ax}{a^2} &&& \int x\cos ax = \dfrac{\cos ax+ax\sin ax}{a^2} \\
 	\int e^{-x^2} = \frac{\sqrt \pi}{2} \text{erf}(x) &&& \int xe^{ax}dx = \frac{e^{ax}}{a^2}(ax-1)
 \end{align*}
+Reduction formulas ($n\ge2$):
+\begin{align*}
+	\int\sin^n x &= -\frac{\sin^{n-1}x\cos x}{n}+\frac{n-1}{n}\int\sin^{n-2}x \\
+	\int\cos^n x &= \frac{\cos^{n-1}x\sin x}{n}+\frac{n-1}{n}\int\cos^{n-2}x \\
+	\int\tan^n x &= \frac{\tan^{n-1}x}{n-1}-\int\tan^{n-2}x \\
+	\int\sec^n x &= \frac{\sec^{n-2}x\tan x}{n-1}+\frac{n-2}{n-1}\int\sec^{n-2}x
+\end{align*}
+$\int_0^{\pi/2}\sin^n x = \int_0^{\pi/2}\cos^n x = \frac{(n-1)!!}{n!!}$, times $\frac\pi2$ if $n$ is even.
+$\int\sin^m x\cos^n x$: $m$ odd: $u=\cos x$; $n$ odd: $u=\sin x$; both even: use $\sin^2 x=\frac{1-\cos 2x}2$, $\cos^2 x=\frac{1+\cos 2x}2$.
+Rational in $\sin,\cos$: $t=\tan\frac x2$, $\sin x=\frac{2t}{1+t^2}$, $\cos x=\frac{1-t^2}{1+t^2}$, $dx=\frac{2\,dt}{1+t^2}$.
 
 Integration by parts:
 \[\int_a^bf(x)g(x)dx = [F(x)g(x)]_a^b-\int_a^bF(x)g'(x)dx\]

@@ -9,6 +9,7 @@ help:
 	@echo "Available commands are:"
 	@echo "	make fast		- to build kactl.pdf quickly (one pdflatex pass)"
 	@echo "	make kactl		- to build kactl.pdf (two passes) and test-session.pdf"
+	@echo "	make gf			- to build generating-functions.pdf (standalone supplement)"
 	@echo "	make clean		- to remove the build/ products and temp files"
 	@echo "	make veryclean		- to clean up and remove kactl.pdf/test-session.pdf"
 	@echo "	make test		- to run all the stress tests in stress-tests/"
@@ -25,7 +26,7 @@ help:
 # from the stale cache.  This stamp drops the cache whenever the lexer changes;
 # the colour palette in content/tex/kactlhl.sty is applied in LaTeX and needs
 # no purge at all.
-MINTEDCACHE = build/_minted-kactl build/_minted-test-session
+MINTEDCACHE = build/_minted-kactl build/_minted-test-session build/_minted-generating-functions
 
 build/lexer.stamp: content/tex/kactl_pygments.py | build
 	rm -rf $(MINTEDCACHE)
@@ -39,14 +40,19 @@ kactl: test-session.pdf build/lexer.stamp | build
 	$(LATEXCMD) content/kactl.tex && $(LATEXCMD) content/kactl.tex
 	cp build/kactl.pdf kactl.pdf
 
+# Standalone generating-functions supplement (content/generating-functions/).
+gf: build/lexer.stamp | build
+	$(LATEXCMD) content/generating-functions/generating-functions.tex && $(LATEXCMD) content/generating-functions/generating-functions.tex
+	cp build/generating-functions.pdf generating-functions.pdf
+
 clean:
-	rm -f build/kactl.* build/test-session.* build/*.tmp build/lexer.stamp header.tmp
+	rm -f build/kactl.* build/test-session.* build/generating-functions.* build/*.tmp build/lexer.stamp header.tmp
 	rm -rf $(MINTEDCACHE)
 
 veryclean: clean
 	rm -f kactl.pdf test-session.pdf
 
-.PHONY: help fast kactl clean veryclean test test-compiles showexcluded widelines
+.PHONY: help fast kactl gf clean veryclean test test-compiles showexcluded widelines
 
 build:
 	mkdir -p build/
